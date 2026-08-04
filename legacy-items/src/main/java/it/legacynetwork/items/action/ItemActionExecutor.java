@@ -1,6 +1,5 @@
 package it.legacynetwork.items.action;
 
-import it.legacynetwork.items.api.MenuService;
 import it.legacynetwork.items.definition.CustomItemAction;
 import it.legacynetwork.items.definition.CustomItemActionType;
 import it.legacynetwork.items.language.PlayerLanguageAccessor;
@@ -9,10 +8,12 @@ import it.legacynetwork.items.placeholder.ItemPlaceholderService;
 import it.legacynetwork.items.util.LegacyColorTranslator;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.lang.reflect.Method;
 import java.util.List;
 
 public final class ItemActionExecutor {
@@ -23,9 +24,9 @@ public final class ItemActionExecutor {
     private boolean menuWarningLogged;
 
     public ItemActionExecutor(JavaPlugin plugin,
-                               ItemPlaceholderService placeholderService,
-                               PlayerLanguageAccessor languageAccessor,
-                               MessageService messageService) {
+                              ItemPlaceholderService placeholderService,
+                              PlayerLanguageAccessor languageAccessor,
+                              MessageService messageService) {
         this.plugin = plugin;
         this.placeholderService = placeholderService;
         this.languageAccessor = languageAccessor;
@@ -46,16 +47,7 @@ public final class ItemActionExecutor {
         switch (type) {
             case OPEN_MENU: {
                 String menuId = resolve(player, action.getValue());
-                MenuService menuService = Bukkit.getServicesManager()
-                        .load(MenuService.class);
-                if (menuService != null) {
-                    menuService.openMenu(player, menuId);
-                } else {
-                    if (!menuWarningLogged) {
-                        menuWarningLogged = true;
-                        plugin.getLogger().warning(
-                                "LegacyMenus non trovato. OPEN_MENU non disponibile.");
-                    }
+                if (!openLegacyMenu(player, menuId)) {
                     sendMessage(player, "menu-unavailable");
                 }
                 break;
@@ -86,6 +78,38 @@ public final class ItemActionExecutor {
             }
             default:
                 break;
+        }
+    }
+
+    /**
+     * Opens a menu through LegacyMenu's public plugin API without dispatching a
+     * command and without sharing duplicated API classes across plugin
+     * classloaders. LegacyMenu exposes public boolean openMenu(Player, String).
+     */
+    private boolean openLegacyMenu(Player player, String menuId) {
+        Plugin menuPlugin = Bukkit.getPluginManager().getPlugin("LegacyMenu");
+        if (menuPlugin == null || !menuPlugin.isEnabled()) {
+            logMenuWarningOnce("LegacyMenu non trovato o disabilitato. OPEN_MENU non disponibile.");
+            return false;
+        }
+
+        try {
+            Method openMenu = menuPlugin.getClass().getMethod(
+                    "openMenu", Player.class, String.class);
+            Object result = openMenu.invoke(menuPlugin, player, menuId);
+            return !(result instanceof Boolean) || ((Boolean) result);
+        } catch (ReflectiveOperationException | LinkageError exception) {
+            logMenuWarningOnce("API LegacyMenu incompatibile: "
+                    + exception.getClass().getSimpleName() + ": "
+                    + exception.getMessage());
+            return false;
+        }
+    }
+
+    private void logMenuWarningOnce(String message) {
+        if (!menuWarningLogged) {
+            menuWarningLogged = true;
+            plugin.getLogger().warning(message);
         }
     }
 
