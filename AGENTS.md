@@ -1,0 +1,9 @@
+- Eseguire sempre test e build dopo ogni modifica.
+- Conservare Java 8 per common e lobby.
+- Conservare Java 21 per Velocity.
+- Usare API Bukkit/Spigot senza NMS.
+- Mantenere le traduzioni fuori dal codice Java.
+- Usare constructor injection.
+- Tenere le main class piccole.
+- Conservare la compatibilità 1.7.10–1.8.9.
+- Mostrare sempre i file modificati al termine.

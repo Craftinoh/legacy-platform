@@ -1,0 +1,14 @@
+server:
+  id: "lobby-01"
+
+language:
+  default: "en"
+  channel: "NetworkLang"
+
+scoreboard:
+  enabled: true
+  update-ticks: 60
+  website: "example.net"
+
+messages:
+  welcome-enabled: true
