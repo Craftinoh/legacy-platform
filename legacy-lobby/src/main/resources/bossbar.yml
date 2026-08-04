@@ -1,19 +1,24 @@
 enabled: true
 
+# Frequenza di aggiornamento del testo e del progresso.
 update:
   ticks: 10
 
+# Rotazione automatica tra le bossbar abilitate.
 rotation:
-  enabled: false
+  enabled: true
   mode: "SEQUENTIAL"
-  interval-ticks: 100
+  interval-ticks: 120
 
+# Permette anche i placeholder di PlaceholderAPI quando il plugin è installato.
+# Placeholder interni sempre disponibili:
+# {player}, {server}, {online}, {language}, {language_code}
 placeholderapi:
   enabled: true
 
 debug:
-  lifecycle: true
-  packets: true
+  lifecycle: false
+  packets: false
 
 compatibility:
   legacy-wither:
@@ -22,18 +27,66 @@ compatibility:
     reposition-ticks: 20
 
 bars:
-  test:
+  welcome:
     enabled: true
     priority: 1
-    display-ticks: 400
+    display-ticks: 120
 
     languages:
       it:
-        text: "&cBossbar di prova"
+        text: "&6&lAPTERIS &8» &fBenvenuto, &e{player}&f!"
       en:
-        text: "&cTest bossbar"
+        text: "&6&lAPTERIS &8» &fWelcome, &e{player}&f!"
 
     progress:
       type: "STATIC"
       value: 1.0
       fallback: 1.0
+
+  network:
+    enabled: true
+    priority: 2
+    display-ticks: 120
+
+    languages:
+      it:
+        text: "&b&lNETWORK &8» &fGiocatori online: &a{online}"
+      en:
+        text: "&b&lNETWORK &8» &fPlayers online: &a{online}"
+
+    progress:
+      type: "STATIC"
+      value: 0.85
+      fallback: 0.85
+
+  server:
+    enabled: true
+    priority: 3
+    display-ticks: 120
+
+    languages:
+      it:
+        text: "&d&lAPTERIS &8» &fStai giocando su &d{server}"
+      en:
+        text: "&d&lAPTERIS &8» &fYou are playing on &d{server}"
+
+    progress:
+      type: "STATIC"
+      value: 0.70
+      fallback: 0.70
+
+  community:
+    enabled: true
+    priority: 4
+    display-ticks: 120
+
+    languages:
+      it:
+        text: "&e&lCOMMUNITY &8» &fDivertiti e rispetta gli altri giocatori!"
+      en:
+        text: "&e&lCOMMUNITY &8» &fHave fun and respect the other players!"
+
+    progress:
+      type: "STATIC"
+      value: 0.55
+      fallback: 0.55
