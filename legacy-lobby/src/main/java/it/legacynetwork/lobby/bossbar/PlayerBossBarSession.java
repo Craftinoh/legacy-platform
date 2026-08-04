@@ -77,18 +77,19 @@ public final class PlayerBossBarSession {
     public void updateDisplay(String text, double progress) {
         if (!spawned) {
             spawn(text, progress);
-        } else {
-            if (!text.equals(lastText) || progress != lastProgress) {
-                adapter.updateTextAndProgress(player, entityId, text, progress);
-            }
+        } else if (!text.equals(lastText) || progress != lastProgress) {
+            adapter.updateTextAndProgress(player, entityId, text, progress);
         }
-        lastText = text;
-        lastProgress = progress;
+        if (spawned) {
+            lastText = text;
+            lastProgress = progress;
+        }
     }
 
     private void spawn(String text, double progress) {
-        adapter.spawnWither(player, entityId, text, progress);
-        spawned = true;
+        int spawnedEntityId = adapter.spawnWither(
+                player, entityId, text, progress);
+        spawned = spawnedEntityId >= 0;
     }
 
     public void destroy() {
