@@ -40,6 +40,13 @@ public final class LegacyMenuPlugin extends JavaPlugin implements MenuService {
                 .load(PlayerLanguageProvider.class);
     }
 
+    private PlayerLanguageProvider resolveLanguageProvider() {
+        if (languageProvider == null) {
+            loadLanguageProvider();
+        }
+        return languageProvider;
+    }
+
     void loadMenus() {
         File menuDir = new File(getDataFolder(), "menus");
         if (!menuDir.exists()) {
@@ -64,15 +71,23 @@ public final class LegacyMenuPlugin extends JavaPlugin implements MenuService {
 
     public void reload() {
         reloadConfig();
+        languageProvider = null;
         loadLanguageProvider();
         loadMenus();
     }
 
     public String getLanguage(Player player) {
-        if (languageProvider != null) {
-            return languageProvider.getLanguage(player.getUniqueId()).getCode();
+        String fallback = getFallbackLanguage();
+        PlayerLanguageProvider provider = resolveLanguageProvider();
+        if (provider == null) {
+            return fallback;
         }
-        return "en";
+        Language language = provider.getLanguage(player.getUniqueId());
+        if (language == null || language.getCode() == null
+                || language.getCode().trim().isEmpty()) {
+            return fallback;
+        }
+        return language.getCode();
     }
 
     public String getFallbackLanguage() {
@@ -100,8 +115,10 @@ public final class LegacyMenuPlugin extends JavaPlugin implements MenuService {
             return false;
         }
         String lang = getLanguage(player);
-        if (lang == null) {
-            lang = getFallbackLanguage();
+        if (isDebug()) {
+            getLogger().info("LegacyMenu player=" + player.getName()
+                    + " providerAvailable=" + (languageProvider != null)
+                    + " language=" + lang);
         }
         menu.open(player, lang);
         return true;
@@ -109,5 +126,6 @@ public final class LegacyMenuPlugin extends JavaPlugin implements MenuService {
 
     @Override
     public void onDisable() {
+        languageProvider = null;
     }
 }
