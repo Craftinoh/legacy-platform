@@ -1,7 +1,7 @@
 package it.legacynetwork.lobby.scoreboard;
 
 import it.legacynetwork.language.Language;
-import it.legacynetwork.lobby.config.LobbyConfiguration;
+import it.legacynetwork.lobby.config.ScoreboardConfiguration;
 import it.legacynetwork.lobby.language.BackendLanguageService;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -15,48 +15,46 @@ import java.util.UUID;
 
 public final class LobbyScoreboardService implements AutoCloseable {
     private final JavaPlugin plugin;
-    private final LobbyConfiguration configuration;
     private final BackendLanguageService languageService;
-    private final LobbyScoreboardRenderer renderer;
-    private final Map<UUID, PlayerScoreboard> scoreboards =
-            new HashMap<UUID, PlayerScoreboard>();
+    private final Map<UUID, PlayerScoreboard> scoreboards = new HashMap<>();
+    private LobbyScoreboardRenderer renderer;
+    private ScoreboardConfiguration configuration;
     private BukkitTask updateTask;
 
     public LobbyScoreboardService(JavaPlugin plugin,
-                                  LobbyConfiguration configuration,
                                   BackendLanguageService languageService,
-                                  LobbyScoreboardRenderer renderer) {
+                                  LobbyScoreboardRenderer renderer,
+                                  ScoreboardConfiguration configuration) {
         this.plugin = plugin;
-        this.configuration = configuration;
         this.languageService = languageService;
         this.renderer = renderer;
+        this.configuration = configuration;
     }
 
     public void start() {
         assertMainThread();
-        if (!configuration.isScoreboardEnabled()) {
+        if (!configuration.isEnabled()) {
             return;
+        }
+        if (updateTask != null) {
+            updateTask.cancel();
         }
         updateTask = Bukkit.getScheduler().runTaskTimer(
                 plugin,
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        refreshAll();
-                    }
-                },
-                configuration.getScoreboardUpdateTicks(),
-                configuration.getScoreboardUpdateTicks());
+                this::refreshAll,
+                configuration.getUpdateTicks(),
+                configuration.getUpdateTicks());
     }
 
     public void show(Player player) {
         assertMainThread();
-        if (!configuration.isScoreboardEnabled()) {
+        if (!configuration.isEnabled()) {
             return;
         }
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+        Language language = languageService.get(player.getUniqueId());
         PlayerScoreboard playerScoreboard = new PlayerScoreboard(
-                scoreboard, renderer.title(languageService.get(player.getUniqueId())));
+                scoreboard, renderer.title(player, language));
         scoreboards.put(player.getUniqueId(), playerScoreboard);
         player.setScoreboard(scoreboard);
         refresh(player);
@@ -70,14 +68,30 @@ public final class LobbyScoreboardService implements AutoCloseable {
         }
         Language language = languageService.get(player.getUniqueId());
         scoreboard.update(
-                renderer.title(language),
-                renderer.render(language, Bukkit.getOnlinePlayers().size()));
+                renderer.title(player, language),
+                renderer.render(player, language, Bukkit.getOnlinePlayers().size()));
     }
 
     public void refreshAll() {
         assertMainThread();
         for (Player player : Bukkit.getOnlinePlayers()) {
             refresh(player);
+        }
+    }
+
+    public void reload(LobbyScoreboardRenderer newRenderer,
+                       ScoreboardConfiguration newConfiguration) {
+        assertMainThread();
+        this.renderer = newRenderer;
+        this.configuration = newConfiguration;
+        if (updateTask != null) {
+            updateTask.cancel();
+            updateTask = null;
+        }
+        start();
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            remove(player);
+            show(player);
         }
     }
 

@@ -1,0 +1,15 @@
+name: LegacyMenu
+main: it.legacynetwork.menu.LegacyMenuPlugin
+version: "${version}"
+author: LegacyNetwork
+description: Sistema GUI configurabile per backend legacy
+softdepend:
+  - PlaceholderAPI
+commands:
+  legacymenu:
+    description: Comando amministrativo LegacyMenu
+    usage: /legacymenu open|reload|list
+    aliases: [lmenu, lm]
+permissions:
+  legacymenu.admin:
+    default: op

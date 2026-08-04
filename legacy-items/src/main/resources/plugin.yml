@@ -1,0 +1,34 @@
+name: LegacyItems
+main: it.legacynetwork.items.LegacyItemsPlugin
+version: "${version}"
+author: LegacyNetwork
+description: Sistema custom items riutilizzabile per i backend legacy
+
+softdepend:
+  - PlaceholderAPI
+  - LegacyLobby
+
+commands:
+  legacyitems:
+    description: Comando amministrativo LegacyItems
+    usage: /legacyitems help
+    aliases: [litems, li]
+
+permissions:
+  legacyitems.admin:
+    default: op
+
+  legacyitems.admin.reload:
+    default: op
+
+  legacyitems.admin.give:
+    default: op
+
+  legacyitems.admin.remove:
+    default: op
+
+  legacyitems.admin.list:
+    default: op
+
+  legacyitems.admin.debug:
+    default: op

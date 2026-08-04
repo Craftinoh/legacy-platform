@@ -18,15 +18,28 @@ allprojects {
             name = "spigotmc"
             url = uri("https://hub.spigotmc.org/nexus/content/groups/public/")
         }
+
+        maven {
+            name = "placeholderapi"
+            url = uri("https://repo.helpch.at/releases/")
+        }
+
+        maven {
+            name = "codemc"
+            url = uri("https://repo.codemc.io/repository/maven-releases/")
+        }
     }
 }
 
 tasks.register("buildPlugins") {
     group = "build"
-    description = "Compila, testa e assembla tutti i moduli e i due plugin finali."
+    description = "Compila, testa e assembla tutti i moduli e i plugin finali."
     dependsOn(
         ":language-common:build",
         ":language-velocity:build",
-        ":legacy-lobby:build"
+        ":legacy-lobby:build",
+        ":legacy-items:build",
+        ":legacy-menu:build",
+        ":legacy-combat:build"
     )
 }

@@ -51,6 +51,16 @@ public final class ProxyLanguageService {
                 player.getUniqueId(), state.language(), state.preference());
     }
 
+    public CompletableFuture<PlayerLanguage> setAutomatic(Player player) {
+        Language resolved =
+                localeResolver.resolve(player.getPlayerSettings().getLocale().toString());
+        PlayerLanguage state = new PlayerLanguage(resolved, LanguagePreference.AUTOMATIC);
+        cache.put(player.getUniqueId(), state);
+        return repository.save(
+                        player.getUniqueId(), state.language(), state.preference())
+                .thenApply(ignored -> state);
+    }
+
     public boolean updateAutomaticLocale(Player player) {
         PlayerLanguage current = current(player);
         if (current.preference().overridesClientLocale()) {

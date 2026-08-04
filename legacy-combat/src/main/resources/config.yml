@@ -1,0 +1,23 @@
+enabled: true
+
+hit:
+  enabled: false
+
+  knockback:
+    mode: "VANILLA"
+    horizontal: 0.40
+    vertical: 0.36
+    vertical-limit: 0.40
+    sprint-multiplier: 1.0
+
+fireball:
+  enabled: false
+  speed: 1.2
+  damage: 4.0
+  explosion-power: 2.0
+  block-damage: false
+  fire: false
+  shooter-immunity-ticks: 10
+
+debug:
+  enabled: false

@@ -1,0 +1,39 @@
+enabled: true
+
+update:
+  ticks: 10
+
+rotation:
+  enabled: false
+  mode: "SEQUENTIAL"
+  interval-ticks: 100
+
+placeholderapi:
+  enabled: true
+
+debug:
+  lifecycle: true
+  packets: true
+
+compatibility:
+  legacy-wither:
+    distance: 35.0
+    vertical-offset: 0.0
+    reposition-ticks: 20
+
+bars:
+  test:
+    enabled: true
+    priority: 1
+    display-ticks: 400
+
+    languages:
+      it:
+        text: "&cBossbar di prova"
+      en:
+        text: "&cTest bossbar"
+
+    progress:
+      type: "STATIC"
+      value: 1.0
+      fallback: 1.0

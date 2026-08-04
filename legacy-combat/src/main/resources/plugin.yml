@@ -1,0 +1,13 @@
+name: LegacyCombat
+main: it.legacynetwork.combat.LegacyCombatPlugin
+version: "${version}"
+author: LegacyNetwork
+description: Sistema combattimento PvP per backend legacy
+commands:
+  legacycombat:
+    description: Comando amministrativo LegacyCombat
+    usage: /legacycombat reload
+    aliases: [lcombat]
+permissions:
+  legacycombat.admin:
+    default: op

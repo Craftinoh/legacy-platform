@@ -1,15 +1,14 @@
 package it.legacynetwork.lobby.scoreboard;
 
 import it.legacynetwork.language.Language;
-import it.legacynetwork.language.TranslationBundle;
-import it.legacynetwork.language.TranslationService;
-import it.legacynetwork.lobby.config.LobbyConfiguration;
+import it.legacynetwork.lobby.config.ScoreboardConfiguration;
+import it.legacynetwork.lobby.placeholder.NoopPlaceholderService;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,34 +19,76 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class LobbyScoreboardRendererTest {
     @Test
     void createsUniqueLegacySafeLines() {
-        Map<String, String> translations = new HashMap<String, String>();
-        translations.put("scoreboard.title", "&6&lNETWORK");
-        translations.put("scoreboard.rank", "&fRank: &7{rank}");
-        translations.put("scoreboard.lobby", "&fLobby: &a{server}");
-        translations.put("scoreboard.online", "&fOnline: &a{online}");
-        translations.put("scoreboard.website", "&e{website}");
-        translations.put("rank.default", "Default");
-        Map<Language, TranslationBundle> bundles =
-                new EnumMap<Language, TranslationBundle>(Language.class);
-        bundles.put(Language.ENGLISH, new TranslationBundle(translations));
+        Map<String, ScoreboardConfiguration.LanguageSection> languages = new LinkedHashMap<>();
+        List<String> lines = new ArrayList<>(Arrays.asList(
+                "&7&m----------------",
+                "&fName: &a%player_name%",
+                "&fRank: &r%luckperms_prefix%",
+                "",
+                "&fLobby: &a{server}",
+                "&fOnline: &a{online}",
+                "",
+                "&eplay.apteris.net",
+                "&7&m----------------"
+        ));
+        languages.put("en", new ScoreboardConfiguration.LanguageSection("&6&lAPTERIS", lines));
+        ScoreboardConfiguration config = new ScoreboardConfiguration(
+                true, 20, false, languages);
 
-        LobbyConfiguration configuration = new LobbyConfiguration(
-                "lobby-01", "NetworkLang", true, 60L, "example.net", true);
         LobbyScoreboardRenderer renderer = new LobbyScoreboardRenderer(
-                new TranslationService(bundles), configuration);
-        List<ScoreboardLine> lines = renderer.render(Language.ENGLISH, 42);
-        Set<String> entries = new HashSet<String>();
-        for (ScoreboardLine line : lines) {
+                config, new NoopPlaceholderService(), "lobby-01", "play.apteris.net");
+        List<ScoreboardLine> result = renderer.render(null, Language.ENGLISH, 42);
+        Set<String> entries = new HashSet<>();
+        for (ScoreboardLine line : result) {
             entries.add(line.getEntry());
-            assertTrue(line.getPrefix().length() <= 16);
-            assertTrue(line.getSuffix().length() <= 16);
+            assertTrue(line.getPrefix().length() <= 16,
+                    "Prefix too long: " + line.getPrefix().length());
+            assertTrue(line.getSuffix().length() <= 16,
+                    "Suffix too long: " + line.getSuffix().length());
         }
+        assertEquals(result.size(), entries.size(), "Entries must be unique");
+        assertEquals(9, result.size());
+    }
 
-        assertEquals(lines.size(), entries.size());
-        assertEquals(6, lines.size());
-        assertEquals(new HashSet<String>(Arrays.asList(
-                        "\u00A70", "\u00A71", "\u00A72",
-                        "\u00A73", "\u00A74", "\u00A75")),
-                entries);
+    @Test
+    void fallsBackToEnglishWhenItalianMissing() {
+        Map<String, ScoreboardConfiguration.LanguageSection> languages = new LinkedHashMap<>();
+        languages.put("en", new ScoreboardConfiguration.LanguageSection(
+                "&6&lEN", new ArrayList<>(Arrays.asList("&fLine1", "&fLine2"))));
+        ScoreboardConfiguration config = new ScoreboardConfiguration(
+                true, 20, false, languages);
+        LobbyScoreboardRenderer renderer = new LobbyScoreboardRenderer(
+                config, new NoopPlaceholderService(), "lobby-01", "website");
+        List<ScoreboardLine> result = renderer.render(null, Language.ITALIAN, 0);
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    void handlesEmptyLines() {
+        Map<String, ScoreboardConfiguration.LanguageSection> languages = new LinkedHashMap<>();
+        List<String> lines = new ArrayList<>(Arrays.asList("&fLine1", "", "&fLine3"));
+        languages.put("en", new ScoreboardConfiguration.LanguageSection("&6Title", lines));
+        ScoreboardConfiguration config = new ScoreboardConfiguration(
+                true, 20, false, languages);
+        LobbyScoreboardRenderer renderer = new LobbyScoreboardRenderer(
+                config, new NoopPlaceholderService(), "lobby-01", "web");
+        List<ScoreboardLine> result = renderer.render(null, Language.ENGLISH, 0);
+        assertEquals(3, result.size());
+    }
+
+    @Test
+    void limitsTo15Lines() {
+        Map<String, ScoreboardConfiguration.LanguageSection> languages = new LinkedHashMap<>();
+        List<String> lines = new ArrayList<>();
+        for (int i = 0; i < 20; i++) {
+            lines.add("&fLine " + i);
+        }
+        languages.put("en", new ScoreboardConfiguration.LanguageSection("&6Title", lines));
+        ScoreboardConfiguration config = new ScoreboardConfiguration(
+                true, 20, false, languages);
+        LobbyScoreboardRenderer renderer = new LobbyScoreboardRenderer(
+                config, new NoopPlaceholderService(), "lobby-01", "web");
+        List<ScoreboardLine> result = renderer.render(null, Language.ENGLISH, 0);
+        assertTrue(result.size() <= 15);
     }
 }

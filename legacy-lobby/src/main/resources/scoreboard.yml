@@ -1,0 +1,34 @@
+enabled: true
+
+update:
+  ticks: 20
+
+placeholderapi:
+  enabled: true
+
+languages:
+  it:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fNome: &a%player_name%"
+      - "&fRango: &r%luckperms_prefix%"
+      - ""
+      - "&fLobby: &a{server}"
+      - "&fOnline: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
+  en:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fName: &a%player_name%"
+      - "&fRank: &r%luckperms_prefix%"
+      - ""
+      - "&fLobby: &a{server}"
+      - "&fOnline: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"

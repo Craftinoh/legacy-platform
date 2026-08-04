@@ -1,0 +1,51 @@
+items:
+  server-selector:
+    enabled: true
+
+    material: "COMPASS"
+    data: 0
+    amount: 1
+    slot: 1
+
+    triggers:
+      - "JOIN"
+      - "RESPAWN"
+
+    worlds:
+      mode: "ALL"
+      values: []
+
+    permission:
+      required: false
+      node: "legacyitems.item.server-selector"
+
+    languages:
+      it:
+        name: "&6Selettore Server &7(Click destro)"
+        lore:
+          - "&7Scegli la modalità a cui giocare."
+          - ""
+          - "&eClicca per aprire il menu."
+
+      en:
+        name: "&6Server Selector &7(Right Click)"
+        lore:
+          - "&7Choose the game you want to play."
+          - ""
+          - "&eClick to open the menu."
+
+    flags:
+      prevent-drop: true
+      prevent-move: true
+      prevent-swap: true
+      prevent-damage: true
+      unique: true
+      replace-existing: true
+
+    actions:
+      right-click:
+        cancel-event: true
+        cooldown-milliseconds: 500
+        execute:
+          - type: "OPEN_MENU"
+            value: "server-selector"

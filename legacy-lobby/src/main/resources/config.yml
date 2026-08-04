@@ -2,13 +2,22 @@ server:
   id: "lobby-01"
 
 language:
-  default: "en"
+  fallback: "en"
   channel: "NetworkLang"
 
 scoreboard:
-  enabled: true
-  update-ticks: 60
-  website: "example.net"
+  config-file: "scoreboard.yml"
+
+bossbar:
+  config-file: "bossbar.yml"
 
 messages:
-  welcome-enabled: true
+  italian-file: "messages_it.yml"
+  english-file: "messages_en.yml"
+
+join:
+  selected-slot:
+    enabled: true
+    slot: 1
+    delay-ticks: 2
+    force: true

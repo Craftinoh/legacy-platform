@@ -1,0 +1,21 @@
+enabled: true
+
+server:
+  id: "lobby-01"
+
+language:
+  fallback: "en"
+
+placeholderapi:
+  enabled: true
+
+inventory:
+  give-delay-ticks: 2
+  overwrite-existing-slot: true
+  remove-custom-items-before-give: true
+
+reload:
+  refresh-online-players: true
+
+debug:
+  enabled: false

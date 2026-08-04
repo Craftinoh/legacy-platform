@@ -1,0 +1,67 @@
+id: server-selector
+enabled: true
+size: 27
+
+languages:
+  it:
+    title: "&8Selettore Server"
+  en:
+    title: "&8Server Selector"
+
+items:
+  bedwars:
+    material: BED
+    data: 0
+    amount: 1
+    slot: 12
+    languages:
+      it:
+        name: "&aBedWars"
+        lore:
+          - "&7Clicca per connetterti"
+      en:
+        name: "&aBedWars"
+        lore:
+          - "&7Click to connect"
+    actions:
+      CLICK:
+        - type: CONNECT_SERVER
+          value: bedwars
+
+  kitpvp:
+    material: IRON_SWORD
+    data: 0
+    amount: 1
+    slot: 16
+    languages:
+      it:
+        name: "&eKitPvP"
+        lore:
+          - "&7Clicca per connetterti"
+      en:
+        name: "&eKitPvP"
+        lore:
+          - "&7Click to connect"
+    actions:
+      CLICK:
+        - type: CONNECT_SERVER
+          value: kitpvp
+
+  close:
+    material: BARRIER
+    data: 0
+    amount: 1
+    slot: 23
+    languages:
+      it:
+        name: "&cChiudi"
+        lore:
+          - "&7Clicca per chiudere"
+      en:
+        name: "&cClose"
+        lore:
+          - "&7Click to close"
+    actions:
+      CLICK:
+        - type: CLOSE
+          value: ""

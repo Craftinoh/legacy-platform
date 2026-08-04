@@ -1,0 +1,10 @@
+enabled: true
+
+language:
+  fallback: "en"
+
+placeholderapi:
+  enabled: true
+
+debug:
+  enabled: false

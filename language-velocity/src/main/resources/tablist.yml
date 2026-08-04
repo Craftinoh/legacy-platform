@@ -1,0 +1,44 @@
+enabled: true
+
+send-delay:
+  milliseconds: 250
+
+update:
+  ticks: 40
+
+debug: false
+
+fallback:
+  language: "en"
+  server-name: "proxy"
+
+languages:
+  it:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fBenvenuto, &e{player}"
+      - ""
+
+    footer:
+      - ""
+      - "&fServer: &a{server}"
+      - "&fOnline: &a{online}"
+      - "&fPing: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  en:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fWelcome, &e{player}"
+      - ""
+
+    footer:
+      - ""
+      - "&fServer: &a{server}"
+      - "&fOnline: &a{online}"
+      - "&fPing: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"

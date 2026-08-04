@@ -3,3 +3,16 @@ main: it.legacynetwork.lobby.LegacyLobbyPlugin
 version: "${version}"
 author: LegacyNetwork
 description: Lobby legacy bilingue del network
+softdepend:
+  - PlaceholderAPI
+  - packetevents
+commands:
+  legacylobby:
+    description: Comandi amministrativi LegacyLobby
+    usage: /legacylobby reload|bossbar
+    aliases: [ll, lglobby]
+permissions:
+  legacylobby.admin.reload:
+    default: op
+  legacylobby.admin.bossbar:
+    default: op
