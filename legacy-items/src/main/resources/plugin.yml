@@ -7,6 +7,7 @@ description: Sistema custom items riutilizzabile per i backend legacy
 softdepend:
   - PlaceholderAPI
   - LegacyLobby
+  - LegacyMenu
 
 commands:
   legacyitems:
