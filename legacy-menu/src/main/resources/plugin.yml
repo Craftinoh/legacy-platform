@@ -5,6 +5,7 @@ author: LegacyNetwork
 description: Sistema GUI configurabile per backend legacy
 softdepend:
   - PlaceholderAPI
+  - LegacyLobby
 commands:
   legacymenu:
     description: Comando amministrativo LegacyMenu
