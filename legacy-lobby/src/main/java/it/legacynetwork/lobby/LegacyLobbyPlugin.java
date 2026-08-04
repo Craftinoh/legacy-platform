@@ -7,8 +7,8 @@ import it.legacynetwork.lobby.bossbar.BossBarConfiguration;
 import it.legacynetwork.lobby.bossbar.BossBarTextRenderer;
 import it.legacynetwork.lobby.bossbar.LegacyBossBarService;
 import it.legacynetwork.lobby.bossbar.packet.BossBarPacketAdapter;
+import it.legacynetwork.lobby.bossbar.packet.NmsV1_8R3BossBarPacketAdapter;
 import it.legacynetwork.lobby.bossbar.packet.NoopBossBarPacketAdapter;
-import it.legacynetwork.lobby.bossbar.packet.PacketEventsBossBarAdapter;
 import it.legacynetwork.lobby.command.LegacyLobbyCommand;
 import it.legacynetwork.lobby.config.LobbyConfiguration;
 import it.legacynetwork.lobby.config.ScoreboardConfiguration;
@@ -52,7 +52,7 @@ public final class LegacyLobbyPlugin extends JavaPlugin {
         try {
             configuration = LobbyConfiguration.from(getConfig());
             placeholderService = initPlaceholderAPI();
-            packetAdapter = initPacketEvents();
+            packetAdapter = initBossBarAdapter();
             loadConfigurations();
             messageService = new MessageService(
                     new File(getDataFolder(), configuration.getMessagesItalianFile()),
@@ -107,8 +107,9 @@ public final class LegacyLobbyPlugin extends JavaPlugin {
             getLogger().info("LegacyLobby inizializzato.");
             getLogger().info("PlaceholderAPI: "
                     + (placeholderService.isAvailable() ? "integrata" : "non disponibile"));
-            getLogger().info("PacketEvents: "
-                    + (!(packetAdapter instanceof NoopBossBarPacketAdapter) ? "integrata" : "non disponibile"));
+            getLogger().info("Bossbar adapter: "
+                    + (packetAdapter instanceof NmsV1_8R3BossBarPacketAdapter
+                    ? "NMS v1_8_R3" : "non disponibile"));
         } catch (RuntimeException exception) {
             getLogger().severe(
                     "Impossibile inizializzare LegacyLobby: " + exception.getMessage());
@@ -158,18 +159,17 @@ public final class LegacyLobbyPlugin extends JavaPlugin {
         return new NoopPlaceholderService();
     }
 
-    private BossBarPacketAdapter initPacketEvents() {
-        org.bukkit.plugin.Plugin pe = Bukkit.getPluginManager().getPlugin("packetevents");
-        if (pe == null || !pe.isEnabled()) {
-            getLogger().warning("PacketEvents assente o disabilitato, bossbar disabilitata.");
+    private BossBarPacketAdapter initBossBarAdapter() {
+        if (!NmsV1_8R3BossBarPacketAdapter.validateServerVersion()) {
+            getLogger().warning("Server non v1_8_R3: bossbar legacy disabilitata.");
             return new NoopBossBarPacketAdapter();
         }
         try {
-            getLogger().info("PacketEvents rilevato, integrazione bossbar attiva.");
-            return new PacketEventsBossBarAdapter();
-        } catch (LinkageError | RuntimeException e) {
-            getLogger().warning("Impossibile inizializzare l'adapter PacketEvents: "
-                    + e.getMessage());
+            getLogger().info("Server v1_8_R3 rilevato, bossbar NMS attiva.");
+            return new NmsV1_8R3BossBarPacketAdapter();
+        } catch (LinkageError | RuntimeException exception) {
+            getLogger().warning("Impossibile inizializzare la bossbar NMS: "
+                    + exception.getMessage());
             return new NoopBossBarPacketAdapter();
         }
     }
