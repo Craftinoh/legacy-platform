@@ -13,5 +13,6 @@ include(
     "legacy-lobby",
     "legacy-items",
     "legacy-menu",
-    "legacy-combat"
+    "legacy-combat",
+    "legacy-regions"
 )

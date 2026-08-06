@@ -1,0 +1,19 @@
+worlds:
+  world:
+    uuid: ""
+    flags:
+      build: DENY
+      block-break: DENY
+      block-place: DENY
+      pvp: DENY
+      damage: DENY
+      fall-damage: DENY
+      hunger: DENY
+      item-drop: DENY
+      item-pickup: DENY
+      explosions: DENY
+      fire-spread: DENY
+      mob-spawn: DENY
+      projectiles: DENY
+      vehicle-use: DENY
+      interact: DENY

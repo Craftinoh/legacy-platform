@@ -1,0 +1,41 @@
+defaults:
+  build: ALLOW
+  block-break: INHERIT
+  block-place: INHERIT
+  pvp: INHERIT
+  damage: ALLOW
+  fall-damage: INHERIT
+  hunger: ALLOW
+  item-drop: ALLOW
+  item-pickup: ALLOW
+  explosions: ALLOW
+  fire-spread: ALLOW
+  mob-spawn: ALLOW
+  projectiles: ALLOW
+  vehicle-use: ALLOW
+  interact: ALLOW
+
+language:
+  fallback: "en"
+  italian-file: "messages_it.yml"
+  english-file: "messages_en.yml"
+
+messages:
+  enabled: true
+  cooldown-millis: 3000
+  actions:
+    build: true
+    block-break: true
+    block-place: true
+    pvp: true
+    damage: false
+    fall-damage: false
+    hunger: false
+    item-drop: true
+    item-pickup: false
+    explosions: false
+    fire-spread: true
+    mob-spawn: false
+    projectiles: true
+    vehicle-use: true
+    interact: true
