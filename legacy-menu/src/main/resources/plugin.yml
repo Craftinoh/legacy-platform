@@ -11,6 +11,12 @@ commands:
     description: Comando amministrativo LegacyMenu
     usage: /legacymenu open|reload|list
     aliases: [lmenu, lm]
+  lang:
+    description: Open the language selection menu
+    usage: /lang
+  language:
+    description: Open the language selection menu
+    usage: /language
 permissions:
   legacymenu.admin:
     default: op

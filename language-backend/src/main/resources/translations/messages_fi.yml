@@ -1,0 +1,10 @@
+welcome:
+  enabled: true
+  text:
+    - "&aTervetuloa Apterisiin, &f%player_name%&a!"
+    - "&7Käytä &f/lang &7vaihtaaksesi kieltä."
+
+language-change:
+  enabled: false
+  text:
+    - "&aLobbyn kieli on päivitetty."

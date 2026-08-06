@@ -1,0 +1,10 @@
+welcome:
+  enabled: true
+  text:
+    - "&aApteris'e hos geldin, &f%player_name%&a!"
+    - "&7Dil degistirmek icin &f/lang &7kullan."
+
+language-change:
+  enabled: false
+  text:
+    - "&aLobi dili güncellendi."

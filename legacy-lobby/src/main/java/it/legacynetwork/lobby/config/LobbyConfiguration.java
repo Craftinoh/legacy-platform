@@ -14,6 +14,12 @@ public final class LobbyConfiguration {
     private final int joinSlot;
     private final int joinSlotDelayTicks;
     private final boolean joinSlotForce;
+    private final boolean authmeIntegration;
+    private final boolean voidTeleportEnabled;
+    private final int voidTeleportBelowY;
+    private final String voidTeleportTarget;
+    private final String voidTeleportFallback;
+    private final int voidTeleportCheckTicks;
 
     public LobbyConfiguration(String serverId,
                                String languageChannel,
@@ -25,7 +31,13 @@ public final class LobbyConfiguration {
                                boolean joinSlotEnabled,
                                int joinSlot,
                                int joinSlotDelayTicks,
-                               boolean joinSlotForce) {
+                               boolean joinSlotForce,
+                               boolean authmeIntegration,
+                               boolean voidTeleportEnabled,
+                               int voidTeleportBelowY,
+                               String voidTeleportTarget,
+                               String voidTeleportFallback,
+                               int voidTeleportCheckTicks) {
         this.serverId = serverId;
         this.languageChannel = languageChannel;
         this.languageFallback = languageFallback;
@@ -37,6 +49,12 @@ public final class LobbyConfiguration {
         this.joinSlot = joinSlot;
         this.joinSlotDelayTicks = joinSlotDelayTicks;
         this.joinSlotForce = joinSlotForce;
+        this.authmeIntegration = authmeIntegration;
+        this.voidTeleportEnabled = voidTeleportEnabled;
+        this.voidTeleportBelowY = voidTeleportBelowY;
+        this.voidTeleportTarget = voidTeleportTarget;
+        this.voidTeleportFallback = voidTeleportFallback;
+        this.voidTeleportCheckTicks = voidTeleportCheckTicks;
     }
 
     public static LobbyConfiguration from(FileConfiguration configuration) {
@@ -59,7 +77,14 @@ public final class LobbyConfiguration {
                 configuration.getBoolean("join.selected-slot.enabled", true),
                 slot,
                 delayTicks,
-                configuration.getBoolean("join.selected-slot.force", true));
+                configuration.getBoolean("join.selected-slot.force", true),
+                configuration.getBoolean("spawn.authme-integration.enabled", false),
+                configuration.getBoolean("spawn.void-teleport.enabled", false),
+                configuration.getInt("spawn.void-teleport.below-y", 0),
+                configuration.getString("spawn.void-teleport.target", "AUTHME"),
+                configuration.getString("spawn.void-teleport.fallback", "WORLD_SPAWN"),
+                Math.max(5, configuration.getInt(
+                        "spawn.void-teleport.check-ticks", 10)));
     }
 
     public String getServerId() {
@@ -104,5 +129,29 @@ public final class LobbyConfiguration {
 
     public boolean isJoinSlotForce() {
         return joinSlotForce;
+    }
+
+    public boolean isAuthmeIntegration() {
+        return authmeIntegration;
+    }
+
+    public boolean isVoidTeleportEnabled() {
+        return voidTeleportEnabled;
+    }
+
+    public int getVoidTeleportBelowY() {
+        return voidTeleportBelowY;
+    }
+
+    public String getVoidTeleportTarget() {
+        return voidTeleportTarget;
+    }
+
+    public String getVoidTeleportFallback() {
+        return voidTeleportFallback;
+    }
+
+    public int getVoidTeleportCheckTicks() {
+        return voidTeleportCheckTicks;
     }
 }

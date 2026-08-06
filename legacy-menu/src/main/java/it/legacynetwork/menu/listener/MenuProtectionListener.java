@@ -3,6 +3,7 @@ package it.legacynetwork.menu.listener;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import it.legacynetwork.menu.LegacyMenuPlugin;
+import it.legacynetwork.menu.lang.LanguageMenuHolder;
 import it.legacynetwork.menu.model.MenuDefinition;
 import it.legacynetwork.menu.model.MenuInventoryHolder;
 import it.legacynetwork.menu.model.MenuItem;
@@ -32,6 +33,18 @@ public class MenuProtectionListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryClick(InventoryClickEvent event) {
         Inventory topInv = event.getView().getTopInventory();
+
+        if (topInv.getHolder() instanceof LanguageMenuHolder) {
+            event.setCancelled(true);
+            if (event.getWhoClicked() instanceof Player) {
+                Player player = (Player) event.getWhoClicked();
+                LanguageMenuHolder holder = (LanguageMenuHolder) topInv.getHolder();
+                plugin.getLanguageMenuService().handleClick(player,
+                        event.getSlot(), holder.getPage());
+            }
+            return;
+        }
+
         if (!(topInv.getHolder() instanceof MenuInventoryHolder)) {
             return;
         }
@@ -84,7 +97,8 @@ public class MenuProtectionListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryDrag(InventoryDragEvent event) {
         Inventory topInv = event.getView().getTopInventory();
-        if (topInv.getHolder() instanceof MenuInventoryHolder) {
+        if (topInv.getHolder() instanceof MenuInventoryHolder
+                || topInv.getHolder() instanceof LanguageMenuHolder) {
             event.setCancelled(true);
         }
     }

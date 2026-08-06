@@ -50,8 +50,14 @@ class ProxyLanguageServiceTest {
     }
 
     @Test
-    void localeResolverReturnsEnglishForNonItalianLocale(@TempDir Path tempDir) {
+    void localeResolverReturnsGermanForDe(@TempDir Path tempDir) {
         LocaleLanguageResolver resolver = new LocaleLanguageResolver();
-        assertEquals(Language.ENGLISH, resolver.resolve("de_DE"));
+        assertEquals(Language.GERMAN, resolver.resolve("de_DE"));
+    }
+
+    @Test
+    void localeResolverReturnsEnglishForUnsupportedLocale(@TempDir Path tempDir) {
+        LocaleLanguageResolver resolver = new LocaleLanguageResolver();
+        assertEquals(Language.ENGLISH, resolver.resolve("zz_ZZ"));
     }
 }

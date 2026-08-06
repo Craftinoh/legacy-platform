@@ -11,7 +11,7 @@ languages:
     title: "&6&lAPTERIS"
     lines:
       - "&7&m----------------"
-      - "&fNome: &a%player_name%"
+      - "&fNome: &a{player}"
       - "&fRango: &r%luckperms_prefix%"
       - ""
       - "&fLobby: &a{server}"

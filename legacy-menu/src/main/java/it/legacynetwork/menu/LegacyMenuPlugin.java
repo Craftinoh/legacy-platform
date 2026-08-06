@@ -1,8 +1,12 @@
 package it.legacynetwork.menu;
 
 import it.legacynetwork.language.Language;
+import it.legacynetwork.language.PlayerLanguageEventService;
 import it.legacynetwork.language.PlayerLanguageProvider;
+import it.legacynetwork.menu.command.LanguageCommand;
 import it.legacynetwork.menu.command.LegacyMenuCommand;
+import it.legacynetwork.menu.lang.FlagTextureService;
+import it.legacynetwork.menu.lang.LanguageMenuService;
 import it.legacynetwork.menu.listener.MenuProtectionListener;
 import it.legacynetwork.menu.loader.MenuFileLoader;
 import it.legacynetwork.menu.model.MenuDefinition;
@@ -19,25 +23,41 @@ import java.util.Map;
 public final class LegacyMenuPlugin extends JavaPlugin implements MenuService {
     private Map<String, MenuDefinition> menus = new HashMap<>();
     private PlayerLanguageProvider languageProvider;
+    private PlayerLanguageEventService languageEventService;
+    private FlagTextureService flagTextureService;
+    private LanguageMenuService languageMenuService;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
         saveResource("menus/server-selector.yml", false);
+        saveResource("flag-textures.yml", false);
+        saveResource("messages_en.yml", false);
         loadLanguageProvider();
         loadMenus();
+
+        flagTextureService = new FlagTextureService(getDataFolder());
+        languageMenuService = new LanguageMenuService(this,
+                resolveLanguageProvider(), flagTextureService);
 
         getServer().getPluginManager().registerEvents(
                 new MenuProtectionListener(this), this);
         getCommand("legacymenu").setExecutor(
                 new LegacyMenuCommand(this));
+        getCommand("lang").setExecutor(
+                new LanguageCommand(this));
+        getCommand("language").setExecutor(
+                new LanguageCommand(this));
 
-        getLogger().info("LegacyMenu inizializzato. " + menus.size() + " menu caricati.");
+        getLogger().info("LegacyMenu inizializzato. " + menus.size()
+                + " menu caricati.");
     }
 
     void loadLanguageProvider() {
         languageProvider = Bukkit.getServicesManager()
                 .load(PlayerLanguageProvider.class);
+        languageEventService = Bukkit.getServicesManager()
+                .load(PlayerLanguageEventService.class);
     }
 
     private PlayerLanguageProvider resolveLanguageProvider() {
@@ -72,8 +92,30 @@ public final class LegacyMenuPlugin extends JavaPlugin implements MenuService {
     public void reload() {
         reloadConfig();
         languageProvider = null;
+        languageEventService = null;
         loadLanguageProvider();
         loadMenus();
+        if (flagTextureService != null) {
+            flagTextureService.reload();
+        }
+    }
+
+    public void openLanguageMenu(Player player) {
+        if (languageMenuService != null) {
+            languageMenuService.openMenu(player);
+        }
+    }
+
+    public LanguageMenuService getLanguageMenuService() {
+        return languageMenuService;
+    }
+
+    public PlayerLanguageEventService getLanguageEventService() {
+        return languageEventService;
+    }
+
+    public FlagTextureService getFlagTextureService() {
+        return flagTextureService;
     }
 
     public String getLanguage(Player player) {

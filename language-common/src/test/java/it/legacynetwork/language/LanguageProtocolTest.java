@@ -47,7 +47,7 @@ class LanguageProtocolTest {
     @Test
     void rejectsInvalidLanguage() throws Exception {
         assertThrows(LanguageProtocolException.class,
-                () -> protocol.deserialize(rawPayload(1, uuid.toString(), "fr")));
+                () -> protocol.deserialize(rawPayload(1, uuid.toString(), "zz")));
     }
 
     @Test

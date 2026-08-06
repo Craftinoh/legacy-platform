@@ -29,6 +29,7 @@ public final class VelocityTabListService {
     private final Map<UUID, String> lastSentHeader = new ConcurrentHashMap<>();
     private final Map<UUID, String> lastSentFooter = new ConcurrentHashMap<>();
     private Function<Player, Language> languageResolver;
+    private Object localizedPrefixProvider;
 
     public VelocityTabListService(ProxyServer proxy,
                                    Logger logger,
@@ -43,6 +44,10 @@ public final class VelocityTabListService {
 
     public void setLanguageResolver(Function<Player, Language> resolver) {
         this.languageResolver = resolver;
+    }
+
+    public void setLocalizedPrefixProvider(Object provider) {
+        this.localizedPrefixProvider = provider;
     }
 
     public void load() {
@@ -140,13 +145,14 @@ public final class VelocityTabListService {
         String ping = String.valueOf(player.getPing());
         String langCode = language.getCode();
         String langName = language.getDisplayName();
+        String prefix = resolvePrefixForPlayer(player, langCode);
 
         String renderedHeader = renderLines(langSection.getHeader(), playerName,
                 serverName, online, ping, langCode, langName,
-                player.getUniqueId());
+                player.getUniqueId(), prefix);
         String renderedFooter = renderLines(langSection.getFooter(), playerName,
                 serverName, online, ping, langCode, langName,
-                player.getUniqueId());
+                player.getUniqueId(), prefix);
 
         if (!force
                 && renderedHeader.equals(lastSentHeader.get(player.getUniqueId()))
@@ -170,9 +176,9 @@ public final class VelocityTabListService {
     }
 
     private String renderLines(List<String> lines, String playerName,
-                                String serverName, String online,
-                                String ping, String langCode, String langName,
-                                UUID playerId) {
+                                 String serverName, String online,
+                                 String ping, String langCode, String langName,
+                                 UUID playerId, String prefix) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < lines.size(); i++) {
             if (i > 0) {
@@ -186,11 +192,29 @@ public final class VelocityTabListService {
             line = line.replace("{ping}", ping);
             line = line.replace("{language}", langName);
             line = line.replace("{language_code}", langCode);
-            line = line.replace("{prefix}", "");
+            line = line.replace("{prefix}", prefix);
             line = line.replace("{suffix}", "");
             builder.append(line);
         }
         return builder.toString();
+    }
+
+    private String resolvePrefixForPlayer(Player player, String langCode) {
+        if (localizedPrefixProvider == null) return "";
+        try {
+            String locale = player.getPlayerSettings().getLocale()
+                    .toString().toLowerCase().replace('-', '_');
+            java.lang.reflect.Method getPrefix = localizedPrefixProvider.getClass()
+                    .getMethod("getPrefix",
+                            UUID.class, String.class, String.class);
+            java.util.concurrent.CompletableFuture<String> future =
+                    (java.util.concurrent.CompletableFuture<String>)
+                            getPrefix.invoke(localizedPrefixProvider,
+                                    player.getUniqueId(), langCode, locale);
+            return future.get(500, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     private void updateAll() {

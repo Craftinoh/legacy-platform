@@ -47,6 +47,10 @@ public final class PlaceholderValues {
             return put("language", value);
         }
 
+        public Builder language(Language lang) {
+            return put("language", lang.getDisplayName());
+        }
+
         public Builder server(String value) {
             return put("server", value);
         }

@@ -1,0 +1,9 @@
+name: LanguageBackend
+main: it.legacynetwork.language.backend.LanguageBackendPlugin
+version: "${version}"
+author: LegacyNetwork
+description: Backend language service for network-wide language sync
+softdepend:
+  - PlaceholderAPI
+  - LegacyMenu
+  - LegacyAuth

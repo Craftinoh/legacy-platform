@@ -29,6 +29,18 @@ class LobbyConfigurationTest {
     }
 
     @Test
+    void firstAndLastSlotsAreAccepted() {
+        FileConfiguration firstConfig = parseConfig(
+                "join:\n  selected-slot:\n    slot: 1\n");
+        FileConfiguration lastConfig = parseConfig(
+                "join:\n  selected-slot:\n    slot: 9\n");
+        assertEquals(1,
+                LobbyConfiguration.from(firstConfig).getJoinSlot());
+        assertEquals(9,
+                LobbyConfiguration.from(lastConfig).getJoinSlot());
+    }
+
+    @Test
     void slotBelowOneFallsBackToOne() {
         FileConfiguration config = parseConfig(
                 "join:\n" +
@@ -76,6 +88,38 @@ class LobbyConfigurationTest {
                 "    delay-ticks: -5\n");
         LobbyConfiguration lobbyConfig = LobbyConfiguration.from(config);
         assertEquals(0, lobbyConfig.getJoinSlotDelayTicks());
+    }
+
+    @Test
+    void authMeAndVoidTeleportAreDisabledByDefault() {
+        LobbyConfiguration lobbyConfig =
+                LobbyConfiguration.from(parseConfig(""));
+        assertFalse(lobbyConfig.isAuthmeIntegration());
+        assertFalse(lobbyConfig.isVoidTeleportEnabled());
+        assertEquals("AUTHME", lobbyConfig.getVoidTeleportTarget());
+        assertEquals("WORLD_SPAWN", lobbyConfig.getVoidTeleportFallback());
+        assertEquals(10, lobbyConfig.getVoidTeleportCheckTicks());
+    }
+
+    @Test
+    void voidTeleportValuesAreLoadedAndCadenceIsClamped() {
+        FileConfiguration config = parseConfig(
+                "spawn:\n" +
+                "  authme-integration:\n" +
+                "    enabled: true\n" +
+                "  void-teleport:\n" +
+                "    enabled: true\n" +
+                "    below-y: -10\n" +
+                "    target: WORLD_SPAWN\n" +
+                "    fallback: DISABLED\n" +
+                "    check-ticks: 1\n");
+        LobbyConfiguration lobbyConfig = LobbyConfiguration.from(config);
+        assertTrue(lobbyConfig.isAuthmeIntegration());
+        assertTrue(lobbyConfig.isVoidTeleportEnabled());
+        assertEquals(-10, lobbyConfig.getVoidTeleportBelowY());
+        assertEquals("WORLD_SPAWN", lobbyConfig.getVoidTeleportTarget());
+        assertEquals("DISABLED", lobbyConfig.getVoidTeleportFallback());
+        assertEquals(5, lobbyConfig.getVoidTeleportCheckTicks());
     }
 
     @Test

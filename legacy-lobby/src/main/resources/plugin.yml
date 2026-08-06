@@ -6,13 +6,16 @@ description: Lobby legacy bilingue del network
 softdepend:
   - PlaceholderAPI
   - packetevents
+  - AuthMe
 commands:
   legacylobby:
     description: Comandi amministrativi LegacyLobby
-    usage: /legacylobby reload|bossbar
+    usage: /legacylobby reload|slot|bossbar
     aliases: [ll, lglobby]
 permissions:
   legacylobby.admin.reload:
+    default: op
+  legacylobby.admin.slot:
     default: op
   legacylobby.admin.bossbar:
     default: op

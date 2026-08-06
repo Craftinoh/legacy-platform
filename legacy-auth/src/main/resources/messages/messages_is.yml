@@ -1,0 +1,156 @@
+# Listi yfir altæk merki:
+# %nl% - Fer í nýja línu.
+# %username% - Kemur í stað notendanafns leikmannsins sem fær skilaboðin.
+# %displayname% - Kemur í stað gælunafns (og lita) leikmannsins sem fær skilaboðin.
+
+# Skráning
+registration:
+    register_request: '&3Vinsamlegast skráðu þig á þjóninn með skipuninni: /register <lykilorð> <staðfestaLykilorð>'
+    command_usage: '&cNotkun: /register <lykilorð> <staðfestaLykilorð>'
+    reg_only: '&4Aðeins skráðir notendur komast inn á þjóninn! Farðu á http://example.com til að skrá þig!'
+    kicked_admin_registered: 'Stjórnandi skráði þig rétt í þessu; vinsamlegast skráðu þig inn aftur.'
+    success: '&2Skráningin tókst!'
+    disabled: '&cSkráning inni í leiknum er óvirk!'
+    name_taken: '&cÞú hefur þegar skráð þetta notendanafn!'
+
+# Villur við lykilorð í skráningu
+password:
+    match_error: '&cLykilorðin stemmdu ekki, athugaðu þau aftur!'
+    name_in_password: '&cÞú getur ekki notað nafnið þitt sem lykilorð, veldu annað...'
+    unsafe_password: '&cValið lykilorð er ekki öruggt, veldu annað...'
+    forbidden_characters: '&4Lykilorðið þitt inniheldur óleyfilega stafi. Leyfðir stafir: %valid_chars'
+    wrong_length: '&cLykilorðið þitt er of stutt eða of langt! Reyndu annað!'
+
+# Innskráning
+login:
+    command_usage: '&cNotkun: /login <lykilorð>'
+    wrong_password: '&cRangt lykilorð!'
+    success: '&2Innskráning tókst!'
+    login_request: '&cVinsamlegast skráðu þig inn með skipuninni: /login <lykilorð>'
+    timeout_error: '&4Tímamörk innskráningar runnu út, þér var hent út af þjóninum, reyndu aftur!'
+
+# Villur
+error:
+    unregistered_user: '&cÞessi notandi er ekki skráður!'
+    denied_command: '&cTil að nota þessa skipun þarftu að vera innskráður!'
+    denied_chat: '&cTil að spjalla þarftu að vera innskráður!'
+    not_logged_in: '&cÞú ert ekki innskráður!'
+    tempban_max_logins: '&cÞú hefur verið bannaður tímabundið fyrir of margar misheppnaðar innskráningar.'
+    max_registration: '&cÞú hefur farið yfir hámarksfjölda skráninga (%reg_count/%max_acc %reg_names) fyrir tenginguna þína!'
+    no_permission: '&4Þú hefur ekki heimild til að framkvæma þessa aðgerð!'
+    unexpected_error: '&4Óvænt villa kom upp, vinsamlegast hafðu samband við stjórnanda!'
+    kick_for_vip: '&3VIP-leikmaður tengdist þjóninum þegar hann var fullur!'
+    logged_in: '&cÞú ert þegar innskráður!'
+    kick_unresolved_hostname: '&cVilla kom upp: ekki tókst að fletta upp hýsilnafni leikmannsins!'
+
+# AntiBot
+antibot:
+    kick_antibot: 'AntiBot-vörnin er virk! Þú þarft að bíða í nokkrar mínútur áður en þú kemst inn á þjóninn.'
+    auto_enabled: '&4[AntiBotService] AntiBot var virkjað vegna gríðarlegs fjölda tenginga!'
+    auto_disabled: '&2[AntiBotService] AntiBot var gert óvirkt eftir %m mínútur!'
+
+unregister:
+    success: '&cAfskráning tókst!'
+    command_usage: '&cNotkun: /unregister <lykilorð>'
+
+# Önnur skilaboð
+misc:
+    accounts_owned_self: 'Þú átt %count reikninga:'
+    accounts_owned_other: 'Leikmaðurinn %name á %count reikninga:'
+    account_not_activated: '&cReikningurinn þinn er ekki enn virkjaður, athugaðu tölvupóstinn þinn!'
+    password_changed: '&2Lykilorðinu var breytt!'
+    logout: '&2Þú ert útskráður!'
+    reload: '&2Stillingar og gagnagrunnur voru endurhlaðin rétt!'
+    usage_change_password: '&cNotkun: /changepassword <gamaltLykilorð> <nýttLykilorð>'
+
+# Setuskilaboð
+session:
+    invalid_session: '&cIP-talan þín hefur breyst og setugögnin þín eru útrunnin!'
+    valid_session: '&2Innskráður vegna endurtengingar setu.'
+
+# Villuskilaboð við tengingu
+on_join_validation:
+    name_length: '&4Notendanafnið þitt er annaðhvort of stutt eða of langt!'
+    characters_in_name: '&4Notendanafnið þitt inniheldur óleyfilega stafi. Leyfðir stafir: %valid_chars'
+    country_banned: '&4Landið þitt er bannað á þessum þjóni!'
+    not_owner_error: 'Þú ert ekki eigandi þessa reiknings. Vinsamlegast veldu annað nafn!'
+    kick_full_server: '&4Þjónninn er fullur, reyndu aftur síðar!'
+    same_nick_online: '&4Sama notendanafn er þegar að spila á þjóninum!'
+    invalid_name_case: 'Þú ættir að tengjast með notendanafninu %valid, ekki %invalid.'
+    same_ip_online: 'Leikmaður með sömu IP-tölu er þegar í leiknum!'
+    quick_command: 'Þú notaðir skipun of hratt! Vinsamlegast tengstu þjóninum aftur og bíddu lengur áður en þú notar einhverja skipun.'
+
+# Tölvupóstur
+email:
+    usage_email_add: '&cNotkun: /email add <netfang> <staðfestaNetfang>'
+    usage_email_change: '&cNotkun: /email change <gamaltNetfang> <nýttNetfang>'
+    new_email_invalid: '&cÓgilt nýtt netfang, reyndu aftur!'
+    old_email_invalid: '&cÓgilt gamalt netfang, reyndu aftur!'
+    invalid: '&cÓgilt netfang, reyndu aftur!'
+    added: '&2Netfanginu var bætt við reikninginn þinn!'
+    request_confirmation: '&cVinsamlegast staðfestu netfangið þitt!'
+    changed: '&2Netfanginu var breytt rétt!'
+    email_show: '&2Núverandi netfang þitt er: &f%email'
+    incomplete_settings: 'Villa: ekki eru allar nauðsynlegar stillingar fyrir sendingu tölvupósts til staðar. Hafðu samband við stjórnanda.'
+    already_used: '&4Netfangið er þegar í notkun'
+    send_failure: 'Ekki tókst að senda tölvupóstinn. Hafðu samband við stjórnanda.'
+    no_email_for_account: '&2Þú ert ekki með netfang tengt þessum reikningi eins og er.'
+    add_email_request: '&3Vinsamlegast bættu netfanginu þínu við reikninginn með skipuninni: /email add <þittNetfang> <staðfestaNetfang>'
+    change_password_expired: 'Þú getur ekki lengur breytt lykilorðinu þínu með þessari skipun.'
+    email_cooldown_error: '&cTölvupóstur var þegar sendur nýlega. Þú verður að bíða %time áður en þú getur sent nýjan.'
+    add_not_allowed: '&cEkki var leyfilegt að bæta við netfangi.'
+    change_not_allowed: '&cEkki var leyfilegt að breyta netfangi.'
+
+# Endurheimt lykilorðs með tölvupósti
+recovery:
+    forgot_password_hint: '&3Gleymdirðu lykilorðinu þínu? Notaðu skipunina: /email recovery <þittNetfang>'
+    command_usage: '&cNotkun: /email recovery <Netfang>'
+    email_sent: '&2Endurheimtupóstur var sendur! Athugaðu pósthólfið þitt!'
+    code:
+        code_sent: 'Endurheimtukóði til að endurstilla lykilorðið þitt hefur verið sendur á netfangið þitt.'
+        incorrect: 'Endurheimtukóðinn er ekki réttur! Þú átt %count tilraunir eftir.'
+        tries_exceeded: 'Þú hefur farið yfir hámarksfjölda tilrauna til að slá inn endurheimtukóðann. Notaðu "/email recovery [email]" til að búa til nýjan.'
+        correct: 'Endurheimtukóðinn var sleginn rétt inn!'
+        change_password: 'Vinsamlegast notaðu skipunina /email setpassword <nýtt lykilorð> til að breyta lykilorðinu þínu strax.'
+
+# Captcha
+captcha:
+    usage_captcha: '&3Til að skrá þig inn þarftu að leysa captcha-kóða, notaðu skipunina: /captcha %captcha_code'
+    wrong_captcha: '&cRangt captcha, skrifaðu "/captcha %captcha_code" í spjallið!'
+    valid_captcha: '&2Captcha-kóðinn var leystur rétt!'
+    captcha_for_registration: 'Til að skrá þig þarftu fyrst að leysa captcha, notaðu skipunina: /captcha %captcha_code'
+    register_captcha_valid: '&2Gilt captcha! Þú getur nú skráð þig með /register'
+
+# Staðfestingarkóði
+verification:
+    code_required: '&3Þessi skipun er viðkvæm og krefst staðfestingar með tölvupósti! Athugaðu pósthólfið þitt og fylgdu leiðbeiningunum í póstinum.'
+    command_usage: '&cNotkun: /verification <kóði>'
+    incorrect_code: '&cRangur kóði, skrifaðu "/verification <kóði>" í spjallið með kóðanum sem þú fékkst í tölvupósti'
+    success: '&2Auðkenni þitt hefur verið staðfest! Þú getur nú keyrt allar skipanir í þessari setu!'
+    already_verified: '&2Þú getur nú þegar keyrt allar viðkvæmar skipanir í þessari setu!'
+    code_expired: '&3Kóðinn þinn er útrunninn! Keyrðu aðra viðkvæma skipun til að fá nýjan kóða!'
+    email_needed: '&3Til að staðfesta auðkenni þitt þarftu að tengja netfang við reikninginn þinn!'
+
+# Tveggja þátta auðkenning
+two_factor:
+    code_created: '&2Leynikóðinn þinn er %code. Þú getur skannað hann hér: %url'
+    confirmation_required: 'Vinsamlegast staðfestu kóðann þinn með /2fa confirm <kóði>'
+    code_required: 'Vinsamlegast sláðu inn tveggja þátta auðkenningarkóðann þinn með /2fa code <kóði>'
+    already_enabled: 'Tveggja þátta auðkenning er þegar virk fyrir reikninginn þinn!'
+    enable_error_no_code: 'Enginn 2fa-lykill hefur verið búinn til fyrir þig eða hann er útrunninn. Keyrðu /2fa add'
+    enable_success: 'Tveggja þátta auðkenning var virkjuð fyrir reikninginn þinn'
+    enable_error_wrong_code: 'Rangur kóði eða kóðinn er útrunninn. Keyrðu /2fa add'
+    not_enabled_error: 'Tveggja þátta auðkenning er ekki virk fyrir reikninginn þinn. Keyrðu /2fa add'
+    removed_success: 'Tveggja þátta auðkenning var fjarlægð af reikningnum þínum'
+    invalid_code: 'Ógildur kóði!'
+
+# Tímaeiningar
+time:
+    second: 'sekúnda'
+    seconds: 'sekúndur'
+    minute: 'mínúta'
+    minutes: 'mínútur'
+    hour: 'klukkustund'
+    hours: 'klukkustundir'
+    day: 'dagur'
+    days: 'dagar'

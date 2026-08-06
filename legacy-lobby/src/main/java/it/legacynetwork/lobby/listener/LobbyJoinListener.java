@@ -1,9 +1,9 @@
 package it.legacynetwork.lobby.listener;
 
+import it.legacynetwork.lobby.bossbar.LegacyBossBarService;
 import it.legacynetwork.lobby.config.LobbyConfiguration;
 import it.legacynetwork.lobby.language.BackendLanguageService;
 import it.legacynetwork.lobby.message.MessageService;
-import it.legacynetwork.lobby.bossbar.LegacyBossBarService;
 import it.legacynetwork.lobby.scoreboard.LobbyScoreboardService;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -12,24 +12,26 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.function.Supplier;
+
 public final class LobbyJoinListener implements Listener {
     private final JavaPlugin plugin;
-    private final LobbyConfiguration configuration;
+    private final Supplier<LobbyConfiguration> configurationSupplier;
     private final BackendLanguageService languageService;
-    private final MessageService messageService;
+    private final Supplier<MessageService> messageServiceSupplier;
     private final LobbyScoreboardService scoreboardService;
     private final LegacyBossBarService bossBarService;
 
     public LobbyJoinListener(JavaPlugin plugin,
-                             LobbyConfiguration configuration,
+                             Supplier<LobbyConfiguration> configurationSupplier,
                              BackendLanguageService languageService,
-                             MessageService messageService,
+                             Supplier<MessageService> messageServiceSupplier,
                              LobbyScoreboardService scoreboardService,
                              LegacyBossBarService bossBarService) {
         this.plugin = plugin;
-        this.configuration = configuration;
+        this.configurationSupplier = configurationSupplier;
         this.languageService = languageService;
-        this.messageService = messageService;
+        this.messageServiceSupplier = messageServiceSupplier;
         this.scoreboardService = scoreboardService;
         this.bossBarService = bossBarService;
     }
@@ -39,24 +41,34 @@ public final class LobbyJoinListener implements Listener {
         Player player = event.getPlayer();
         scoreboardService.show(player);
         bossBarService.show(player);
-        messageService.send(player, "welcome");
-        if (configuration.isJoinSlotEnabled()) {
-            scheduleSlotSelect(player);
+        MessageService messageService = messageServiceSupplier.get();
+        if (messageService != null) {
+            messageService.send(player, "welcome");
+        }
+
+        LobbyConfiguration configuration = configurationSupplier.get();
+        if (configuration != null && configuration.isJoinSlotEnabled()) {
+            scheduleSlotSelect(player, configuration);
         }
     }
 
-    private void scheduleSlotSelect(Player player) {
+    private void scheduleSlotSelect(Player player,
+                                    LobbyConfiguration configuration) {
         final int targetSlot = configuration.getJoinSlot() - 1;
         final boolean force = configuration.isJoinSlotForce();
         final int initialSlot = player.getInventory().getHeldItemSlot();
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            if (!player.isOnline()) {
-                return;
+        Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+            @Override
+            public void run() {
+                if (!player.isOnline()) {
+                    return;
+                }
+                if (!force
+                        && player.getInventory().getHeldItemSlot() != initialSlot) {
+                    return;
+                }
+                player.getInventory().setHeldItemSlot(targetSlot);
             }
-            if (!force && player.getInventory().getHeldItemSlot() != initialSlot) {
-                return;
-            }
-            player.getInventory().setHeldItemSlot(targetSlot);
         }, configuration.getJoinSlotDelayTicks());
     }
 }

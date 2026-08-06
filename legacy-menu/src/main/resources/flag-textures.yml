@@ -1,0 +1,94 @@
+languages:
+  en:
+    country: "United States"
+    texture: ""
+  it:
+    country: "Italy"
+    texture: ""
+  es:
+    country: "Spain"
+    texture: ""
+  fr:
+    country: "France"
+    texture: ""
+  de:
+    country: "Germany"
+    texture: ""
+  pt:
+    country: "Portugal"
+    texture: ""
+  pt_br:
+    country: "Brazil"
+    texture: ""
+  nl:
+    country: "Netherlands"
+    texture: ""
+  pl:
+    country: "Poland"
+    texture: ""
+  ro:
+    country: "Romania"
+    texture: ""
+  hu:
+    country: "Hungary"
+    texture: ""
+  cs:
+    country: "Czech Republic"
+    texture: ""
+  sk:
+    country: "Slovakia"
+    texture: ""
+  sl:
+    country: "Slovenia"
+    texture: ""
+  hr:
+    country: "Croatia"
+    texture: ""
+  bg:
+    country: "Bulgaria"
+    texture: ""
+  el:
+    country: "Greece"
+    texture: ""
+  da:
+    country: "Denmark"
+    texture: ""
+  sv:
+    country: "Sweden"
+    texture: ""
+  no:
+    country: "Norway"
+    texture: ""
+  fi:
+    country: "Finland"
+    texture: ""
+  is:
+    country: "Iceland"
+    texture: ""
+  et:
+    country: "Estonia"
+    texture: ""
+  lv:
+    country: "Latvia"
+    texture: ""
+  lt:
+    country: "Lithuania"
+    texture: ""
+  ga:
+    country: "Ireland"
+    texture: ""
+  mt:
+    country: "Malta"
+    texture: ""
+  ru:
+    country: "Russia"
+    texture: ""
+  uk:
+    country: "Ukraine"
+    texture: ""
+  tr:
+    country: "Turkey"
+    texture: ""
+  sr:
+    country: "Serbia"
+    texture: ""
