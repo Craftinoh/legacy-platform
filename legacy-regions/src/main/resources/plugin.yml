@@ -3,6 +3,8 @@ main: it.legacynetwork.regions.LegacyRegionsPlugin
 version: "${version}"
 author: LegacyNetwork
 description: Protezione regioni cuboidale legacy
+depend:
+  - LanguageBackend
 softdepend:
   - LegacyLobby
   - WorldEdit
