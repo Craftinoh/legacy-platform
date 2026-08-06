@@ -4,6 +4,7 @@ version: "${version}"
 author: LegacyNetwork
 description: Protezione regioni cuboidale legacy
 softdepend:
+  - LegacyLobby
   - WorldEdit
   - FastAsyncWorldEdit
 commands:
