@@ -1,8 +1,9 @@
 package it.legacynetwork.regions.listener;
 
 import it.legacynetwork.regions.LegacyRegionsPlugin;
+import it.legacynetwork.regions.message.RegionMessageService;
+import it.legacynetwork.regions.model.RegionDecision;
 import it.legacynetwork.regions.model.RegionFlag;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -31,22 +32,18 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.projectiles.ProjectileSource;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public final class RegionProtectionListener implements Listener {
 
-    private static final long MESSAGE_COOLDOWN_MS = 3000L;
-
     private final LegacyRegionsPlugin plugin;
-    private final Map<UUID, Map<RegionFlag, Long>> messageCooldowns =
-            new HashMap<UUID, Map<RegionFlag, Long>>();
+    private final RegionMessageService messageService;
 
-    public RegionProtectionListener(LegacyRegionsPlugin plugin) {
+    public RegionProtectionListener(LegacyRegionsPlugin plugin,
+                                    RegionMessageService messageService) {
         this.plugin = plugin;
+        this.messageService = messageService;
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
@@ -55,9 +52,11 @@ public final class RegionProtectionListener implements Listener {
         if (hasBypass(player, RegionFlag.BLOCK_BREAK)) {
             return;
         }
-        if (!isAllowed(event.getBlock().getLocation(), RegionFlag.BLOCK_BREAK)) {
+        Location location = event.getBlock().getLocation();
+        RegionDecision decision = resolve(location, RegionFlag.BLOCK_BREAK);
+        if (!decision.isAllowed()) {
             event.setCancelled(true);
-            sendDeniedMessage(player, RegionFlag.BLOCK_BREAK);
+            sendDeniedMessage(player, RegionFlag.BLOCK_BREAK, decision);
         }
     }
 
@@ -67,9 +66,11 @@ public final class RegionProtectionListener implements Listener {
         if (hasBypass(player, RegionFlag.BLOCK_PLACE)) {
             return;
         }
-        if (!isAllowed(event.getBlock().getLocation(), RegionFlag.BLOCK_PLACE)) {
+        Location location = event.getBlock().getLocation();
+        RegionDecision decision = resolve(location, RegionFlag.BLOCK_PLACE);
+        if (!decision.isAllowed()) {
             event.setCancelled(true);
-            sendDeniedMessage(player, RegionFlag.BLOCK_PLACE);
+            sendDeniedMessage(player, RegionFlag.BLOCK_PLACE, decision);
         }
     }
 
@@ -82,9 +83,10 @@ public final class RegionProtectionListener implements Listener {
         Location location = event.getClickedBlock() == null
                 ? player.getLocation()
                 : event.getClickedBlock().getLocation();
-        if (!isAllowed(location, RegionFlag.INTERACT)) {
+        RegionDecision decision = resolve(location, RegionFlag.INTERACT);
+        if (!decision.isAllowed()) {
             event.setCancelled(true);
-            sendDeniedMessage(player, RegionFlag.INTERACT);
+            sendDeniedMessage(player, RegionFlag.INTERACT, decision);
         }
     }
 
@@ -98,27 +100,37 @@ public final class RegionProtectionListener implements Listener {
         Location location = victim.getLocation();
 
         if (event.getDamager() instanceof Projectile
-                && !hasBypass(responsiblePlayer, RegionFlag.PROJECTILES)
-                && !isAllowed(location, RegionFlag.PROJECTILES)) {
-            event.setCancelled(true);
-            if (responsiblePlayer != null) {
-                sendDeniedMessage(responsiblePlayer, RegionFlag.PROJECTILES);
+                && !hasBypass(responsiblePlayer, RegionFlag.PROJECTILES)) {
+            RegionDecision projectileDecision =
+                    resolve(location, RegionFlag.PROJECTILES);
+            if (!projectileDecision.isAllowed()) {
+                event.setCancelled(true);
+                sendDeniedMessage(responsiblePlayer,
+                        RegionFlag.PROJECTILES, projectileDecision);
+                return;
             }
-            return;
         }
 
         if (responsiblePlayer != null && !responsiblePlayer.equals(victim)) {
-            if (!hasBypass(responsiblePlayer, RegionFlag.PVP)
-                    && !isAllowed(location, RegionFlag.PVP)) {
-                event.setCancelled(true);
-                sendDeniedMessage(responsiblePlayer, RegionFlag.PVP);
+            if (!hasBypass(responsiblePlayer, RegionFlag.PVP)) {
+                RegionDecision pvpDecision = resolve(location, RegionFlag.PVP);
+                if (!pvpDecision.isAllowed()) {
+                    event.setCancelled(true);
+                    sendDeniedMessage(responsiblePlayer,
+                            RegionFlag.PVP, pvpDecision);
+                }
             }
             return;
         }
 
-        if (!hasBypass(victim, RegionFlag.DAMAGE)
-                && !isAllowed(location, RegionFlag.DAMAGE)) {
-            event.setCancelled(true);
+        if (!hasBypass(victim, RegionFlag.DAMAGE)) {
+            RegionDecision damageDecision =
+                    resolve(location, RegionFlag.DAMAGE);
+            if (!damageDecision.isAllowed()) {
+                event.setCancelled(true);
+                sendDeniedMessage(victim,
+                        RegionFlag.DAMAGE, damageDecision);
+            }
         }
     }
 
@@ -135,8 +147,10 @@ public final class RegionProtectionListener implements Listener {
         if (hasBypass(player, flag)) {
             return;
         }
-        if (!isAllowed(player.getLocation(), flag)) {
+        RegionDecision decision = resolve(player.getLocation(), flag);
+        if (!decision.isAllowed()) {
             event.setCancelled(true);
+            sendDeniedMessage(player, flag, decision);
         }
     }
 
@@ -146,28 +160,42 @@ public final class RegionProtectionListener implements Listener {
             return;
         }
         Player player = (Player) event.getEntity();
-        if (!hasBypass(player, RegionFlag.HUNGER)
-                && !isAllowed(player.getLocation(), RegionFlag.HUNGER)) {
+        if (hasBypass(player, RegionFlag.HUNGER)) {
+            return;
+        }
+        RegionDecision decision =
+                resolve(player.getLocation(), RegionFlag.HUNGER);
+        if (!decision.isAllowed()) {
             event.setCancelled(true);
+            sendDeniedMessage(player, RegionFlag.HUNGER, decision);
         }
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onPlayerDropItem(PlayerDropItemEvent event) {
         Player player = event.getPlayer();
-        if (!hasBypass(player, RegionFlag.ITEM_DROP)
-                && !isAllowed(player.getLocation(), RegionFlag.ITEM_DROP)) {
+        if (hasBypass(player, RegionFlag.ITEM_DROP)) {
+            return;
+        }
+        RegionDecision decision =
+                resolve(player.getLocation(), RegionFlag.ITEM_DROP);
+        if (!decision.isAllowed()) {
             event.setCancelled(true);
-            sendDeniedMessage(player, RegionFlag.ITEM_DROP);
+            sendDeniedMessage(player, RegionFlag.ITEM_DROP, decision);
         }
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onPlayerPickupItem(PlayerPickupItemEvent event) {
         Player player = event.getPlayer();
-        if (!hasBypass(player, RegionFlag.ITEM_PICKUP)
-                && !isAllowed(event.getItem().getLocation(), RegionFlag.ITEM_PICKUP)) {
+        if (hasBypass(player, RegionFlag.ITEM_PICKUP)) {
+            return;
+        }
+        RegionDecision decision =
+                resolve(event.getItem().getLocation(), RegionFlag.ITEM_PICKUP);
+        if (!decision.isAllowed()) {
             event.setCancelled(true);
+            sendDeniedMessage(player, RegionFlag.ITEM_PICKUP, decision);
         }
     }
 
@@ -195,13 +223,14 @@ public final class RegionProtectionListener implements Listener {
 
     private void protectExplosion(Location origin, List<Block> affectedBlocks,
                                     Runnable cancelAction) {
-        if (!isAllowed(origin, RegionFlag.EXPLOSIONS)) {
+        if (!resolve(origin, RegionFlag.EXPLOSIONS).isAllowed()) {
             cancelAction.run();
             return;
         }
         Iterator<Block> iterator = affectedBlocks.iterator();
         while (iterator.hasNext()) {
-            if (!isAllowed(iterator.next().getLocation(), RegionFlag.EXPLOSIONS)) {
+            if (!resolve(iterator.next().getLocation(),
+                    RegionFlag.EXPLOSIONS).isAllowed()) {
                 iterator.remove();
             }
         }
@@ -209,7 +238,8 @@ public final class RegionProtectionListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onBlockBurn(BlockBurnEvent event) {
-        if (!isAllowed(event.getBlock().getLocation(), RegionFlag.FIRE_SPREAD)) {
+        if (!resolve(event.getBlock().getLocation(),
+                RegionFlag.FIRE_SPREAD).isAllowed()) {
             event.setCancelled(true);
         }
     }
@@ -220,7 +250,8 @@ public final class RegionProtectionListener implements Listener {
                 && event.getBlock().getType() != Material.FIRE) {
             return;
         }
-        if (!isAllowed(event.getBlock().getLocation(), RegionFlag.FIRE_SPREAD)) {
+        if (!resolve(event.getBlock().getLocation(),
+                RegionFlag.FIRE_SPREAD).isAllowed()) {
             event.setCancelled(true);
         }
     }
@@ -231,17 +262,17 @@ public final class RegionProtectionListener implements Listener {
         if (hasBypass(player, RegionFlag.FIRE_SPREAD)) {
             return;
         }
-        if (!isAllowed(event.getBlock().getLocation(), RegionFlag.FIRE_SPREAD)) {
+        RegionDecision decision =
+                resolve(event.getBlock().getLocation(), RegionFlag.FIRE_SPREAD);
+        if (!decision.isAllowed()) {
             event.setCancelled(true);
-            if (player != null) {
-                sendDeniedMessage(player, RegionFlag.FIRE_SPREAD);
-            }
+            sendDeniedMessage(player, RegionFlag.FIRE_SPREAD, decision);
         }
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onCreatureSpawn(CreatureSpawnEvent event) {
-        if (!isAllowed(event.getLocation(), RegionFlag.MOB_SPAWN)) {
+        if (!resolve(event.getLocation(), RegionFlag.MOB_SPAWN).isAllowed()) {
             event.setCancelled(true);
         }
     }
@@ -257,11 +288,11 @@ public final class RegionProtectionListener implements Listener {
         if (hasBypass(player, RegionFlag.PROJECTILES)) {
             return;
         }
-        if (!isAllowed(projectile.getLocation(), RegionFlag.PROJECTILES)) {
+        RegionDecision decision =
+                resolve(projectile.getLocation(), RegionFlag.PROJECTILES);
+        if (!decision.isAllowed()) {
             event.setCancelled(true);
-            if (player != null) {
-                sendDeniedMessage(player, RegionFlag.PROJECTILES);
-            }
+            sendDeniedMessage(player, RegionFlag.PROJECTILES, decision);
         }
     }
 
@@ -271,16 +302,20 @@ public final class RegionProtectionListener implements Listener {
             return;
         }
         Player player = (Player) event.getEntered();
-        if (!hasBypass(player, RegionFlag.VEHICLE_USE)
-                && !isAllowed(event.getVehicle().getLocation(), RegionFlag.VEHICLE_USE)) {
+        if (hasBypass(player, RegionFlag.VEHICLE_USE)) {
+            return;
+        }
+        RegionDecision decision =
+                resolve(event.getVehicle().getLocation(), RegionFlag.VEHICLE_USE);
+        if (!decision.isAllowed()) {
             event.setCancelled(true);
-            sendDeniedMessage(player, RegionFlag.VEHICLE_USE);
+            sendDeniedMessage(player, RegionFlag.VEHICLE_USE, decision);
         }
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
-        messageCooldowns.remove(event.getPlayer().getUniqueId());
+        messageService.clearPlayer(event.getPlayer().getUniqueId());
     }
 
     private Player getResponsiblePlayer(org.bukkit.entity.Entity damager) {
@@ -296,40 +331,23 @@ public final class RegionProtectionListener implements Listener {
         return null;
     }
 
-    private boolean isAllowed(Location location, RegionFlag flag) {
+    private RegionDecision resolve(Location location, RegionFlag flag) {
         if (location == null) {
-            return true;
+            return RegionDecision.allowed(null, 0, flag);
         }
         World world = location.getWorld();
         if (world == null || plugin.getResolver() == null) {
-            return true;
+            return RegionDecision.allowed(null, 0, flag);
         }
-        return plugin.getResolver().isAllowed(
+        return plugin.getResolver().resolveEffective(
                 world.getName(), world.getUID().toString(),
                 location.getBlockX(), location.getBlockY(), location.getBlockZ(),
                 flag);
     }
 
-    private void sendDeniedMessage(Player player, RegionFlag flag) {
-        if (player == null) {
-            return;
-        }
-        long now = System.currentTimeMillis();
-        Map<RegionFlag, Long> playerCooldowns =
-                messageCooldowns.get(player.getUniqueId());
-        if (playerCooldowns == null) {
-            playerCooldowns = new HashMap<RegionFlag, Long>();
-            messageCooldowns.put(player.getUniqueId(), playerCooldowns);
-        }
-        Long lastMessage = playerCooldowns.get(flag);
-        if (lastMessage != null && now - lastMessage < MESSAGE_COOLDOWN_MS) {
-            return;
-        }
-        playerCooldowns.put(flag, now);
-
-        String message = plugin.getConfig().getString(
-                "messages.denied", "&cNon puoi farlo in questa zona.");
-        player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+    private void sendDeniedMessage(Player player, RegionFlag flag,
+                                   RegionDecision decision) {
+        messageService.sendDenied(player, flag, decision);
     }
 
     private boolean hasBypass(Player player, RegionFlag flag) {
