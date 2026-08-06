@@ -83,7 +83,8 @@ public final class LobbyConfiguration {
                 configuration.getInt("spawn.void-teleport.below-y", 0),
                 configuration.getString("spawn.void-teleport.target", "AUTHME"),
                 configuration.getString("spawn.void-teleport.fallback", "WORLD_SPAWN"),
-                Math.max(1, configuration.getInt("spawn.void-teleport.check-ticks", 10)));
+                Math.max(5, configuration.getInt(
+                        "spawn.void-teleport.check-ticks", 10)));
     }
 
     public String getServerId() {
