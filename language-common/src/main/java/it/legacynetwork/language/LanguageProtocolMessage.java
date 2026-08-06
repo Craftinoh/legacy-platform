@@ -33,6 +33,16 @@ public final class LanguageProtocolMessage {
                 manualPreference);
     }
 
+    public static LanguageProtocolMessage languageChangeRequest(UUID playerUuid,
+                                                                Language language) {
+        return new LanguageProtocolMessage(
+                LanguageProtocol.VERSION,
+                LanguageProtocolAction.LANGUAGE_CHANGE_REQUEST,
+                playerUuid,
+                language.getCode(),
+                true);
+    }
+
     public int getProtocolVersion() {
         return protocolVersion;
     }
