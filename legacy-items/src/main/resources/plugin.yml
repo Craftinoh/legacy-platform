@@ -5,6 +5,7 @@ author: LegacyNetwork
 description: Sistema custom items riutilizzabile per i backend legacy
 
 softdepend:
+  - LanguageBackend
   - PlaceholderAPI
   - LegacyLobby
   - LegacyMenu
