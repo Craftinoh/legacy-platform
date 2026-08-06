@@ -1,0 +1,19 @@
+defaults:
+  build: ALLOW
+  block-break: ALLOW
+  block-place: ALLOW
+  pvp: ALLOW
+  damage: ALLOW
+  fall-damage: ALLOW
+  hunger: ALLOW
+  item-drop: ALLOW
+  item-pickup: ALLOW
+  explosions: ALLOW
+  fire-spread: ALLOW
+  mob-spawn: ALLOW
+  projectiles: ALLOW
+  vehicle-use: ALLOW
+  interact: ALLOW
+
+messages:
+  denied: "&cNon puoi farlo in questa zona."

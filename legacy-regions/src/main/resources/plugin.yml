@@ -1,0 +1,48 @@
+name: LegacyRegions
+main: it.legacynetwork.regions.LegacyRegionsPlugin
+version: "${version}"
+author: LegacyNetwork
+description: Protezione regioni cuboidale legacy
+softdepend:
+  - WorldEdit
+  - FastAsyncWorldEdit
+commands:
+  legacyregion:
+    description: Comando gestione regioni
+    usage: /legacyregion create|redefine|delete|list|info|flag|priority|reload
+    aliases: [lregion]
+permissions:
+  legacyregions.admin:
+    default: op
+  legacyregions.bypass:
+    default: false
+  legacyregions.bypass.build:
+    default: false
+  legacyregions.bypass.block-break:
+    default: false
+  legacyregions.bypass.block-place:
+    default: false
+  legacyregions.bypass.pvp:
+    default: false
+  legacyregions.bypass.damage:
+    default: false
+  legacyregions.bypass.fall-damage:
+    default: false
+  legacyregions.bypass.hunger:
+    default: false
+  legacyregions.bypass.item-drop:
+    default: false
+  legacyregions.bypass.item-pickup:
+    default: false
+  legacyregions.bypass.explosions:
+    default: false
+  legacyregions.bypass.fire-spread:
+    default: false
+  legacyregions.bypass.mob-spawn:
+    default: false
+  legacyregions.bypass.projectiles:
+    default: false
+  legacyregions.bypass.vehicle-use:
+    default: false
+  legacyregions.bypass.interact:
+    default: false
