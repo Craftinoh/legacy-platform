@@ -19,17 +19,16 @@ public final class MenuFileLoader {
     private MenuFileLoader() {
     }
 
-    @SuppressWarnings("unchecked")
     public static MenuDefinition load(File file) {
         Yaml yaml = new Yaml();
-        Map<String, Object> root;
+        Map<?, ?> root;
         try (InputStreamReader reader = new InputStreamReader(
                 new FileInputStream(file), StandardCharsets.UTF_8)) {
             Object loaded = yaml.load(reader);
             if (!(loaded instanceof Map)) {
                 throw new RuntimeException("Empty or invalid menu file: " + file.getName());
             }
-            root = (Map<String, Object>) loaded;
+            root = (Map<?, ?>) loaded;
         } catch (Exception exception) {
             throw new RuntimeException("Failed to load menu file: "
                     + file.getName(), exception);
@@ -53,10 +52,10 @@ public final class MenuFileLoader {
 
         Map<String, String> titles = loadTitles(root);
         Map<Integer, MenuItem> items = new LinkedHashMap<Integer, MenuItem>();
-        Map<String, Object> itemsRaw = getMap(root, "items");
+        Map<?, ?> itemsRaw = getMap(root, "items");
         if (itemsRaw != null) {
-            for (Map.Entry<String, Object> itemEntry : itemsRaw.entrySet()) {
-                Map<String, Object> itemData = castMap(itemEntry.getValue());
+            for (Map.Entry<?, ?> itemEntry : itemsRaw.entrySet()) {
+                Map<?, ?> itemData = castMap(itemEntry.getValue());
                 if (itemData == null) {
                     continue;
                 }
@@ -70,7 +69,7 @@ public final class MenuFileLoader {
                 int slot = getInt(itemData, "slot", 1);
                 if (slot < 1 || slot > size) {
                     throw new RuntimeException("Invalid slot " + slot + " for item "
-                            + itemEntry.getKey() + " in " + file.getName());
+                            + yamlKey(itemEntry.getKey()) + " in " + file.getName());
                 }
 
                 Map<String, String> itemNames = new LinkedHashMap<String, String>();
@@ -87,28 +86,28 @@ public final class MenuFileLoader {
         return new MenuDefinition(id, enabled, size, titles, items);
     }
 
-    private static Map<String, String> loadTitles(Map<String, Object> root) {
+    private static Map<String, String> loadTitles(Map<?, ?> root) {
         Map<String, String> titles = new LinkedHashMap<String, String>();
 
-        Map<String, Object> titlesSection = getMap(root, "titles");
+        Map<?, ?> titlesSection = getMap(root, "titles");
         if (titlesSection != null) {
-            for (Map.Entry<String, Object> entry : titlesSection.entrySet()) {
+            for (Map.Entry<?, ?> entry : titlesSection.entrySet()) {
                 String value = stringValue(entry.getValue());
                 if (value != null) {
-                    titles.put(entry.getKey(), value);
+                    titles.put(yamlKey(entry.getKey()), value);
                 }
             }
         }
 
         if (titles.isEmpty()) {
-            Map<String, Object> legacyLanguages = getMap(root, "languages");
+            Map<?, ?> legacyLanguages = getMap(root, "languages");
             if (legacyLanguages != null) {
-                for (Map.Entry<String, Object> langEntry : legacyLanguages.entrySet()) {
-                    Map<String, Object> langData = castMap(langEntry.getValue());
+                for (Map.Entry<?, ?> langEntry : legacyLanguages.entrySet()) {
+                    Map<?, ?> langData = castMap(langEntry.getValue());
                     if (langData != null) {
                         String value = stringValue(langData.get("title"));
                         if (value != null) {
-                            titles.put(langEntry.getKey(), value);
+                            titles.put(yamlKey(langEntry.getKey()), value);
                         }
                     }
                 }
@@ -128,27 +127,28 @@ public final class MenuFileLoader {
     }
 
     private static void loadItemTranslations(
-            Map<String, Object> itemData,
+            Map<?, ?> itemData,
             Map<String, String> names,
             Map<String, List<String>> lores) {
-        Map<String, Object> translations = getMap(itemData, "translations");
+        Map<?, ?> translations = getMap(itemData, "translations");
         if (translations == null) {
             translations = getMap(itemData, "languages");
         }
 
         if (translations != null) {
-            for (Map.Entry<String, Object> langEntry : translations.entrySet()) {
-                Map<String, Object> langData = castMap(langEntry.getValue());
+            for (Map.Entry<?, ?> langEntry : translations.entrySet()) {
+                Map<?, ?> langData = castMap(langEntry.getValue());
                 if (langData == null) {
                     continue;
                 }
+                String languageCode = yamlKey(langEntry.getKey());
                 String name = stringValue(langData.get("name"));
                 if (name != null) {
-                    names.put(langEntry.getKey(), name);
+                    names.put(languageCode, name);
                 }
                 List<String> lore = stringList(langData.get("lore"));
                 if (lore != null) {
-                    lores.put(langEntry.getKey(), lore);
+                    lores.put(languageCode, lore);
                 }
             }
         }
@@ -168,7 +168,7 @@ public final class MenuFileLoader {
     }
 
     private static Map<String, List<MenuItemAction>> loadActions(
-            Map<String, Object> itemData) {
+            Map<?, ?> itemData) {
         Map<String, List<MenuItemAction>> actions =
                 new LinkedHashMap<String, List<MenuItemAction>>();
         Object rawActions = itemData.get("actions");
@@ -181,12 +181,12 @@ public final class MenuFileLoader {
             return actions;
         }
 
-        Map<String, Object> actionMap = castMap(rawActions);
+        Map<?, ?> actionMap = castMap(rawActions);
         if (actionMap == null) {
             return actions;
         }
 
-        for (Map.Entry<String, Object> actionEntry : actionMap.entrySet()) {
+        for (Map.Entry<?, ?> actionEntry : actionMap.entrySet()) {
             List<MenuItemAction> parsed = new ArrayList<MenuItemAction>();
             Object value = actionEntry.getValue();
             if (value instanceof List) {
@@ -198,7 +198,7 @@ public final class MenuFileLoader {
                 }
             }
             if (!parsed.isEmpty()) {
-                actions.put(normalizeClickKey(actionEntry.getKey()), parsed);
+                actions.put(normalizeClickKey(yamlKey(actionEntry.getKey())), parsed);
             }
         }
         return actions;
@@ -227,7 +227,7 @@ public final class MenuFileLoader {
             return new MenuItemAction(type.trim(), value.trim());
         }
 
-        Map<String, Object> map = castMap(raw);
+        Map<?, ?> map = castMap(raw);
         if (map == null) {
             return null;
         }
@@ -253,7 +253,7 @@ public final class MenuFileLoader {
         return normalized;
     }
 
-    private static int getInt(Map<String, Object> map, String key,
+    private static int getInt(Map<?, ?> map, String key,
                               int defaultValue) {
         Object value = map.get(key);
         if (value instanceof Number) {
@@ -269,18 +269,28 @@ public final class MenuFileLoader {
         return defaultValue;
     }
 
-    @SuppressWarnings("unchecked")
-    private static Map<String, Object> getMap(Map<String, Object> map,
-                                               String key) {
+    private static Map<?, ?> getMap(Map<?, ?> map, String key) {
         return castMap(map.get(key));
     }
 
-    @SuppressWarnings("unchecked")
-    private static Map<String, Object> castMap(Object value) {
+    private static Map<?, ?> castMap(Object value) {
         if (value instanceof Map) {
-            return (Map<String, Object>) value;
+            return (Map<?, ?>) value;
         }
         return null;
+    }
+
+    private static String yamlKey(Object key) {
+        // SnakeYAML's YAML 1.1 resolver interprets the unquoted key "no"
+        // as Boolean.FALSE. It is a supported language code here, so restore
+        // the intended key instead of throwing ClassCastException.
+        if (Boolean.FALSE.equals(key)) {
+            return "no";
+        }
+        if (Boolean.TRUE.equals(key)) {
+            return "yes";
+        }
+        return key == null ? "" : key.toString();
     }
 
     private static String stringValue(Object value) {
