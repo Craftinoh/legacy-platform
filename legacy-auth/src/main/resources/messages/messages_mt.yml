@@ -1,0 +1,156 @@
+# Lista ta' tags globali:
+# %nl% - Jaqleb għal linja ġdida.
+# %username% - Jissostitwixxi l-isem tal-utent tal-plejer li jirċievi l-messaġġ.
+# %displayname% - Jissostitwixxi l-laqam (u l-kuluri) tal-plejer li jirċievi l-messaġġ.
+
+# Reġistrazzjoni
+registration:
+    register_request: '&3Jekk jogħġbok, irreġistra fis-server bil-kmand: /register <password> <ikkonfermaPassword>'
+    command_usage: '&cUżu: /register <password> <ikkonfermaPassword>'
+    reg_only: '&4Utenti rreġistrati biss jistgħu jidħlu fis-server! Żur http://example.com biex tirreġistra!'
+    kicked_admin_registered: 'Amministratur għadu kif irreġistrak; jekk jogħġbok illoggja mill-ġdid.'
+    success: '&2Ir-reġistrazzjoni rnexxiet!'
+    disabled: '&cIr-reġistrazzjoni fil-logħba hija diżattivata!'
+    name_taken: '&cDan l-isem tal-utent diġà huwa rreġistrat!'
+
+# Żbalji tal-password fir-reġistrazzjoni
+password:
+    match_error: '&cIl-passwords ma qablux, iċċekkjahom mill-ġdid!'
+    name_in_password: '&cMa tistax tuża ismek bħala password, jekk jogħġbok agħżel oħra...'
+    unsafe_password: '&cIl-password li għażilt mhijiex sigura, jekk jogħġbok agħżel oħra...'
+    forbidden_characters: '&4Il-password tiegħek fiha karattri mhux permessi. Karattri permessi: %valid_chars'
+    wrong_length: '&cIl-password tiegħek hija qasira wisq jew twila wisq! Ipprova b''oħra!'
+
+# Login
+login:
+    command_usage: '&cUżu: /login <password>'
+    wrong_password: '&cPassword ħażina!'
+    success: '&2Il-login irnexxa!'
+    login_request: '&cJekk jogħġbok, illoggja bil-kmand: /login <password>'
+    timeout_error: '&4Il-ħin għal-login skada, ġejt imkeċċi mis-server, erġa'' ipprova!'
+
+# Żbalji
+error:
+    unregistered_user: '&cDan l-utent mhuwiex irreġistrat!'
+    denied_command: '&cBiex tuża dan il-kmand trid tkun illoggjat!'
+    denied_chat: '&cBiex tikteb fiċ-chat trid tkun illoggjat!'
+    not_logged_in: '&cM''intix illoggjat!'
+    tempban_max_logins: '&cĠejt ipprojbit temporanjament talli fallejt il-login wisq drabi.'
+    max_registration: '&cQbiżt in-numru massimu ta'' reġistrazzjonijiet (%reg_count/%max_acc %reg_names) għall-konnessjoni tiegħek!'
+    no_permission: '&4M''għandekx permess biex tagħmel din l-azzjoni!'
+    unexpected_error: '&4Seħħ żball mhux mistenni, jekk jogħġbok ikkuntattja amministratur!'
+    kick_for_vip: '&3Plejer VIP daħal fis-server meta kien mimli!'
+    logged_in: '&cDiġà int illoggjat!'
+    kick_unresolved_hostname: '&cSeħħ żball: l-isem tal-host tal-plejer ma setax jiġi solvut!'
+
+# AntiBot
+antibot:
+    kick_antibot: 'Il-protezzjoni AntiBot hija attivata! Trid tistenna ftit minuti qabel ma tidħol fis-server.'
+    auto_enabled: '&4[AntiBotService] AntiBot ġie attivat minħabba n-numru kbir ta'' konnessjonijiet!'
+    auto_disabled: '&2[AntiBotService] AntiBot ġie diżattivat wara %m minuti!'
+
+unregister:
+    success: '&cId-dereġistrazzjoni rnexxiet!'
+    command_usage: '&cUżu: /unregister <password>'
+
+# Messaġġi oħra
+misc:
+    accounts_owned_self: 'Għandek %count kontijiet:'
+    accounts_owned_other: 'Il-plejer %name għandu %count kontijiet:'
+    account_not_activated: '&cIl-kont tiegħek għadu mhux attivat, jekk jogħġbok iċċekkja l-email tiegħek!'
+    password_changed: '&2Il-password inbidlet b''suċċess!'
+    logout: '&2Illoggjajt ''il barra b''suċċess!'
+    reload: '&2Il-konfigurazzjoni u d-database reġgħu ġew mgħobbija sew!'
+    usage_change_password: '&cUżu: /changepassword <passwordQadima> <passwordĠdida>'
+
+# Messaġġi tas-sessjoni
+session:
+    invalid_session: '&cL-IP tiegħek inbidel u d-data tas-sessjoni tiegħek skadiet!'
+    valid_session: '&2Illoggjat minħabba r-rikonnessjoni tas-sessjoni.'
+
+# Messaġġi ta' żball meta tidħol
+on_join_validation:
+    name_length: '&4L-isem tal-utent tiegħek huwa jew qasir wisq jew twil wisq!'
+    characters_in_name: '&4L-isem tal-utent tiegħek fih karattri mhux permessi. Karattri permessi: %valid_chars'
+    country_banned: '&4Il-pajjiż tiegħek huwa pprojbit minn dan is-server!'
+    not_owner_error: 'M''intix is-sid ta'' dan il-kont. Jekk jogħġbok agħżel isem ieħor!'
+    kick_full_server: '&4Is-server huwa mimli, erġa'' ipprova aktar tard!'
+    same_nick_online: '&4L-istess isem tal-utent diġà qed jilgħab fis-server!'
+    invalid_name_case: 'Għandek tidħol bl-isem tal-utent %valid, mhux %invalid.'
+    same_ip_online: 'Plejer bl-istess IP diġà qiegħed fil-logħba!'
+    quick_command: 'Użajt kmand malajr wisq! Jekk jogħġbok, erġa'' idħol fis-server u stenna aktar qabel ma tuża xi kmand.'
+
+# Email
+email:
+    usage_email_add: '&cUżu: /email add <email> <ikkonfermaEmail>'
+    usage_email_change: '&cUżu: /email change <emailQadim> <emailĠdid>'
+    new_email_invalid: '&cEmail ġdid invalidu, erġa'' ipprova!'
+    old_email_invalid: '&cEmail qadim invalidu, erġa'' ipprova!'
+    invalid: '&cIndirizz tal-email invalidu, erġa'' ipprova!'
+    added: '&2L-indirizz tal-email ġie miżjud mal-kont tiegħek b''suċċess!'
+    request_confirmation: '&cJekk jogħġbok ikkonferma l-indirizz tal-email tiegħek!'
+    changed: '&2L-indirizz tal-email inbidel sew!'
+    email_show: '&2L-indirizz tal-email attwali tiegħek huwa: &f%email'
+    incomplete_settings: 'Żball: mhux is-settings kollha meħtieġa biex jintbagħtu l-emails huma ssettjati. Jekk jogħġbok ikkuntattja amministratur.'
+    already_used: '&4L-indirizz tal-email diġà qed jintuża'
+    send_failure: 'L-email ma setgħetx tintbagħat. Jekk jogħġbok ikkuntattja amministratur.'
+    no_email_for_account: '&2Bħalissa m''għandekx indirizz tal-email assoċjat ma'' dan il-kont.'
+    add_email_request: '&3Jekk jogħġbok żid l-email tiegħek mal-kont bil-kmand: /email add <emailTiegħek> <ikkonfermaEmail>'
+    change_password_expired: 'Ma tistax tibdel il-password tiegħek b''dan il-kmand aktar.'
+    email_cooldown_error: '&cEmail diġà ntbagħtet dan l-aħħar. Trid tistenna %time qabel ma tibgħat waħda ġdida.'
+    add_not_allowed: '&cIż-żieda tal-email ma kinitx permessa.'
+    change_not_allowed: '&cIl-bidla tal-email ma kinitx permessa.'
+
+# Irkupru tal-password bl-email
+recovery:
+    forgot_password_hint: '&3Insejt il-password tiegħek? Jekk jogħġbok uża l-kmand: /email recovery <emailTiegħek>'
+    command_usage: '&cUżu: /email recovery <Email>'
+    email_sent: '&2L-email tal-irkupru ntbagħtet b''suċċess! Jekk jogħġbok iċċekkja l-inbox tiegħek!'
+    code:
+        code_sent: 'Kodiċi tal-irkupru biex tirrisettja l-password tiegħek intbagħat fl-email tiegħek.'
+        incorrect: 'Il-kodiċi tal-irkupru mhuwiex korrett! Fadallek %count provi.'
+        tries_exceeded: 'Qbiżt in-numru massimu ta'' provi biex iddaħħal il-kodiċi tal-irkupru. Uża "/email recovery [email]" biex tiġġenera wieħed ġdid.'
+        correct: 'Il-kodiċi tal-irkupru ddaħħal korrettament!'
+        change_password: 'Jekk jogħġbok uża l-kmand /email setpassword <password ġdida> biex tibdel il-password tiegħek immedjatament.'
+
+# Captcha
+captcha:
+    usage_captcha: '&3Biex tilloggja trid issolvi kodiċi captcha, jekk jogħġbok uża l-kmand: /captcha %captcha_code'
+    wrong_captcha: '&cCaptcha ħażina, jekk jogħġbok ikteb "/captcha %captcha_code" fiċ-chat!'
+    valid_captcha: '&2Il-kodiċi captcha ġie solvut korrettament!'
+    captcha_for_registration: 'Biex tirreġistra trid l-ewwel issolvi captcha, jekk jogħġbok uża l-kmand: /captcha %captcha_code'
+    register_captcha_valid: '&2Captcha valida! Issa tista'' tirreġistra b''/register'
+
+# Kodiċi ta' verifika
+verification:
+    code_required: '&3Dan il-kmand huwa sensittiv u jeħtieġ verifika bl-email! Iċċekkja l-inbox tiegħek u segwi l-istruzzjonijiet fl-email.'
+    command_usage: '&cUżu: /verification <kodiċi>'
+    incorrect_code: '&cKodiċi żbaljat, jekk jogħġbok ikteb "/verification <kodiċi>" fiċ-chat, billi tuża l-kodiċi li rċevejt bl-email'
+    success: '&2L-identità tiegħek ġiet ivverifikata! Issa tista'' teżegwixxi l-kmandi kollha f''din is-sessjoni!'
+    already_verified: '&2Diġà tista'' teżegwixxi kull kmand sensittiv f''din is-sessjoni!'
+    code_expired: '&3Il-kodiċi tiegħek skada! Eżegwixxi kmand sensittiv ieħor biex tikseb kodiċi ġdid!'
+    email_needed: '&3Biex tivverifika l-identità tiegħek trid torbot indirizz tal-email mal-kont tiegħek!'
+
+# Awtentikazzjoni b'żewġ fatturi
+two_factor:
+    code_created: '&2Il-kodiċi sigriet tiegħek huwa %code. Tista'' tiskennjah minn hawn: %url'
+    confirmation_required: 'Jekk jogħġbok ikkonferma l-kodiċi tiegħek b''/2fa confirm <kodiċi>'
+    code_required: 'Jekk jogħġbok daħħal il-kodiċi tal-awtentikazzjoni b''żewġ fatturi b''/2fa code <kodiċi>'
+    already_enabled: 'L-awtentikazzjoni b''żewġ fatturi diġà hija attivata għall-kont tiegħek!'
+    enable_error_no_code: 'L-ebda ċavetta 2fa ma ġiet iġġenerata għalik jew skadiet. Jekk jogħġbok mexxi /2fa add'
+    enable_success: 'L-awtentikazzjoni b''żewġ fatturi ġiet attivata għall-kont tiegħek b''suċċess'
+    enable_error_wrong_code: 'Kodiċi żbaljat jew il-kodiċi skada. Jekk jogħġbok mexxi /2fa add'
+    not_enabled_error: 'L-awtentikazzjoni b''żewġ fatturi mhijiex attivata għall-kont tiegħek. Mexxi /2fa add'
+    removed_success: 'L-awtentikazzjoni b''żewġ fatturi tneħħiet mill-kont tiegħek b''suċċess'
+    invalid_code: 'Kodiċi invalidu!'
+
+# Unitajiet ta' ħin
+time:
+    second: 'sekonda'
+    seconds: 'sekondi'
+    minute: 'minuta'
+    minutes: 'minuti'
+    hour: 'siegħa'
+    hours: 'sigħat'
+    day: 'jum'
+    days: 'ġranet'

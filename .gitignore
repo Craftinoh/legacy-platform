@@ -6,3 +6,6 @@ out/
 *.log
 .env
 secrets/
+
+legacy-auth/target/
+legacy-auth/.idea/

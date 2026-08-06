@@ -1,0 +1,156 @@
+# Popis globalnih oznaka:
+# %nl% - Prelazi u novi red.
+# %username% - Zamjenjuje korisničko ime igrača koji prima poruku.
+# %displayname% - Zamjenjuje nadimak (i boje) igrača koji prima poruku.
+
+# Registracija
+registration:
+    register_request: '&3Molimo, registriraj se na poslužitelj naredbom: /register <lozinka> <potvrdiLozinku>'
+    command_usage: '&cUpotreba: /register <lozinka> <potvrdiLozinku>'
+    reg_only: '&4Samo registrirani korisnici mogu ući na poslužitelj! Posjeti http://example.com i registriraj se!'
+    kicked_admin_registered: 'Administrator te upravo registrirao; molimo, prijavi se ponovno.'
+    success: '&2Registracija je uspjela!'
+    disabled: '&cRegistracija u igri je onemogućena!'
+    name_taken: '&cOvo korisničko ime je već registrirano!'
+
+# Greške lozinke pri registraciji
+password:
+    match_error: '&cLozinke se ne podudaraju, provjeri ih ponovno!'
+    name_in_password: '&cNe možeš koristiti svoje ime kao lozinku, odaberi drugu...'
+    unsafe_password: '&cOdabrana lozinka nije sigurna, odaberi drugu...'
+    forbidden_characters: '&4Tvoja lozinka sadrži nedopuštene znakove. Dopušteni znakovi: %valid_chars'
+    wrong_length: '&cTvoja lozinka je prekratka ili preduga! Pokušaj s drugom!'
+
+# Prijava
+login:
+    command_usage: '&cUpotreba: /login <lozinka>'
+    wrong_password: '&cPogrešna lozinka!'
+    success: '&2Prijava je uspjela!'
+    login_request: '&cMolimo, prijavi se naredbom: /login <lozinka>'
+    timeout_error: '&4Vrijeme za prijavu je isteklo, izbačen si s poslužitelja, pokušaj ponovno!'
+
+# Greške
+error:
+    unregistered_user: '&cOvaj korisnik nije registriran!'
+    denied_command: '&cZa korištenje ove naredbe moraš biti prijavljen!'
+    denied_chat: '&cZa razgovor moraš biti prijavljen!'
+    not_logged_in: '&cNisi prijavljen!'
+    tempban_max_logins: '&cPrivremeno si blokiran zbog previše neuspjelih prijava.'
+    max_registration: '&cPremašio si najveći dopušteni broj registracija (%reg_count/%max_acc %reg_names) za svoju vezu!'
+    no_permission: '&4Nemaš dopuštenje za ovu radnju!'
+    unexpected_error: '&4Dogodila se neočekivana greška, obrati se administratoru!'
+    kick_for_vip: '&3VIP igrač se pridružio punom poslužitelju!'
+    logged_in: '&cVeć si prijavljen!'
+    kick_unresolved_hostname: '&cDogodila se greška: naziv računala igrača nije moguće razriješiti!'
+
+# AntiBot
+antibot:
+    kick_antibot: 'AntiBot zaštita je uključena! Moraš pričekati nekoliko minuta prije ulaska na poslužitelj.'
+    auto_enabled: '&4[AntiBotService] AntiBot je uključen zbog velikog broja veza!'
+    auto_disabled: '&2[AntiBotService] AntiBot je isključen nakon %m minuta!'
+
+unregister:
+    success: '&cOdjava registracije je uspjela!'
+    command_usage: '&cUpotreba: /unregister <lozinka>'
+
+# Ostale poruke
+misc:
+    accounts_owned_self: 'Posjeduješ %count računa:'
+    accounts_owned_other: 'Igrač %name ima %count računa:'
+    account_not_activated: '&cTvoj račun još nije aktiviran, provjeri svoju e-poštu!'
+    password_changed: '&2Lozinka je uspješno promijenjena!'
+    logout: '&2Odjava je uspjela!'
+    reload: '&2Postavke i baza podataka su ispravno ponovno učitane!'
+    usage_change_password: '&cUpotreba: /changepassword <staraLozinka> <novaLozinka>'
+
+# Poruke sesije
+session:
+    invalid_session: '&cTvoja IP adresa se promijenila i podaci tvoje sesije su istekli!'
+    valid_session: '&2Prijavljen zbog ponovnog uspostavljanja sesije.'
+
+# Greške pri ulasku
+on_join_validation:
+    name_length: '&4Tvoje korisničko ime je prekratko ili predugo!'
+    characters_in_name: '&4Tvoje korisničko ime sadrži nedopuštene znakove. Dopušteni znakovi: %valid_chars'
+    country_banned: '&4Tvoja država je blokirana na ovom poslužitelju!'
+    not_owner_error: 'Nisi vlasnik ovog računa. Odaberi drugo ime!'
+    kick_full_server: '&4Poslužitelj je pun, pokušaj ponovno kasnije!'
+    same_nick_online: '&4Igrač s istim korisničkim imenom već je na poslužitelju!'
+    invalid_name_case: 'Trebao bi ući s korisničkim imenom %valid, a ne %invalid.'
+    same_ip_online: 'Igrač s iste IP adrese već je u igri!'
+    quick_command: 'Prebrzo si upotrijebio naredbu! Molimo, ponovno se pridruži poslužitelju i pričekaj dulje prije korištenja bilo koje naredbe.'
+
+# E-pošta
+email:
+    usage_email_add: '&cUpotreba: /email add <e-pošta> <potvrdiE-poštu>'
+    usage_email_change: '&cUpotreba: /email change <staraE-pošta> <novaE-pošta>'
+    new_email_invalid: '&cNeispravna nova e-pošta, pokušaj ponovno!'
+    old_email_invalid: '&cNeispravna stara e-pošta, pokušaj ponovno!'
+    invalid: '&cNeispravna adresa e-pošte, pokušaj ponovno!'
+    added: '&2Adresa e-pošte uspješno je dodana tvojem računu!'
+    request_confirmation: '&cMolimo, potvrdi svoju adresu e-pošte!'
+    changed: '&2Adresa e-pošte uspješno je promijenjena!'
+    email_show: '&2Tvoja trenutna adresa e-pošte je: &f%email'
+    incomplete_settings: 'Greška: nisu postavljene sve potrebne postavke za slanje e-pošte. Obrati se administratoru.'
+    already_used: '&4Ova adresa e-pošte se već koristi'
+    send_failure: 'E-poštu nije bilo moguće poslati. Obrati se administratoru.'
+    no_email_for_account: '&2Trenutno nemaš adresu e-pošte povezanu s ovim računom.'
+    add_email_request: '&3Molimo, dodaj svoju e-poštu računu naredbom: /email add <tvojaE-pošta> <potvrdiE-poštu>'
+    change_password_expired: 'Više ne možeš promijeniti svoju lozinku ovom naredbom.'
+    email_cooldown_error: '&cE-pošta je nedavno već poslana. Moraš pričekati %time prije slanja nove.'
+    add_not_allowed: '&cDodavanje e-pošte nije bilo dopušteno.'
+    change_not_allowed: '&cPromjena e-pošte nije bila dopuštena.'
+
+# Oporavak lozinke e-poštom
+recovery:
+    forgot_password_hint: '&3Zaboravio si lozinku? Upotrijebi naredbu: /email recovery <tvojaE-pošta>'
+    command_usage: '&cUpotreba: /email recovery <E-pošta>'
+    email_sent: '&2E-pošta za oporavak uspješno je poslana! Provjeri svoj pretinac!'
+    code:
+        code_sent: 'Kod za ponovno postavljanje lozinke poslan je na tvoju e-poštu.'
+        incorrect: 'Kod za oporavak nije ispravan! Preostalo ti je %count pokušaja.'
+        tries_exceeded: 'Premašio si najveći dopušteni broj pokušaja unosa koda za oporavak. Naredbom "/email recovery [email]" stvori novi.'
+        correct: 'Kod za oporavak ispravno je unesen!'
+        change_password: 'Molimo, upotrijebi naredbu /email setpassword <nova lozinka> kako bi odmah promijenio lozinku.'
+
+# Captcha
+captcha:
+    usage_captcha: '&3Za prijavu moraš riješiti captcha kod, upotrijebi naredbu: /captcha %captcha_code'
+    wrong_captcha: '&cPogrešna captcha, upiši "/captcha %captcha_code" u razgovor!'
+    valid_captcha: '&2Captcha kod je ispravno riješen!'
+    captcha_for_registration: 'Za registraciju prvo moraš riješiti captcha, upotrijebi naredbu: /captcha %captcha_code'
+    register_captcha_valid: '&2Ispravna captcha! Sada se možeš registrirati naredbom /register'
+
+# Kod za potvrdu
+verification:
+    code_required: '&3Ova naredba je osjetljiva i zahtijeva potvrdu e-poštom! Provjeri svoj pretinac i slijedi upute iz e-pošte.'
+    command_usage: '&cUpotreba: /verification <kod>'
+    incorrect_code: '&cNeispravan kod, upiši "/verification <kod>" u razgovor koristeći kod koji si primio e-poštom'
+    success: '&2Tvoj identitet je potvrđen! Sada možeš izvršavati sve naredbe unutar ove sesije!'
+    already_verified: '&2Već možeš izvršavati sve osjetljive naredbe unutar ove sesije!'
+    code_expired: '&3Tvoj kod je istekao! Izvrši još jednu osjetljivu naredbu kako bi dobio novi kod!'
+    email_needed: '&3Za potvrdu identiteta moraš povezati adresu e-pošte sa svojim računom!'
+
+# Dvofaktorska autentifikacija
+two_factor:
+    code_created: '&2Tvoj tajni kod je %code. Možeš ga skenirati ovdje: %url'
+    confirmation_required: 'Molimo, potvrdi svoj kod s /2fa confirm <kod>'
+    code_required: 'Molimo, unesi svoj dvofaktorski kod s /2fa code <kod>'
+    already_enabled: 'Dvofaktorska autentifikacija je već uključena za tvoj račun!'
+    enable_error_no_code: 'Za tebe nije stvoren nijedan 2fa ključ ili je istekao. Upotrijebi /2fa add'
+    enable_success: 'Dvofaktorska autentifikacija uspješno je uključena za tvoj račun'
+    enable_error_wrong_code: 'Pogrešan kod ili je kod istekao. Upotrijebi /2fa add'
+    not_enabled_error: 'Dvofaktorska autentifikacija nije uključena za tvoj račun. Upotrijebi /2fa add'
+    removed_success: 'Dvofaktorska autentifikacija uspješno je uklonjena s tvojeg računa'
+    invalid_code: 'Neispravan kod!'
+
+# Vremenske jedinice
+time:
+    second: 'sekunda'
+    seconds: 'sekundi'
+    minute: 'minuta'
+    minutes: 'minuta'
+    hour: 'sat'
+    hours: 'sati'
+    day: 'dan'
+    days: 'dana'

@@ -1,0 +1,156 @@
+# Liosta de chlibeanna comhchoiteanna:
+# %nl% - Téann go líne nua.
+# %username% - Cuirtear ainm úsáideora an imreora a fhaigheann an teachtaireacht ina áit.
+# %displayname% - Cuirtear leasainm (agus dathanna) an imreora a fhaigheann an teachtaireacht ina áit.
+
+# Clárú
+registration:
+    register_request: '&3Cláraigh ar an bhfreastalaí leis an ordú, le do thoil: /register <pasfhocal> <deimhnighPasfhocal>'
+    command_usage: '&cÚsáid: /register <pasfhocal> <deimhnighPasfhocal>'
+    reg_only: '&4Ní féidir ach le húsáideoirí cláraithe teacht isteach ar an bhfreastalaí! Tabhair cuairt ar http://example.com chun clárú!'
+    kicked_admin_registered: 'Chláraigh riarthóir thú anois; logáil isteach arís, le do thoil.'
+    success: '&2D''éirigh leis an gclárú!'
+    disabled: '&cTá clárú sa chluiche díchumasaithe!'
+    name_taken: '&cTá an t-ainm úsáideora seo cláraithe agat cheana féin!'
+
+# Earráidí pasfhocail le linn cláraithe
+password:
+    match_error: '&cNíor mheaitseáil na pasfhocail, seiceáil arís iad!'
+    name_in_password: '&cNí féidir leat d''ainm a úsáid mar phasfhocal, roghnaigh ceann eile...'
+    unsafe_password: '&cNíl an pasfhocal a roghnaigh tú sábháilte, roghnaigh ceann eile...'
+    forbidden_characters: '&4Tá carachtair neamhcheadaithe i do phasfhocal. Carachtair cheadaithe: %valid_chars'
+    wrong_length: '&cTá do phasfhocal róghearr nó rófhada! Bain triail as ceann eile!'
+
+# Logáil isteach
+login:
+    command_usage: '&cÚsáid: /login <pasfhocal>'
+    wrong_password: '&cPasfhocal mícheart!'
+    success: '&2D''éirigh leis an logáil isteach!'
+    login_request: '&cLogáil isteach leis an ordú, le do thoil: /login <pasfhocal>'
+    timeout_error: '&4Chuaigh an t-am logála isteach thar fóir, caitheadh amach ón bhfreastalaí thú, bain triail eile as!'
+
+# Earráidí
+error:
+    unregistered_user: '&cNíl an t-úsáideoir seo cláraithe!'
+    denied_command: '&cChun an t-ordú seo a úsáid caithfidh tú a bheith logáilte isteach!'
+    denied_chat: '&cChun comhrá a dhéanamh caithfidh tú a bheith logáilte isteach!'
+    not_logged_in: '&cNíl tú logáilte isteach!'
+    tempban_max_logins: '&cCuireadh cosc sealadach ort mar gur theip ort logáil isteach rómhinic.'
+    max_registration: '&cSháraigh tú an t-uaslíon clárúchán (%reg_count/%max_acc %reg_names) do do cheangal!'
+    no_permission: '&4Níl cead agat an gníomh seo a dhéanamh!'
+    unexpected_error: '&4Tharla earráid gan choinne, déan teagmháil le riarthóir, le do thoil!'
+    kick_for_vip: '&3Tháinig imreoir VIP isteach ar an bhfreastalaí nuair a bhí sé lán!'
+    logged_in: '&cTá tú logáilte isteach cheana féin!'
+    kick_unresolved_hostname: '&cTharla earráid: níorbh fhéidir óstainm an imreora a réiteach!'
+
+# AntiBot
+antibot:
+    kick_antibot: 'Tá cosaint AntiBot cumasaithe! Caithfidh tú fanacht cúpla nóiméad sula dtiocfaidh tú isteach ar an bhfreastalaí.'
+    auto_enabled: '&4[AntiBotService] Cumasaíodh AntiBot mar gheall ar an líon ollmhór ceangal!'
+    auto_disabled: '&2[AntiBotService] Díchumasaíodh AntiBot tar éis %m nóiméad!'
+
+unregister:
+    success: '&cD''éirigh leis an díchlárú!'
+    command_usage: '&cÚsáid: /unregister <pasfhocal>'
+
+# Teachtaireachtaí eile
+misc:
+    accounts_owned_self: 'Is leat %count cuntas:'
+    accounts_owned_other: 'Tá %count cuntas ag an imreoir %name:'
+    account_not_activated: '&cNíl do chuntas gníomhachtaithe fós, seiceáil do ríomhphost!'
+    password_changed: '&2Athraíodh an pasfhocal go rathúil!'
+    logout: '&2Logáladh amach go rathúil!'
+    reload: '&2Athlódáladh an chumraíocht agus an bunachar sonraí i gceart!'
+    usage_change_password: '&cÚsáid: /changepassword <seanPhasfhocal> <pasfhocalNua>'
+
+# Teachtaireachtaí seisiúin
+session:
+    invalid_session: '&cAthraíodh do sheoladh IP agus tá sonraí do sheisiúin as feidhm!'
+    valid_session: '&2Logáilte isteach de bharr athcheangal an tseisiúin.'
+
+# Teachtaireachtaí earráide agus tú ag teacht isteach
+on_join_validation:
+    name_length: '&4Tá d''ainm úsáideora róghearr nó rófhada!'
+    characters_in_name: '&4Tá carachtair neamhcheadaithe i d''ainm úsáideora. Carachtair cheadaithe: %valid_chars'
+    country_banned: '&4Tá cosc ar do thír ón bhfreastalaí seo!'
+    not_owner_error: 'Ní tusa úinéir an chuntais seo. Roghnaigh ainm eile, le do thoil!'
+    kick_full_server: '&4Tá an freastalaí lán, bain triail eile as níos déanaí!'
+    same_nick_online: '&4Tá an t-ainm úsáideora céanna ag imirt ar an bhfreastalaí cheana féin!'
+    invalid_name_case: 'Ba cheart duit teacht isteach leis an ainm úsáideora %valid, ní %invalid.'
+    same_ip_online: 'Tá imreoir leis an seoladh IP céanna sa chluiche cheana féin!'
+    quick_command: 'D''úsáid tú ordú róthapa! Tar isteach ar an bhfreastalaí arís agus fan níos faide sula n-úsáideann tú ordú ar bith.'
+
+# Ríomhphost
+email:
+    usage_email_add: '&cÚsáid: /email add <ríomhphost> <deimhnighRíomhphost>'
+    usage_email_change: '&cÚsáid: /email change <seanRíomhphost> <ríomhphostNua>'
+    new_email_invalid: '&cRíomhphost nua neamhbhailí, bain triail eile as!'
+    old_email_invalid: '&cSeanríomhphost neamhbhailí, bain triail eile as!'
+    invalid: '&cSeoladh ríomhphoist neamhbhailí, bain triail eile as!'
+    added: '&2Cuireadh an seoladh ríomhphoist le do chuntas go rathúil!'
+    request_confirmation: '&cDeimhnigh do sheoladh ríomhphoist, le do thoil!'
+    changed: '&2Athraíodh an seoladh ríomhphoist i gceart!'
+    email_show: '&2Is é do sheoladh ríomhphoist reatha: &f%email'
+    incomplete_settings: 'Earráid: níl gach socrú riachtanach le haghaidh seoladh ríomhphoist socraithe. Déan teagmháil le riarthóir.'
+    already_used: '&4Tá an seoladh ríomhphoist in úsáid cheana féin'
+    send_failure: 'Níorbh fhéidir an ríomhphost a sheoladh. Déan teagmháil le riarthóir.'
+    no_email_for_account: '&2Níl seoladh ríomhphoist ceangailte leis an gcuntas seo faoi láthair.'
+    add_email_request: '&3Cuir do ríomhphost le do chuntas leis an ordú, le do thoil: /email add <doRíomhphost> <deimhnighRíomhphost>'
+    change_password_expired: 'Ní féidir leat do phasfhocal a athrú leis an ordú seo a thuilleadh.'
+    email_cooldown_error: '&cSeoladh ríomhphost le déanaí cheana féin. Caithfidh tú fanacht %time sula seolfaidh tú ceann nua.'
+    add_not_allowed: '&cNíor ceadaíodh ríomhphost a chur leis.'
+    change_not_allowed: '&cNíor ceadaíodh an ríomhphost a athrú.'
+
+# Aisghabháil pasfhocail trí ríomhphost
+recovery:
+    forgot_password_hint: '&3Ar dhearmad tú do phasfhocal? Úsáid an t-ordú, le do thoil: /email recovery <doRíomhphost>'
+    command_usage: '&cÚsáid: /email recovery <Ríomhphost>'
+    email_sent: '&2Seoladh an ríomhphost aisghabhála go rathúil! Seiceáil do bhosca isteach!'
+    code:
+        code_sent: 'Seoladh cód aisghabhála chun do phasfhocal a athshocrú chuig do ríomhphost.'
+        incorrect: 'Níl an cód aisghabhála ceart! Tá %count iarracht fágtha agat.'
+        tries_exceeded: 'Sháraigh tú an t-uaslíon iarrachtaí chun an cód aisghabhála a chur isteach. Úsáid "/email recovery [email]" chun ceann nua a chruthú.'
+        correct: 'Cuireadh an cód aisghabhála isteach i gceart!'
+        change_password: 'Úsáid an t-ordú /email setpassword <pasfhocal nua> chun do phasfhocal a athrú láithreach, le do thoil.'
+
+# Captcha
+captcha:
+    usage_captcha: '&3Chun logáil isteach caithfidh tú cód captcha a réiteach, úsáid an t-ordú: /captcha %captcha_code'
+    wrong_captcha: '&cCaptcha mícheart, scríobh "/captcha %captcha_code" sa chomhrá!'
+    valid_captcha: '&2Réitíodh an cód captcha i gceart!'
+    captcha_for_registration: 'Chun clárú caithfidh tú captcha a réiteach ar dtús, úsáid an t-ordú: /captcha %captcha_code'
+    register_captcha_valid: '&2Captcha bailí! Is féidir leat clárú anois le /register'
+
+# Cód fíoraithe
+verification:
+    code_required: '&3Tá an t-ordú seo íogair agus teastaíonn fíorú ríomhphoist uaidh! Seiceáil do bhosca isteach agus lean na treoracha sa ríomhphost.'
+    command_usage: '&cÚsáid: /verification <cód>'
+    incorrect_code: '&cCód mícheart, scríobh "/verification <cód>" sa chomhrá leis an gcód a fuair tú tríd an ríomhphost'
+    success: '&2Fíoraíodh do chéannacht! Is féidir leat gach ordú a rith sa seisiún seo anois!'
+    already_verified: '&2Is féidir leat gach ordú íogair a rith sa seisiún seo cheana féin!'
+    code_expired: '&3Tá do chód as feidhm! Rith ordú íogair eile chun cód nua a fháil!'
+    email_needed: '&3Chun do chéannacht a fhíorú caithfidh tú seoladh ríomhphoist a nascadh le do chuntas!'
+
+# Fíordheimhniú défhachtóireach
+two_factor:
+    code_created: '&2Is é do chód rúnda %code. Is féidir leat é a scanadh anseo: %url'
+    confirmation_required: 'Deimhnigh do chód le /2fa confirm <cód>, le do thoil'
+    code_required: 'Cuir isteach do chód fíordheimhnithe dhéfhachtóirigh le /2fa code <cód>, le do thoil'
+    already_enabled: 'Tá fíordheimhniú défhachtóireach cumasaithe do do chuntas cheana féin!'
+    enable_error_no_code: 'Níor cruthaíodh eochair 2fa duit nó tá sí as feidhm. Rith /2fa add, le do thoil'
+    enable_success: 'Cumasaíodh fíordheimhniú défhachtóireach do do chuntas go rathúil'
+    enable_error_wrong_code: 'Cód mícheart nó tá an cód as feidhm. Rith /2fa add, le do thoil'
+    not_enabled_error: 'Níl fíordheimhniú défhachtóireach cumasaithe do do chuntas. Rith /2fa add'
+    removed_success: 'Baineadh fíordheimhniú défhachtóireach de do chuntas go rathúil'
+    invalid_code: 'Cód neamhbhailí!'
+
+# Aonaid ama
+time:
+    second: 'soicind'
+    seconds: 'soicind'
+    minute: 'nóiméad'
+    minutes: 'nóiméad'
+    hour: 'uair'
+    hours: 'uair an chloig'
+    day: 'lá'
+    days: 'lá'
