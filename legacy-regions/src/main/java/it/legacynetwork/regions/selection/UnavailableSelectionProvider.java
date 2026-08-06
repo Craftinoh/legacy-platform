@@ -10,7 +10,7 @@ public final class UnavailableSelectionProvider implements SelectionProvider {
     }
 
     @Override
-    public int[] getSelection(Player player) {
+    public RegionSelection getSelection(Player player) {
         return null;
     }
 }
