@@ -26,37 +26,43 @@ public class FlagTextureService {
     public void reload() {
         Map<String, ItemStack> cache = new HashMap<String, ItemStack>();
 
-        fallbackIcon = new ItemStack(Material.PAPER);
+        // Empty or invalid textures still produce a selectable 1.8-compatible
+        // player head instead of filling the language menu with paper items.
+        fallbackIcon = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
         ItemMeta fallbackMeta = fallbackIcon.getItemMeta();
         if (fallbackMeta != null) {
-            fallbackMeta.setDisplayName("\u00a7fUnknown Language");
+            fallbackMeta.setDisplayName("\u00a7fLanguage");
             fallbackIcon.setItemMeta(fallbackMeta);
         }
 
         File file = new File(pluginDataFolder, "flag-textures.yml");
-        YamlConfiguration config;
-        if (file.exists()) {
-            config = YamlConfiguration.loadConfiguration(file);
-        } else {
-            config = new YamlConfiguration();
-        }
+        YamlConfiguration config = file.exists()
+                ? YamlConfiguration.loadConfiguration(file)
+                : new YamlConfiguration();
 
         if (config.isConfigurationSection("languages")) {
-            for (String code : config.getConfigurationSection("languages").getKeys(false)) {
-                String texture = config.getString("languages." + code + ".texture", "");
-                if (texture != null && !texture.isEmpty() && SkullTextureUtil.isValidTexture(texture)) {
-                    try {
-                        ItemStack baseItem = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
-                        SkullMeta meta = (SkullMeta) baseItem.getItemMeta();
-                        if (meta != null) {
-                            UUID uuid = UUID.nameUUIDFromBytes(
-                                    ("lang-" + code).getBytes(StandardCharsets.UTF_8));
-                            SkullTextureUtil.applyTexture(meta, texture, uuid);
-                            baseItem.setItemMeta(meta);
-                            cache.put(code, baseItem);
-                        }
-                    } catch (Exception ignored) {
+            for (String code : config.getConfigurationSection("languages")
+                    .getKeys(false)) {
+                String texture = config.getString(
+                        "languages." + code + ".texture", "");
+                if (texture == null || texture.trim().isEmpty()
+                        || !SkullTextureUtil.isValidTexture(texture)) {
+                    continue;
+                }
+                try {
+                    ItemStack baseItem = new ItemStack(
+                            Material.SKULL_ITEM, 1, (short) 3);
+                    SkullMeta meta = (SkullMeta) baseItem.getItemMeta();
+                    if (meta != null) {
+                        UUID uuid = UUID.nameUUIDFromBytes(
+                                ("lang-" + code)
+                                        .getBytes(StandardCharsets.UTF_8));
+                        SkullTextureUtil.applyTexture(meta, texture, uuid);
+                        baseItem.setItemMeta(meta);
+                        cache.put(code, baseItem);
                     }
+                } catch (RuntimeException ignored) {
+                    // The generic skull remains available as a safe fallback.
                 }
             }
         }
@@ -66,9 +72,6 @@ public class FlagTextureService {
 
     public ItemStack getBaseIcon(String languageCode) {
         ItemStack base = iconCache.get(languageCode);
-        if (base != null) {
-            return base.clone();
-        }
-        return fallbackIcon.clone();
+        return (base != null ? base : fallbackIcon).clone();
     }
 }
