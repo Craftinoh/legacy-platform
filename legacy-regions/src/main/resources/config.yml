@@ -15,5 +15,27 @@ defaults:
   vehicle-use: ALLOW
   interact: ALLOW
 
+language:
+  fallback: "en"
+  italian-file: "messages_it.yml"
+  english-file: "messages_en.yml"
+
 messages:
-  denied: "&cNon puoi farlo in questa zona."
+  enabled: true
+  cooldown-millis: 3000
+  actions:
+    build: true
+    block-break: true
+    block-place: true
+    pvp: true
+    damage: false
+    fall-damage: false
+    hunger: false
+    item-drop: true
+    item-pickup: false
+    explosions: false
+    fire-spread: true
+    mob-spawn: false
+    projectiles: true
+    vehicle-use: true
+    interact: true
