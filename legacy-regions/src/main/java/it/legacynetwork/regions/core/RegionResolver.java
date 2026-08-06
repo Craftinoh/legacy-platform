@@ -5,9 +5,8 @@ import it.legacynetwork.regions.model.FlagState;
 import it.legacynetwork.regions.model.RegionDecision;
 import it.legacynetwork.regions.model.RegionFlag;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,77 +15,98 @@ public final class RegionResolver {
     private final RegionIndex regionIndex;
     private final Map<RegionFlag, FlagState> defaultFlags;
 
-    public RegionResolver(RegionIndex regionIndex, Map<RegionFlag, FlagState> defaultFlags) {
+    public RegionResolver(RegionIndex regionIndex,
+                          Map<RegionFlag, FlagState> defaultFlags) {
+        if (regionIndex == null) {
+            throw new IllegalArgumentException("RegionIndex mancante");
+        }
         this.regionIndex = regionIndex;
-        this.defaultFlags = defaultFlags;
+        EnumMap<RegionFlag, FlagState> defaults =
+                new EnumMap<RegionFlag, FlagState>(RegionFlag.class);
+        if (defaultFlags != null) {
+            defaults.putAll(defaultFlags);
+        }
+        this.defaultFlags = Collections.unmodifiableMap(defaults);
     }
 
-    public RegionDecision resolve(int x, int y, int z, RegionFlag flag) {
-        List<CuboidRegion> candidates = regionIndex.getCandidates(x, z);
-        if (candidates.isEmpty()) {
-            FlagState defaultState = defaultFlags.get(flag);
-            if (defaultState == null || defaultState == FlagState.ALLOW) {
-                return RegionDecision.allowed();
-            }
-            if (defaultState == FlagState.DENY) {
-                return RegionDecision.denied(null, 0, flag);
-            }
-            return RegionDecision.undecided(flag);
+    public RegionDecision resolve(String worldName, String worldUuid,
+                                  int x, int y, int z, RegionFlag flag) {
+        RegionDecision explicit = resolveExplicit(
+                worldName, worldUuid, x, y, z, flag);
+        if (explicit.getFinalState() != FlagState.INHERIT) {
+            return explicit;
+        }
+        return defaultDecision(flag);
+    }
+
+    public RegionDecision resolveEffective(String worldName, String worldUuid,
+                                           int x, int y, int z,
+                                           RegionFlag flag) {
+        RegionDecision explicit = resolveExplicit(
+                worldName, worldUuid, x, y, z, flag);
+        if (explicit.getFinalState() != FlagState.INHERIT) {
+            return explicit;
         }
 
-        List<CuboidRegion> containing = new ArrayList<CuboidRegion>();
-        for (int i = 0; i < candidates.size(); i++) {
-            CuboidRegion region = candidates.get(i);
-            if (region.contains(x, y, z)) {
-                containing.add(region);
-            }
+        FlagState configuredDefault = defaultFlags.get(flag);
+        if (configuredDefault != null && configuredDefault != FlagState.INHERIT) {
+            return decisionFromDefault(flag, configuredDefault);
         }
 
-        if (containing.isEmpty()) {
-            FlagState defaultState = defaultFlags.get(flag);
-            if (defaultState == null || defaultState == FlagState.ALLOW) {
-                return RegionDecision.allowed();
-            }
-            if (defaultState == FlagState.DENY) {
-                return RegionDecision.denied(null, 0, flag);
-            }
-            return RegionDecision.undecided(flag);
+        RegionFlag generalFlag = flag.getGeneralFlag();
+        if (generalFlag != null) {
+            return resolve(worldName, worldUuid, x, y, z, generalFlag);
         }
+        return RegionDecision.allowed(null, 0, flag);
+    }
 
-        Collections.sort(containing, new Comparator<CuboidRegion>() {
-            @Override
-            public int compare(CuboidRegion a, CuboidRegion b) {
-                int priorityDiff = b.getPriority() - a.getPriority();
-                if (priorityDiff != 0) {
-                    return priorityDiff;
-                }
-                return a.getId().compareTo(b.getId());
+    public RegionDecision resolveExplicit(String worldName, String worldUuid,
+                                          int x, int y, int z,
+                                          RegionFlag flag) {
+        if (flag == null) {
+            throw new IllegalArgumentException("Flag mancante");
+        }
+        List<CuboidRegion> candidates = regionIndex.getCandidates(
+                worldName, worldUuid, x, z);
+        for (CuboidRegion region : candidates) {
+            if (!region.matchesWorld(worldName, worldUuid)
+                    || !region.contains(x, y, z)) {
+                continue;
             }
-        });
-
-        for (int i = 0; i < containing.size(); i++) {
-            CuboidRegion region = containing.get(i);
             FlagState state = region.getFlag(flag);
             if (state == FlagState.ALLOW) {
-                return RegionDecision.allowed();
+                return RegionDecision.allowed(
+                        region.getId(), region.getPriority(), flag);
             }
             if (state == FlagState.DENY) {
-                return RegionDecision.denied(region.getId(), region.getPriority(), flag);
+                return RegionDecision.denied(
+                        region.getId(), region.getPriority(), flag);
             }
-        }
-
-        FlagState defaultState = defaultFlags.get(flag);
-        if (defaultState == FlagState.DENY) {
-            return RegionDecision.denied(null, 0, flag);
-        }
-        if (defaultState == FlagState.ALLOW) {
-            return RegionDecision.allowed();
         }
         return RegionDecision.undecided(flag);
     }
 
-    public boolean isAllowed(int x, int y, int z, RegionFlag flag) {
-        return resolve(x, y, z, flag).getFinalState() == FlagState.ALLOW;
+    public boolean isAllowed(String worldName, String worldUuid,
+                             int x, int y, int z, RegionFlag flag) {
+        return resolveEffective(worldName, worldUuid, x, y, z, flag).isAllowed();
+    }
+
+    private RegionDecision defaultDecision(RegionFlag flag) {
+        FlagState state = defaultFlags.get(flag);
+        if (state == null || state == FlagState.INHERIT || state == FlagState.ALLOW) {
+            return RegionDecision.allowed(null, 0, flag);
+        }
+        return RegionDecision.denied(null, 0, flag);
+    }
+
+    private RegionDecision decisionFromDefault(RegionFlag flag, FlagState state) {
+        if (state == FlagState.DENY) {
+            return RegionDecision.denied(null, 0, flag);
+        }
+        if (state == FlagState.ALLOW) {
+            return RegionDecision.allowed(null, 0, flag);
+        }
+        return RegionDecision.undecided(flag);
     }
 
     public RegionIndex getRegionIndex() {
