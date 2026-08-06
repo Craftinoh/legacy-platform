@@ -4,5 +4,5 @@ import org.bukkit.entity.Player;
 
 public interface SelectionProvider {
     boolean isAvailable();
-    int[] getSelection(Player player);
+    RegionSelection getSelection(Player player);
 }
