@@ -7,6 +7,19 @@ placeholderapi:
   enabled: true
 
 languages:
+  en:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fName: &a{player}"
+      - "&fRank: &r%luckperms_prefix%"
+      - ""
+      - "&fLobby: &a{server}"
+      - "&fOnline: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
   it:
     title: "&6&lAPTERIS"
     lines:
@@ -20,15 +33,379 @@ languages:
       - "&eplay.apteris.net"
       - "&7&m----------------"
 
-  en:
+  es:
     title: "&6&lAPTERIS"
     lines:
       - "&7&m----------------"
-      - "&fName: &a%player_name%"
-      - "&fRank: &r%luckperms_prefix%"
+      - "&fNombre: &a{player}"
+      - "&fRango: &r%luckperms_prefix%"
+      - ""
+      - "&fLobby: &a{server}"
+      - "&fEn línea: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
+  fr:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fNom : &a{player}"
+      - "&fGrade : &r%luckperms_prefix%"
+      - ""
+      - "&fLobby : &a{server}"
+      - "&fEn ligne : &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
+  de:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fName: &a{player}"
+      - "&fRang: &r%luckperms_prefix%"
       - ""
       - "&fLobby: &a{server}"
       - "&fOnline: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
+  pt:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fNome: &a{player}"
+      - "&fCargo: &r%luckperms_prefix%"
+      - ""
+      - "&fLobby: &a{server}"
+      - "&fOnline: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
+  pt_br:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fNome: &a{player}"
+      - "&fCargo: &r%luckperms_prefix%"
+      - ""
+      - "&fLobby: &a{server}"
+      - "&fOnline: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
+  nl:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fNaam: &a{player}"
+      - "&fRang: &r%luckperms_prefix%"
+      - ""
+      - "&fLobby: &a{server}"
+      - "&fOnline: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
+  pl:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fNazwa: &a{player}"
+      - "&fRanga: &r%luckperms_prefix%"
+      - ""
+      - "&fLobby: &a{server}"
+      - "&fOnline: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
+  ro:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fNume: &a{player}"
+      - "&fRang: &r%luckperms_prefix%"
+      - ""
+      - "&fLobby: &a{server}"
+      - "&fOnline: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
+  hu:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fNév: &a{player}"
+      - "&fRang: &r%luckperms_prefix%"
+      - ""
+      - "&fLobby: &a{server}"
+      - "&fOnline: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
+  cs:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fJméno: &a{player}"
+      - "&fHodnost: &r%luckperms_prefix%"
+      - ""
+      - "&fLobby: &a{server}"
+      - "&fOnline: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
+  sk:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fMeno: &a{player}"
+      - "&fHodnosť: &r%luckperms_prefix%"
+      - ""
+      - "&fLobby: &a{server}"
+      - "&fOnline: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
+  sl:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fIme: &a{player}"
+      - "&fRang: &r%luckperms_prefix%"
+      - ""
+      - "&fLobby: &a{server}"
+      - "&fNa spletu: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
+  hr:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fIme: &a{player}"
+      - "&fRang: &r%luckperms_prefix%"
+      - ""
+      - "&fLobby: &a{server}"
+      - "&fOnline: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
+  bg:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fИме: &a{player}"
+      - "&fРанг: &r%luckperms_prefix%"
+      - ""
+      - "&fЛоби: &a{server}"
+      - "&fОнлайн: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
+  el:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fΌνομα: &a{player}"
+      - "&fΒαθμός: &r%luckperms_prefix%"
+      - ""
+      - "&fLobby: &a{server}"
+      - "&fΣυνδεδεμένοι: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
+  da:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fNavn: &a{player}"
+      - "&fRang: &r%luckperms_prefix%"
+      - ""
+      - "&fLobby: &a{server}"
+      - "&fOnline: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
+  sv:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fNamn: &a{player}"
+      - "&fRang: &r%luckperms_prefix%"
+      - ""
+      - "&fLobby: &a{server}"
+      - "&fOnline: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
+  "no":
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fNavn: &a{player}"
+      - "&fRang: &r%luckperms_prefix%"
+      - ""
+      - "&fLobby: &a{server}"
+      - "&fPålogget: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
+  fi:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fNimi: &a{player}"
+      - "&fArvo: &r%luckperms_prefix%"
+      - ""
+      - "&fAula: &a{server}"
+      - "&fPaikalla: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
+  is:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fNafn: &a{player}"
+      - "&fStaða: &r%luckperms_prefix%"
+      - ""
+      - "&fAnddyri: &a{server}"
+      - "&fTengdir: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
+  et:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fNimi: &a{player}"
+      - "&fAste: &r%luckperms_prefix%"
+      - ""
+      - "&fFuajee: &a{server}"
+      - "&fVõrgus: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
+  lv:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fVārds: &a{player}"
+      - "&fRangs: &r%luckperms_prefix%"
+      - ""
+      - "&fVestibils: &a{server}"
+      - "&fTiešsaistē: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
+  lt:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fVardas: &a{player}"
+      - "&fRangas: &r%luckperms_prefix%"
+      - ""
+      - "&fLaukiamasis: &a{server}"
+      - "&fPrisijungę: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
+  ga:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fAinm: &a{player}"
+      - "&fCéim: &r%luckperms_prefix%"
+      - ""
+      - "&fForhalla: &a{server}"
+      - "&fAr líne: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
+  mt:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fIsem: &a{player}"
+      - "&fGrad: &r%luckperms_prefix%"
+      - ""
+      - "&fLobby: &a{server}"
+      - "&fOnline: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
+  ru:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fИмя: &a{player}"
+      - "&fРанг: &r%luckperms_prefix%"
+      - ""
+      - "&fЛобби: &a{server}"
+      - "&fОнлайн: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
+  uk:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fІм'я: &a{player}"
+      - "&fРанг: &r%luckperms_prefix%"
+      - ""
+      - "&fЛобі: &a{server}"
+      - "&fОнлайн: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
+  tr:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fİsim: &a{player}"
+      - "&fRütbe: &r%luckperms_prefix%"
+      - ""
+      - "&fLobi: &a{server}"
+      - "&fÇevrimiçi: &a{online}"
+      - ""
+      - "&eplay.apteris.net"
+      - "&7&m----------------"
+
+  sr:
+    title: "&6&lAPTERIS"
+    lines:
+      - "&7&m----------------"
+      - "&fИме: &a{player}"
+      - "&fРанг: &r%luckperms_prefix%"
+      - ""
+      - "&fЛоби: &a{server}"
+      - "&fОнлајн: &a{online}"
       - ""
       - "&eplay.apteris.net"
       - "&7&m----------------"
