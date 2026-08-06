@@ -39,8 +39,8 @@ public final class MessageService {
     public void load() {
         messagesByLang.clear();
         prefixesByLang.clear();
-        loadLanguageFile("it", new File(plugin.getDataFolder(), "messages_it.yml"));
-        loadLanguageFile("en", new File(plugin.getDataFolder(), "messages_en.yml"));
+        loadLanguageFile("it", new File(plugin.getDataFolder(), "translations/messages_it.yml"));
+        loadLanguageFile("en", new File(plugin.getDataFolder(), "translations/messages_en.yml"));
     }
 
     private void loadLanguageFile(String langCode, File file) {

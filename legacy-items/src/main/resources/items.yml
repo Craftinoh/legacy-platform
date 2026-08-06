@@ -1,51 +1,199 @@
+schema-version: 2
+
 items:
   server-selector:
-    enabled: true
-
-    material: "COMPASS"
-    data: 0
+    material: COMPASS
     amount: 1
+    data: 0
     slot: 1
+    permission: ""
+    actions:
+      - "OPEN_MENU:server-selector"
 
-    triggers:
-      - "JOIN"
-      - "RESPAWN"
-
-    worlds:
-      mode: "ALL"
-      values: []
-
-    permission:
-      required: false
-      node: "legacyitems.item.server-selector"
-
-    languages:
-      it:
-        name: "&6Selettore Server &7(Click destro)"
-        lore:
-          - "&7Scegli la modalità a cui giocare."
-          - ""
-          - "&eClicca per aprire il menu."
-
+    translations:
       en:
         name: "&6Server Selector &7(Right Click)"
         lore:
           - "&7Choose the game you want to play."
           - ""
           - "&eClick to open the menu."
-
-    flags:
-      prevent-drop: true
-      prevent-move: true
-      prevent-swap: true
-      prevent-damage: true
-      unique: true
-      replace-existing: true
-
-    actions:
-      right-click:
-        cancel-event: true
-        cooldown-milliseconds: 500
-        execute:
-          - type: "OPEN_MENU"
-            value: "server-selector"
+      it:
+        name: "&6Selettore Server &7(Click destro)"
+        lore:
+          - "&7Scegli la modalità a cui giocare."
+          - ""
+          - "&eClicca per aprire il menu."
+      es:
+        name: "&6Selector de Servidores &7(Clic derecho)"
+        lore:
+          - "&7Elige el juego que quieres jugar."
+          - ""
+          - "&eHaz clic para abrir el menú."
+      fr:
+        name: "&6Sélecteur de Serveur &7(Clic droit)"
+        lore:
+          - "&7Choisissez le jeu auquel vous voulez jouer."
+          - ""
+          - "&eCliquez pour ouvrir le menu."
+      de:
+        name: "&6Serverauswahl &7(Rechtsklick)"
+        lore:
+          - "&7Wähle das Spiel, das du spielen möchtest."
+          - ""
+          - "&eKlicke, um das Menü zu öffnen."
+      pt:
+        name: "&6Seletor de Servidor &7(Clique direito)"
+        lore:
+          - "&7Escolhe o jogo que queres jogar."
+          - ""
+          - "&eClica para abrir o menu."
+      pt_br:
+        name: "&6Seletor de Servidor &7(Clique direito)"
+        lore:
+          - "&7Escolha o jogo que você quer jogar."
+          - ""
+          - "&eClique para abrir o menu."
+      nl:
+        name: "&6Serverkiezer &7(Rechtsklik)"
+        lore:
+          - "&7Kies het spel dat je wilt spelen."
+          - ""
+          - "&eKlik om het menu te openen."
+      pl:
+        name: "&6Wybór Serwera &7(Prawy klik)"
+        lore:
+          - "&7Wybierz grę, w którą chcesz zagrać."
+          - ""
+          - "&eKliknij, aby otworzyć menu."
+      ro:
+        name: "&6Selector Server &7(Clic dreapta)"
+        lore:
+          - "&7Alege jocul pe care vrei să-l joci."
+          - ""
+          - "&eClick pentru a deschide meniul."
+      hu:
+        name: "&6Szerver Választó &7(Jobb klikk)"
+        lore:
+          - "&7Válaszd ki, melyik játékkal szeretnél játszani."
+          - ""
+          - "&eKattints a menü megnyitásához."
+      cs:
+        name: "&6Výběr Serveru &7(Pravé kliknutí)"
+        lore:
+          - "&7Vyber si hru, kterou chceš hrát."
+          - ""
+          - "&eKlikni pro otevření menu."
+      sk:
+        name: "&6Výber Servera &7(Pravé kliknutie)"
+        lore:
+          - "&7Vyber si hru, ktorú chceš hrať."
+          - ""
+          - "&eKlikni pre otvorenie menu."
+      sl:
+        name: "&6Izbirnik Strežnikov &7(Desni klik)"
+        lore:
+          - "&7Izberi igro, ki jo želiš igrati."
+          - ""
+          - "&eKlikni za odpiranje menija."
+      hr:
+        name: "&6Odabir Servera &7(Desni klik)"
+        lore:
+          - "&7Odaberi igru koju želiš igrati."
+          - ""
+          - "&eKlikni za otvaranje izbornika."
+      bg:
+        name: "&6Избор на Сървър &7(Десен клик)"
+        lore:
+          - "&7Избери играта, която искаш да играеш."
+          - ""
+          - "&eКликни, за да отвориш менюто."
+      el:
+        name: "&6Επιλογή Διακομιστή &7(Δεξί κλικ)"
+        lore:
+          - "&7Διάλεξε το παιχνίδι που θες να παίξεις."
+          - ""
+          - "&eΚάνε κλικ για να ανοίξεις το μενού."
+      da:
+        name: "&6Servervælger &7(Højreklik)"
+        lore:
+          - "&7Vælg det spil du vil spille."
+          - ""
+          - "&eKlik for at åbne menuen."
+      sv:
+        name: "&6Serverväljare &7(Högerklick)"
+        lore:
+          - "&7Välj spelet du vill spela."
+          - ""
+          - "&eKlicka för att öppna menyn."
+      no:
+        name: "&6Servervelger &7(Høyreklikk)"
+        lore:
+          - "&7Velg spillet du vil spille."
+          - ""
+          - "&eKlikk for å åpne menyen."
+      fi:
+        name: "&6Palvelimen Valitsin &7(Oikea klikkaus)"
+        lore:
+          - "&7Valitse peli, jota haluat pelata."
+          - ""
+          - "&eKlikkaa avataksesi valikon."
+      is:
+        name: "&6Þjónavali &7(Hægri smellur)"
+        lore:
+          - "&7Veldu leikinn sem þú vilt spila."
+          - ""
+          - "&eSmelltu til að opna valmynd."
+      et:
+        name: "&6Serveri Valija &7(Parem klõps)"
+        lore:
+          - "&7Vali mäng, mida soovid mängida."
+          - ""
+          - "&eKlõpsa menüü avamiseks."
+      lv:
+        name: "&6Servera Izvēle &7(Labais klikšķis)"
+        lore:
+          - "&7Izvēlies spēli, kuru vēlies spēlēt."
+          - ""
+          - "&eKlikšķini, lai atvērtu izvēlni."
+      lt:
+        name: "&6Serverio Pasirinkimas &7(Dešinys paspaudimas)"
+        lore:
+          - "&7Pasirink žaidimą, kurį nori žaisti."
+          - ""
+          - "&eSpustelėk, kad atidarytum meniu."
+      ga:
+        name: "&6Roghnóir Freastalaí &7(Deaschliceáil)"
+        lore:
+          - "&7Roghnaigh an cluiche is mian leat a imirt."
+          - ""
+          - "&eCliceáil chun an roghchlár a oscailt."
+      mt:
+        name: "&6Selettur tas-Server &7(Klikk tal-Lemin)"
+        lore:
+          - "&7Agħżel il-logħba li trid tilgħab."
+          - ""
+          - "&eIkklikkja biex tiftaħ il-menu."
+      ru:
+        name: "&6Выбор Сервера &7(Правый клик)"
+        lore:
+          - "&7Выбери игру, в которую хочешь играть."
+          - ""
+          - "&eНажми, чтобы открыть меню."
+      uk:
+        name: "&6Вибір Сервера &7(Правий клік)"
+        lore:
+          - "&7Обери гру, в яку хочеш грати."
+          - ""
+          - "&eНатисни, щоб відкрити меню."
+      tr:
+        name: "&6Sunucu Seçici &7(Sağ Tık)"
+        lore:
+          - "&7Oynamak istediğin oyunu seç."
+          - ""
+          - "&eMenüyü açmak için tıkla."
+      sr:
+        name: "&6Бирач Сервера &7(Десни клик)"
+        lore:
+          - "&7Изабери игру коју желиш да играш."
+          - ""
+          - "&eКликни да отвориш мени."

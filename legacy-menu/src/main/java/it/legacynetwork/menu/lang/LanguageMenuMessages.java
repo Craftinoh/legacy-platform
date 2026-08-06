@@ -59,7 +59,7 @@ public class LanguageMenuMessages {
     }
 
     private YamlConfiguration loadMessages(String lang) {
-        File file = new File(dataFolder, "messages_" + lang + ".yml");
+        File file = new File(dataFolder, "translations/messages_" + lang + ".yml");
         if (file.exists()) {
             return YamlConfiguration.loadConfiguration(file);
         }

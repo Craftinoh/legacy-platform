@@ -22,6 +22,7 @@ import it.legacynetwork.items.message.MessageService;
 import it.legacynetwork.items.placeholder.ItemPlaceholderService;
 import it.legacynetwork.items.placeholder.NoopItemPlaceholderService;
 import it.legacynetwork.items.placeholder.PlaceholderApiItemService;
+import it.legacynetwork.language.TranslationInstaller;
 import it.legacynetwork.language.PlayerLanguageChangeListener;
 import it.legacynetwork.language.PlayerLanguageEventService;
 import org.bukkit.Bukkit;
@@ -47,8 +48,9 @@ public final class LegacyItemsPlugin extends JavaPlugin
     public void onEnable() {
         saveDefaultConfig();
         saveResource("items.yml", false);
-        saveResource("messages_it.yml", false);
-        saveResource("messages_en.yml", false);
+        int count = TranslationInstaller.install(getDataFolder(),
+                "translations", getLogger(), getClassLoader());
+        getLogger().info("TranslationInstaller: " + count + " files installed.");
 
         try {
             configuration = LegacyItemsConfiguration.from(getConfig());

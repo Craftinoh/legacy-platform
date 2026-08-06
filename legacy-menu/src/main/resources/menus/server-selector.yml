@@ -1,67 +1,533 @@
+schema-version: 2
+
 id: server-selector
-enabled: true
 size: 27
 
-languages:
-  it:
-    title: "&8Selettore Server"
-  en:
-    title: "&8Server Selector"
+titles:
+  en: "&8Server Selector"
+  it: "&8Selettore Server"
+  es: "&8Selector de Servidores"
+  fr: "&8Sélecteur de Serveur"
+  de: "&8Serverauswahl"
+  pt: "&8Seletor de Servidor"
+  pt_br: "&8Seletor de Servidor"
+  nl: "&8Serverkiezer"
+  pl: "&8Wybór Serwera"
+  ro: "&8Selector Server"
+  hu: "&8Szerver Választó"
+  cs: "&8Výběr Serveru"
+  sk: "&8Výber Servera"
+  sl: "&8Izbirnik Strežnikov"
+  hr: "&8Odabir Servera"
+  bg: "&8Избор на Сървър"
+  el: "&8Επιλογή Διακομιστή"
+  da: "&8Servervælger"
+  sv: "&8Serverväljare"
+  no: "&8Servervelger"
+  fi: "&8Palvelimen Valitsin"
+  is: "&8Þjónavali"
+  et: "&8Serveri Valija"
+  lv: "&8Servera Izvēle"
+  lt: "&8Serverio Pasirinkimas"
+  ga: "&8Roghnóir Freastalaí"
+  mt: "&8Selettur tas-Server"
+  ru: "&8Выбор Сервера"
+  uk: "&8Вибір Сервера"
+  tr: "&8Sunucu Seçici"
+  sr: "&8Бирач Сервера"
 
 items:
   bedwars:
-    material: BED
-    data: 0
-    amount: 1
     slot: 12
-    languages:
-      it:
-        name: "&aBedWars"
-        lore:
-          - "&7Clicca per connetterti"
-      en:
-        name: "&aBedWars"
-        lore:
-          - "&7Click to connect"
+    material: BED
+    amount: 1
+    data: 0
+    permission: ""
     actions:
-      CLICK:
-        - type: CONNECT_SERVER
-          value: bedwars
+      - "CONNECT_SERVER:bedwars-lobby"
+    translations:
+      en:
+        name: "&cBedWars"
+        lore:
+          - "&7Play the BedWars mode."
+          - ""
+          - "&eClick to connect!"
+      it:
+        name: "&cBedWars"
+        lore:
+          - "&7Gioca alla modalità BedWars."
+          - ""
+          - "&eClicca per connetterti!"
+      es:
+        name: "&cBedWars"
+        lore:
+          - "&7Juega al modo BedWars."
+          - ""
+          - "&e¡Haz clic para conectarte!"
+      fr:
+        name: "&cBedWars"
+        lore:
+          - "&7Joue au mode BedWars."
+          - ""
+          - "&eClique pour te connecter!"
+      de:
+        name: "&cBedWars"
+        lore:
+          - "&7Spiele den BedWars-Modus."
+          - ""
+          - "&eKlicke zum Verbinden!"
+      pt:
+        name: "&cBedWars"
+        lore:
+          - "&7Joga o modo BedWars."
+          - ""
+          - "&eClica para conectar!"
+      pt_br:
+        name: "&cBedWars"
+        lore:
+          - "&7Jogue o modo BedWars."
+          - ""
+          - "&eClique para conectar!"
+      nl:
+        name: "&cBedWars"
+        lore:
+          - "&7Speel de BedWars-modus."
+          - ""
+          - "&eKlik om te verbinden!"
+      pl:
+        name: "&cBedWars"
+        lore:
+          - "&7Graj w tryb BedWars."
+          - ""
+          - "&eKliknij, aby połączyć!"
+      ro:
+        name: "&cBedWars"
+        lore:
+          - "&7Joacă modul BedWars."
+          - ""
+          - "&eClick pentru conectare!"
+      hu:
+        name: "&cBedWars"
+        lore:
+          - "&7Játssz a BedWars móddal."
+          - ""
+          - "&eKattints a csatlakozáshoz!"
+      cs:
+        name: "&cBedWars"
+        lore:
+          - "&7Hraj mód BedWars."
+          - ""
+          - "&eKlikni pro připojení!"
+      sk:
+        name: "&cBedWars"
+        lore:
+          - "&7Hraj mód BedWars."
+          - ""
+          - "&eKlikni pre pripojenie!"
+      sl:
+        name: "&cBedWars"
+        lore:
+          - "&7Igraj način BedWars."
+          - ""
+          - "&eKlikni za povezavo!"
+      hr:
+        name: "&cBedWars"
+        lore:
+          - "&7Igraj BedWars mod."
+          - ""
+          - "&eKlikni za povezivanje!"
+      bg:
+        name: "&cBedWars"
+        lore:
+          - "&7Играй режим BedWars."
+          - ""
+          - "&eКликни за свързване!"
+      el:
+        name: "&cBedWars"
+        lore:
+          - "&7Παίξε το mode BedWars."
+          - ""
+          - "&eΚάνε κλικ για σύνδεση!"
+      da:
+        name: "&cBedWars"
+        lore:
+          - "&7Spil BedWars-tilstand."
+          - ""
+          - "&eKlik for at forbinde!"
+      sv:
+        name: "&cBedWars"
+        lore:
+          - "&7Spela BedWars-läget."
+          - ""
+          - "&eKlicka för att ansluta!"
+      no:
+        name: "&cBedWars"
+        lore:
+          - "&7Spill BedWars-modus."
+          - ""
+          - "&eKlikk for å koble til!"
+      fi:
+        name: "&cBedWars"
+        lore:
+          - "&7Pelaa BedWars-tilaa."
+          - ""
+          - "&eKlikkaa yhdistääksesi!"
+      is:
+        name: "&cBedWars"
+        lore:
+          - "&7Spilaðu BedWars-ham."
+          - ""
+          - "&eSmelltu til að tengjast!"
+      et:
+        name: "&cBedWars"
+        lore:
+          - "&7Mängi BedWarsi režiimi."
+          - ""
+          - "&eKlõpsa ühendamiseks!"
+      lv:
+        name: "&cBedWars"
+        lore:
+          - "&7Spēlē BedWars režīmu."
+          - ""
+          - "&eKlikšķini, lai pieslēgtos!"
+      lt:
+        name: "&cBedWars"
+        lore:
+          - "&7Žaisk BedWars režimą."
+          - ""
+          - "&eSpustelėk prisijungti!"
+      ga:
+        name: "&cBedWars"
+        lore:
+          - "&7Imir modh BedWars."
+          - ""
+          - "&eCliceáil chun nascadh!"
+      mt:
+        name: "&cBedWars"
+        lore:
+          - "&7Ilgħab il-mod BedWars."
+          - ""
+          - "&eIkklikkja biex tikkonnettja!"
+      ru:
+        name: "&cBedWars"
+        lore:
+          - "&7Играй в режим BedWars."
+          - ""
+          - "&eНажми для подключения!"
+      uk:
+        name: "&cBedWars"
+        lore:
+          - "&7Грай у режим BedWars."
+          - ""
+          - "&eНатисни для підключення!"
+      tr:
+        name: "&cBedWars"
+        lore:
+          - "&7BedWars modunu oyna."
+          - ""
+          - "&eBağlanmak için tıkla!"
+      sr:
+        name: "&cBedWars"
+        lore:
+          - "&7Играј BedWars режим."
+          - ""
+          - "&eКликни за повезивање!"
 
   kitpvp:
-    material: IRON_SWORD
-    data: 0
-    amount: 1
     slot: 16
-    languages:
-      it:
-        name: "&eKitPvP"
-        lore:
-          - "&7Clicca per connetterti"
-      en:
-        name: "&eKitPvP"
-        lore:
-          - "&7Click to connect"
+    material: IRON_SWORD
+    amount: 1
+    data: 0
+    permission: ""
     actions:
-      CLICK:
-        - type: CONNECT_SERVER
-          value: kitpvp
+      - "CONNECT_SERVER:kitpvp"
+    translations:
+      en:
+        name: "&bKitPvP"
+        lore:
+          - "&7Fight in the KitPvP arena."
+          - ""
+          - "&eClick to connect!"
+      it:
+        name: "&bKitPvP"
+        lore:
+          - "&7Combatti nell'arena KitPvP."
+          - ""
+          - "&eClicca per connetterti!"
+      es:
+        name: "&bKitPvP"
+        lore:
+          - "&7Lucha en la arena KitPvP."
+          - ""
+          - "&e¡Haz clic para conectarte!"
+      fr:
+        name: "&bKitPvP"
+        lore:
+          - "&7Combattez dans l'arène KitPvP."
+          - ""
+          - "&eCliquez pour vous connecter!"
+      de:
+        name: "&bKitPvP"
+        lore:
+          - "&7Kämpfe in der KitPvP-Arena."
+          - ""
+          - "&eKlicke zum Verbinden!"
+      pt:
+        name: "&bKitPvP"
+        lore:
+          - "&7Luta na arena KitPvP."
+          - ""
+          - "&eClica para conectar!"
+      pt_br:
+        name: "&bKitPvP"
+        lore:
+          - "&7Lute na arena KitPvP."
+          - ""
+          - "&eClique para conectar!"
+      nl:
+        name: "&bKitPvP"
+        lore:
+          - "&7Vecht in de KitPvP-arena."
+          - ""
+          - "&eKlik om te verbinden!"
+      pl:
+        name: "&bKitPvP"
+        lore:
+          - "&7Walcz na arenie KitPvP."
+          - ""
+          - "&eKliknij, aby połączyć!"
+      ro:
+        name: "&bKitPvP"
+        lore:
+          - "&7Luptă în arena KitPvP."
+          - ""
+          - "&eClick pentru conectare!"
+      hu:
+        name: "&bKitPvP"
+        lore:
+          - "&7Harcolj a KitPvP arénában."
+          - ""
+          - "&eKattints a csatlakozáshoz!"
+      cs:
+        name: "&bKitPvP"
+        lore:
+          - "&7Bojuj v aréně KitPvP."
+          - ""
+          - "&eKlikni pro připojení!"
+      sk:
+        name: "&bKitPvP"
+        lore:
+          - "&7Bojuj v aréne KitPvP."
+          - ""
+          - "&eKlikni pre pripojenie!"
+      sl:
+        name: "&bKitPvP"
+        lore:
+          - "&7Bori se v areni KitPvP."
+          - ""
+          - "&eKlikni za povezavo!"
+      hr:
+        name: "&bKitPvP"
+        lore:
+          - "&7Bori se u KitPvP areni."
+          - ""
+          - "&eKlikni za povezivanje!"
+      bg:
+        name: "&bKitPvP"
+        lore:
+          - "&7Бий се на арена KitPvP."
+          - ""
+          - "&eКликни за свързване!"
+      el:
+        name: "&bKitPvP"
+        lore:
+          - "&7Πολέμησε στην αρένα KitPvP."
+          - ""
+          - "&eΚάνε κλικ για σύνδεση!"
+      da:
+        name: "&bKitPvP"
+        lore:
+          - "&7Kæmp i KitPvP-arenaen."
+          - ""
+          - "&eKlik for at forbinde!"
+      sv:
+        name: "&bKitPvP"
+        lore:
+          - "&7Slåss i KitPvP-arenan."
+          - ""
+          - "&eKlicka för att ansluta!"
+      no:
+        name: "&bKitPvP"
+        lore:
+          - "&7Kjemp i KitPvP-arenaen."
+          - ""
+          - "&eKlikk for å koble til!"
+      fi:
+        name: "&bKitPvP"
+        lore:
+          - "&7Taistele KitPvP-areenalla."
+          - ""
+          - "&eKlikkaa yhdistääksesi!"
+      is:
+        name: "&bKitPvP"
+        lore:
+          - "&7Berjast í KitPvP-leikvangi."
+          - ""
+          - "&eSmelltu til að tengjast!"
+      et:
+        name: "&bKitPvP"
+        lore:
+          - "&7Võitle KitPvP areenil."
+          - ""
+          - "&eKlõpsa ühendamiseks!"
+      lv:
+        name: "&bKitPvP"
+        lore:
+          - "&7Cīnies KitPvP arēnā."
+          - ""
+          - "&eKlikšķini, lai pieslēgtos!"
+      lt:
+        name: "&bKitPvP"
+        lore:
+          - "&7Kovok KitPvP arenoje."
+          - ""
+          - "&eSpustelėk prisijungti!"
+      ga:
+        name: "&bKitPvP"
+        lore:
+          - "&7Troid i réimse KitPvP."
+          - ""
+          - "&eCliceáil chun nascadh!"
+      mt:
+        name: "&bKitPvP"
+        lore:
+          - "&7Iġġieled fl-arena KitPvP."
+          - ""
+          - "&eIkklikkja biex tikkonnettja!"
+      ru:
+        name: "&bKitPvP"
+        lore:
+          - "&7Сражайся на арене KitPvP."
+          - ""
+          - "&eНажми для подключения!"
+      uk:
+        name: "&bKitPvP"
+        lore:
+          - "&7Бийся на арені KitPvP."
+          - ""
+          - "&eНатисни для підключення!"
+      tr:
+        name: "&bKitPvP"
+        lore:
+          - "&7KitPvP arenasında savaş."
+          - ""
+          - "&eBağlanmak için tıkla!"
+      sr:
+        name: "&bKitPvP"
+        lore:
+          - "&7Бори се у KitPvP арени."
+          - ""
+          - "&eКликни за повезивање!"
 
   close:
-    material: BARRIER
-    data: 0
-    amount: 1
     slot: 23
-    languages:
-      it:
-        name: "&cChiudi"
-        lore:
-          - "&7Clicca per chiudere"
+    material: BARRIER
+    amount: 1
+    data: 0
+    permission: ""
+    actions:
+      - "CLOSE"
+    translations:
       en:
         name: "&cClose"
-        lore:
-          - "&7Click to close"
-    actions:
-      CLICK:
-        - type: CLOSE
-          value: ""
+        lore: []
+      it:
+        name: "&cChiudi"
+        lore: []
+      es:
+        name: "&cCerrar"
+        lore: []
+      fr:
+        name: "&cFermer"
+        lore: []
+      de:
+        name: "&cSchließen"
+        lore: []
+      pt:
+        name: "&cFechar"
+        lore: []
+      pt_br:
+        name: "&cFechar"
+        lore: []
+      nl:
+        name: "&cSluiten"
+        lore: []
+      pl:
+        name: "&cZamknij"
+        lore: []
+      ro:
+        name: "&cÎnchide"
+        lore: []
+      hu:
+        name: "&cBezárás"
+        lore: []
+      cs:
+        name: "&cZavřít"
+        lore: []
+      sk:
+        name: "&cZatvoriť"
+        lore: []
+      sl:
+        name: "&cZapri"
+        lore: []
+      hr:
+        name: "&cZatvori"
+        lore: []
+      bg:
+        name: "&cЗатвори"
+        lore: []
+      el:
+        name: "&cΚλείσιμο"
+        lore: []
+      da:
+        name: "&cLuk"
+        lore: []
+      sv:
+        name: "&cStäng"
+        lore: []
+      no:
+        name: "&cLukk"
+        lore: []
+      fi:
+        name: "&cSulje"
+        lore: []
+      is:
+        name: "&cLoka"
+        lore: []
+      et:
+        name: "&cSulge"
+        lore: []
+      lv:
+        name: "&cAizvērt"
+        lore: []
+      lt:
+        name: "&cUždaryti"
+        lore: []
+      ga:
+        name: "&cDún"
+        lore: []
+      mt:
+        name: "&cAgħlaq"
+        lore: []
+      ru:
+        name: "&cЗакрыть"
+        lore: []
+      uk:
+        name: "&cЗакрити"
+        lore: []
+      tr:
+        name: "&cKapat"
+        lore: []
+      sr:
+        name: "&cЗатвори"
+        lore: []

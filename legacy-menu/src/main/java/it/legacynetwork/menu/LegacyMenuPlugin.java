@@ -3,6 +3,7 @@ package it.legacynetwork.menu;
 import it.legacynetwork.language.Language;
 import it.legacynetwork.language.PlayerLanguageEventService;
 import it.legacynetwork.language.PlayerLanguageProvider;
+import it.legacynetwork.language.TranslationInstaller;
 import it.legacynetwork.menu.command.LanguageCommand;
 import it.legacynetwork.menu.command.LegacyMenuCommand;
 import it.legacynetwork.menu.lang.FlagTextureService;
@@ -32,7 +33,9 @@ public final class LegacyMenuPlugin extends JavaPlugin implements MenuService {
         saveDefaultConfig();
         saveResource("menus/server-selector.yml", false);
         saveResource("flag-textures.yml", false);
-        saveResource("messages_en.yml", false);
+        int installed = TranslationInstaller.install(getDataFolder(),
+                "translations", getLogger(), getClassLoader());
+        getLogger().info("Traduzioni installate: " + installed + " file.");
         loadLanguageProvider();
         loadMenus();
 
