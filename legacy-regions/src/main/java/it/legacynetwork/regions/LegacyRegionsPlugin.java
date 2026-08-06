@@ -14,21 +14,30 @@ import it.legacynetwork.regions.selection.SelectionProvider;
 import it.legacynetwork.regions.selection.UnavailableSelectionProvider;
 import it.legacynetwork.regions.selection.WorldEditSelectionProvider;
 import org.bukkit.Bukkit;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
 
 public final class LegacyRegionsPlugin extends JavaPlugin {
 
-    private volatile List<CuboidRegion> snapshot = new ArrayList<CuboidRegion>();
+    private volatile List<CuboidRegion> snapshot = Collections.emptyList();
     private volatile RegionIndex index = new RegionIndex();
     private volatile RegionResolver resolver;
-    private volatile Map<RegionFlag, FlagState> defaultFlags = new HashMap<RegionFlag, FlagState>();
-    private volatile SelectionProvider selectionProvider;
+    private volatile Map<RegionFlag, FlagState> defaultFlags = Collections.emptyMap();
+    private volatile SelectionProvider selectionProvider =
+            new UnavailableSelectionProvider();
 
     @Override
     public void onEnable() {
@@ -36,137 +45,194 @@ public final class LegacyRegionsPlugin extends JavaPlugin {
         saveResource("regions.yml", false);
 
         try {
-            loadDefaultFlags();
             selectionProvider = initSelectionProvider();
-            loadRegions();
+            if (!reloadRegions()) {
+                throw new IllegalStateException(
+                        "config.yml o regions.yml non validi");
+            }
 
+            PluginCommand command = getCommand("legacyregion");
+            if (command == null) {
+                throw new IllegalStateException(
+                        "Comando legacyregion mancante in plugin.yml");
+            }
             RegionCommand regionCommand = new RegionCommand(this);
-            getCommand("legacyregion").setExecutor(regionCommand);
-            getCommand("legacyregion").setTabCompleter(regionCommand);
+            command.setExecutor(regionCommand);
+            command.setTabCompleter(regionCommand);
 
             getServer().getPluginManager().registerEvents(
                     new RegionProtectionListener(this), this);
 
             getServer().getServicesManager().register(
                     LegacyRegionsService.class,
-                    new LegacyRegionsServiceImpl(resolver),
+                    new LegacyRegionsServiceImpl(new Supplier<RegionResolver>() {
+                        @Override
+                        public RegionResolver get() {
+                            return resolver;
+                        }
+                    }),
                     this,
-                    org.bukkit.plugin.ServicePriority.Normal);
+                    ServicePriority.Normal);
 
-            getLogger().info("LegacyRegions inizializzato con " + snapshot.size() + " regioni.");
-            getLogger().info("WorldEdit: " + (selectionProvider.isAvailable() ? "disponibile" : "non disponibile"));
+            getLogger().info("LegacyRegions inizializzato con "
+                    + snapshot.size() + " regioni.");
+            getLogger().info("WorldEdit/FAWE: "
+                    + (selectionProvider.isAvailable()
+                    ? "integrazione attiva" : "non disponibile"));
         } catch (RuntimeException exception) {
-            getLogger().severe("Impossibile inizializzare LegacyRegions: " + exception.getMessage());
+            getLogger().severe("Impossibile inizializzare LegacyRegions: "
+                    + exception.getMessage());
+            getServer().getPluginManager().disablePlugin(this);
+        } catch (LinkageError error) {
+            getLogger().severe("Dipendenza incompatibile durante l'avvio: "
+                    + error.getMessage());
             getServer().getPluginManager().disablePlugin(this);
         }
     }
 
     @Override
     public void onDisable() {
+        getServer().getServicesManager().unregisterAll(this);
+        snapshot = Collections.emptyList();
+        index = new RegionIndex();
+        resolver = null;
+        defaultFlags = Collections.emptyMap();
+        selectionProvider = new UnavailableSelectionProvider();
     }
 
-    public void reloadRegions() {
-        List<CuboidRegion> newRegions = RegionConfigLoader.loadRegions(
-                new File(getDataFolder(), "regions.yml"), getLogger());
-        if (newRegions == null) {
-            getLogger().warning("Reload fallito: impossibile caricare le regioni. "
-                    + "Mantengo la configurazione precedente.");
-            return;
+    public boolean reloadRegions() {
+        try {
+            reloadConfig();
+            Map<RegionFlag, FlagState> newDefaults = loadDefaultFlags();
+            List<CuboidRegion> newRegions = RegionConfigLoader.loadRegions(
+                    new File(getDataFolder(), "regions.yml"), getLogger());
+            if (newRegions == null) {
+                getLogger().warning("Reload annullato: mantengo lo snapshot precedente.");
+                return false;
+            }
+            publish(newRegions, newDefaults);
+            getLogger().info("Regions reload completato ("
+                    + newRegions.size() + " regioni).");
+            return true;
+        } catch (RuntimeException exception) {
+            getLogger().warning("Reload annullato: " + exception.getMessage());
+            return false;
         }
-
-        RegionIndex newIndex = new RegionIndex();
-        newIndex.build(newRegions);
-        RegionResolver newResolver = new RegionResolver(newIndex, defaultFlags);
-
-        this.snapshot = newRegions;
-        this.index = newIndex;
-        this.resolver = newResolver;
-        getLogger().info("Regions reload completato (" + newRegions.size() + " regioni).");
     }
 
-    public void saveAndRebuild(List<CuboidRegion> newSnapshot) {
-        RegionConfigLoader.saveRegions(
-                new File(getDataFolder(), "regions.yml"), newSnapshot, getLogger());
-
-        RegionIndex newIndex = new RegionIndex();
-        newIndex.build(newSnapshot);
-        RegionResolver newResolver = new RegionResolver(newIndex, defaultFlags);
-
-        this.snapshot = newSnapshot;
-        this.index = newIndex;
-        this.resolver = newResolver;
-    }
-
-    private void loadRegions() {
-        List<CuboidRegion> regions = RegionConfigLoader.loadRegions(
-                new File(getDataFolder(), "regions.yml"), getLogger());
-        if (regions == null) {
-            regions = new ArrayList<CuboidRegion>();
+    public boolean saveAndRebuild(List<CuboidRegion> newSnapshot) {
+        if (newSnapshot == null) {
+            return false;
         }
-        this.snapshot = regions;
-        this.index = new RegionIndex();
-        this.index.build(regions);
-        this.resolver = new RegionResolver(index, defaultFlags);
-    }
-
-    private void loadDefaultFlags() {
-        Map<RegionFlag, FlagState> flags = new HashMap<RegionFlag, FlagState>();
-        org.bukkit.configuration.ConfigurationSection defaultsSection = getConfig()
-                .getConfigurationSection("defaults");
-        if (defaultsSection != null) {
-            for (String key : defaultsSection.getKeys(false)) {
-                RegionFlag flag = RegionFlag.fromString(key);
-                if (flag == null) {
-                    continue;
-                }
-                String value = defaultsSection.getString(key);
-                FlagState state = FlagState.fromString(value);
-                if (state == null) {
-                    state = FlagState.ALLOW;
-                }
-                flags.put(flag, state);
+        List<CuboidRegion> safeSnapshot =
+                new ArrayList<CuboidRegion>(newSnapshot);
+        Set<String> ids = new HashSet<String>();
+        for (CuboidRegion region : safeSnapshot) {
+            if (region == null || !ids.add(region.getId())) {
+                getLogger().warning("Snapshot regioni non valido o con ID duplicati.");
+                return false;
             }
         }
+
+        if (!RegionConfigLoader.saveRegions(
+                new File(getDataFolder(), "regions.yml"),
+                safeSnapshot,
+                getLogger())) {
+            return false;
+        }
+        publish(safeSnapshot, defaultFlags);
+        return true;
+    }
+
+    private void publish(List<CuboidRegion> regions,
+                         Map<RegionFlag, FlagState> defaults) {
+        List<CuboidRegion> immutableRegions = Collections.unmodifiableList(
+                new ArrayList<CuboidRegion>(regions));
+        EnumMap<RegionFlag, FlagState> copiedDefaults =
+                new EnumMap<RegionFlag, FlagState>(RegionFlag.class);
+        copiedDefaults.putAll(defaults);
+        Map<RegionFlag, FlagState> immutableDefaults =
+                Collections.unmodifiableMap(copiedDefaults);
+
+        RegionIndex newIndex = new RegionIndex();
+        newIndex.build(immutableRegions);
+        RegionResolver newResolver =
+                new RegionResolver(newIndex, immutableDefaults);
+
+        this.snapshot = immutableRegions;
+        this.index = newIndex;
+        this.defaultFlags = immutableDefaults;
+        this.resolver = newResolver;
+    }
+
+    private Map<RegionFlag, FlagState> loadDefaultFlags() {
+        ConfigurationSection section =
+                getConfig().getConfigurationSection("defaults");
+        if (section == null) {
+            throw new IllegalArgumentException(
+                    "Sezione defaults mancante in config.yml");
+        }
+
+        EnumMap<RegionFlag, FlagState> flags =
+                new EnumMap<RegionFlag, FlagState>(RegionFlag.class);
         for (RegionFlag flag : RegionFlag.values()) {
-            if (!flags.containsKey(flag)) {
-                flags.put(flag, FlagState.ALLOW);
+            String key = flag.getPermissionKey();
+            if (!section.contains(key)) {
+                flags.put(flag,
+                        flag.isSpecific() ? FlagState.INHERIT : FlagState.ALLOW);
+                continue;
             }
+            FlagState state = FlagState.fromString(section.getString(key));
+            if (state == null) {
+                throw new IllegalArgumentException(
+                        "Default non valido per il flag " + key);
+            }
+            flags.put(flag, state);
         }
-        this.defaultFlags = flags;
+        return Collections.unmodifiableMap(flags);
     }
 
     private SelectionProvider initSelectionProvider() {
-        org.bukkit.plugin.Plugin we = Bukkit.getPluginManager().getPlugin("WorldEdit");
-        if (we != null && we.isEnabled()) {
-            try {
-                WorldEditSelectionProvider provider = new WorldEditSelectionProvider(we);
-                if (provider.isAvailable()) {
-                    getLogger().info("WorldEdit rilevato, integrazione attiva.");
-                    return provider;
-                }
-            } catch (Exception e) {
-                getLogger().warning("Errore nell'inizializzare WorldEdit: " + e.getMessage());
-            }
-        } else {
-            org.bukkit.plugin.Plugin fawe = Bukkit.getPluginManager().getPlugin("FastAsyncWorldEdit");
-            if (fawe != null && fawe.isEnabled()) {
-                try {
-                    WorldEditSelectionProvider provider = new WorldEditSelectionProvider(fawe);
-                    if (provider.isAvailable()) {
-                        getLogger().info("FastAsyncWorldEdit rilevato, integrazione attiva.");
-                        return provider;
-                    }
-                } catch (Exception e) {
-                    getLogger().warning("Errore nell'inizializzare FastAsyncWorldEdit: " + e.getMessage());
-                }
-            }
+        Plugin worldEdit = Bukkit.getPluginManager().getPlugin("WorldEdit");
+        SelectionProvider provider = createSelectionProvider(worldEdit);
+        if (provider != null) {
+            return provider;
         }
-        getLogger().warning("WorldEdit non trovato. Comando di selezione non disponibile.");
+
+        Plugin fawe = Bukkit.getPluginManager().getPlugin("FastAsyncWorldEdit");
+        provider = createSelectionProvider(fawe);
+        if (provider != null) {
+            return provider;
+        }
+
+        getLogger().warning("WorldEdit/FAWE non disponibile: create e redefine disabilitati.");
         return new UnavailableSelectionProvider();
     }
 
+    private SelectionProvider createSelectionProvider(Plugin plugin) {
+        if (plugin == null || !plugin.isEnabled()) {
+            return null;
+        }
+        try {
+            WorldEditSelectionProvider provider =
+                    new WorldEditSelectionProvider(plugin);
+            if (provider.isAvailable()) {
+                getLogger().info(plugin.getName()
+                        + " rilevato, selezioni regioni abilitate.");
+                return provider;
+            }
+        } catch (RuntimeException exception) {
+            getLogger().warning("Bridge " + plugin.getName()
+                    + " non disponibile: " + exception.getMessage());
+        } catch (LinkageError error) {
+            getLogger().warning("Bridge " + plugin.getName()
+                    + " incompatibile: " + error.getMessage());
+        }
+        return null;
+    }
+
     public List<CuboidRegion> getSnapshot() {
-        return new ArrayList<CuboidRegion>(snapshot);
+        return snapshot;
     }
 
     public RegionIndex getIndex() {
@@ -178,7 +244,7 @@ public final class LegacyRegionsPlugin extends JavaPlugin {
     }
 
     public Map<RegionFlag, FlagState> getDefaultFlags() {
-        return new HashMap<RegionFlag, FlagState>(defaultFlags);
+        return defaultFlags;
     }
 
     public SelectionProvider getSelectionProvider() {
