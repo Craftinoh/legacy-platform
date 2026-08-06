@@ -7,6 +7,7 @@ import it.legacynetwork.regions.config.RegionConfigLoader;
 import it.legacynetwork.regions.core.RegionIndex;
 import it.legacynetwork.regions.core.RegionResolver;
 import it.legacynetwork.regions.listener.RegionProtectionListener;
+import it.legacynetwork.regions.message.RegionMessageService;
 import it.legacynetwork.regions.model.CuboidRegion;
 import it.legacynetwork.regions.model.FlagState;
 import it.legacynetwork.regions.model.RegionFlag;
@@ -38,17 +39,21 @@ public final class LegacyRegionsPlugin extends JavaPlugin {
     private volatile Map<RegionFlag, FlagState> defaultFlags = Collections.emptyMap();
     private volatile SelectionProvider selectionProvider =
             new UnavailableSelectionProvider();
+    private RegionMessageService messageService;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
         saveResource("regions.yml", false);
+        saveResource("messages_it.yml", false);
+        saveResource("messages_en.yml", false);
 
         try {
+            messageService = new RegionMessageService(this);
             selectionProvider = initSelectionProvider();
             if (!reloadRegions()) {
                 throw new IllegalStateException(
-                        "config.yml o regions.yml non validi");
+                        "config.yml, regions.yml o file messaggi non validi");
             }
 
             PluginCommand command = getCommand("legacyregion");
@@ -61,7 +66,7 @@ public final class LegacyRegionsPlugin extends JavaPlugin {
             command.setTabCompleter(regionCommand);
 
             getServer().getPluginManager().registerEvents(
-                    new RegionProtectionListener(this), this);
+                    new RegionProtectionListener(this, messageService), this);
 
             getServer().getServicesManager().register(
                     LegacyRegionsService.class,
@@ -93,6 +98,10 @@ public final class LegacyRegionsPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         getServer().getServicesManager().unregisterAll(this);
+        if (messageService != null) {
+            messageService.close();
+            messageService = null;
+        }
         snapshot = Collections.emptyList();
         index = new RegionIndex();
         resolver = null;
@@ -109,6 +118,15 @@ public final class LegacyRegionsPlugin extends JavaPlugin {
             if (newRegions == null) {
                 getLogger().warning("Reload annullato: mantengo lo snapshot precedente.");
                 return false;
+            }
+            if (messageService != null && !messageService.reload()) {
+                if (resolver == null) {
+                    getLogger().warning(
+                            "Avvio annullato: impossibile caricare i messaggi.");
+                    return false;
+                }
+                getLogger().warning(
+                        "Messaggi non ricaricati: mantengo quelli precedenti.");
             }
             publish(newRegions, newDefaults);
             getLogger().info("Regions reload completato ("
