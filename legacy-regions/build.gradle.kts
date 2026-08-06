@@ -4,12 +4,13 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":language-common"))
+    compileOnly(project(":language-common"))
     compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
 
     testImplementation(platform("org.junit:junit-bom:5.13.4"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation(project(":language-common"))
     testImplementation("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
 }
 
