@@ -7,6 +7,7 @@ import it.legacynetwork.regions.model.RegionFlag;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,100 +17,126 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RegionResolverTest {
 
-    private RegionResolver resolver(List<CuboidRegion> regions) {
-        RegionIndex index = new RegionIndex();
-        index.build(regions);
-        Map<RegionFlag, FlagState> defaults = new HashMap<>();
-        for (RegionFlag flag : RegionFlag.values()) {
-            defaults.put(flag, FlagState.ALLOW);
-        }
-        return new RegionResolver(index, defaults);
-    }
-
     @Test
     void singleRegionDenyReturnsDenied() {
-        Map<RegionFlag, FlagState> flags = new HashMap<>();
-        flags.put(RegionFlag.BUILD, FlagState.DENY);
-        CuboidRegion r = new CuboidRegion("lobby", "world", "", 0, 0, 0, 100, 100, 100, 100, flags);
-        List<CuboidRegion> regions = new ArrayList<>();
-        regions.add(r);
+        CuboidRegion region = region("lobby", "world", 100,
+                RegionFlag.BUILD, FlagState.DENY);
+        RegionDecision decision = resolver(region).resolveEffective(
+                "world", "", 5, 5, 5, RegionFlag.BUILD);
 
-        RegionDecision decision = resolver(regions).resolve(50, 50, 50, RegionFlag.BUILD);
         assertEquals(FlagState.DENY, decision.getFinalState());
         assertEquals("lobby", decision.getDecidingRegion());
     }
 
     @Test
     void noRegionsUsesDefaultAllow() {
-        RegionDecision decision = resolver(new ArrayList<CuboidRegion>()).resolve(50, 50, 50, RegionFlag.BUILD);
+        RegionDecision decision = resolver().resolveEffective(
+                "world", "", 5, 5, 5, RegionFlag.BUILD);
         assertEquals(FlagState.ALLOW, decision.getFinalState());
     }
 
     @Test
-    void inheritFallsThrough() {
-        Map<RegionFlag, FlagState> flags1 = new HashMap<>();
-        flags1.put(RegionFlag.BUILD, FlagState.INHERIT);
-        CuboidRegion r1 = new CuboidRegion("r1", "world", "", 0, 0, 0, 100, 100, 100, 100, flags1);
+    void inheritFallsThroughToLowerPriorityRegion() {
+        CuboidRegion inherit = region("high", "world", 100,
+                RegionFlag.BUILD, FlagState.INHERIT);
+        CuboidRegion deny = region("low", "world", 10,
+                RegionFlag.BUILD, FlagState.DENY);
 
-        Map<RegionFlag, FlagState> flags2 = new HashMap<>();
-        flags2.put(RegionFlag.BUILD, FlagState.DENY);
-        CuboidRegion r2 = new CuboidRegion("r2", "world", "", 10, 10, 10, 50, 50, 50, 50, flags2);
-
-        List<CuboidRegion> regions = new ArrayList<>();
-        regions.add(r1);
-        regions.add(r2);
-
-        RegionDecision decision = resolver(regions).resolve(20, 20, 20, RegionFlag.BUILD);
+        RegionDecision decision = resolver(inherit, deny).resolveEffective(
+                "world", "", 5, 5, 5, RegionFlag.BUILD);
         assertEquals(FlagState.DENY, decision.getFinalState());
-        assertEquals("r2", decision.getDecidingRegion());
+        assertEquals("low", decision.getDecidingRegion());
     }
 
     @Test
     void higherPriorityWins() {
-        Map<RegionFlag, FlagState> flags1 = new HashMap<>();
-        flags1.put(RegionFlag.BUILD, FlagState.DENY);
-        CuboidRegion r1 = new CuboidRegion("low", "world", "", 0, 0, 0, 100, 100, 100, 10, flags1);
+        CuboidRegion low = region("low", "world", 10,
+                RegionFlag.BUILD, FlagState.DENY);
+        CuboidRegion high = region("high", "world", 100,
+                RegionFlag.BUILD, FlagState.ALLOW);
 
-        Map<RegionFlag, FlagState> flags2 = new HashMap<>();
-        flags2.put(RegionFlag.BUILD, FlagState.ALLOW);
-        CuboidRegion r2 = new CuboidRegion("high", "world", "", 10, 10, 10, 50, 50, 50, 100, flags2);
-
-        List<CuboidRegion> regions = new ArrayList<>();
-        regions.add(r1);
-        regions.add(r2);
-
-        RegionDecision decision = resolver(regions).resolve(20, 20, 20, RegionFlag.BUILD);
+        RegionDecision decision = resolver(low, high).resolveEffective(
+                "world", "", 5, 5, 5, RegionFlag.BUILD);
         assertEquals(FlagState.ALLOW, decision.getFinalState());
+        assertEquals("high", decision.getDecidingRegion());
     }
 
     @Test
     void samePriorityUsesAlphabeticalId() {
-        Map<RegionFlag, FlagState> flags1 = new HashMap<>();
-        flags1.put(RegionFlag.BUILD, FlagState.DENY);
-        CuboidRegion r1 = new CuboidRegion("a-region", "world", "", 0, 0, 0, 100, 100, 100, 10, flags1);
+        CuboidRegion alpha = region("alpha", "world", 10,
+                RegionFlag.BUILD, FlagState.DENY);
+        CuboidRegion beta = region("beta", "world", 10,
+                RegionFlag.BUILD, FlagState.ALLOW);
 
-        Map<RegionFlag, FlagState> flags2 = new HashMap<>();
-        flags2.put(RegionFlag.BUILD, FlagState.ALLOW);
-        CuboidRegion r2 = new CuboidRegion("b-region", "world", "", 0, 0, 0, 100, 100, 100, 10, flags2);
-
-        List<CuboidRegion> regions = new ArrayList<>();
-        regions.add(r1);
-        regions.add(r2);
-
-        RegionDecision decision = resolver(regions).resolve(20, 20, 20, RegionFlag.BUILD);
+        RegionDecision decision = resolver(beta, alpha).resolveEffective(
+                "world", "", 5, 5, 5, RegionFlag.BUILD);
         assertEquals(FlagState.DENY, decision.getFinalState());
-        assertEquals("a-region", decision.getDecidingRegion());
+        assertEquals("alpha", decision.getDecidingRegion());
     }
 
     @Test
-    void outsideAllRegionsReturnsDefault() {
-        Map<RegionFlag, FlagState> flags = new HashMap<>();
-        flags.put(RegionFlag.BUILD, FlagState.DENY);
-        CuboidRegion r = new CuboidRegion("lobby", "world", "", 0, 0, 0, 10, 10, 10, 100, flags);
-        List<CuboidRegion> regions = new ArrayList<>();
-        regions.add(r);
+    void specificFlagFallsBackToGeneralFlag() {
+        CuboidRegion region = region("lobby", "world", 100,
+                RegionFlag.BUILD, FlagState.DENY);
 
-        RegionDecision decision = resolver(regions).resolve(100, 100, 100, RegionFlag.BUILD);
+        RegionDecision decision = resolver(region).resolveEffective(
+                "world", "", 5, 5, 5, RegionFlag.BLOCK_BREAK);
+        assertEquals(FlagState.DENY, decision.getFinalState());
+        assertEquals("lobby", decision.getDecidingRegion());
+        assertEquals(RegionFlag.BUILD, decision.getFlag());
+    }
+
+    @Test
+    void explicitSpecificFlagOverridesGeneralFlag() {
+        Map<RegionFlag, FlagState> flags = new HashMap<RegionFlag, FlagState>();
+        flags.put(RegionFlag.BUILD, FlagState.DENY);
+        flags.put(RegionFlag.BLOCK_BREAK, FlagState.ALLOW);
+        CuboidRegion region = new CuboidRegion(
+                "lobby", "world", "",
+                0, 0, 0, 10, 10, 10, 100, flags);
+
+        RegionDecision decision = resolver(region).resolveEffective(
+                "world", "", 5, 5, 5, RegionFlag.BLOCK_BREAK);
         assertEquals(FlagState.ALLOW, decision.getFinalState());
+        assertEquals("lobby", decision.getDecidingRegion());
+        assertEquals(RegionFlag.BLOCK_BREAK, decision.getFlag());
+    }
+
+    @Test
+    void sameCoordinatesInOtherWorldUseDefault() {
+        CuboidRegion region = region("lobby", "world", 100,
+                RegionFlag.BUILD, FlagState.DENY);
+        RegionDecision decision = resolver(region).resolveEffective(
+                "world_nether", "", 5, 5, 5, RegionFlag.BUILD);
+        assertTrue(decision.isAllowed());
+    }
+
+    private RegionResolver resolver(CuboidRegion... regions) {
+        List<CuboidRegion> list = new ArrayList<CuboidRegion>();
+        for (CuboidRegion region : regions) {
+            list.add(region);
+        }
+        RegionIndex index = new RegionIndex();
+        index.build(list);
+
+        EnumMap<RegionFlag, FlagState> defaults =
+                new EnumMap<RegionFlag, FlagState>(RegionFlag.class);
+        for (RegionFlag flag : RegionFlag.values()) {
+            defaults.put(flag,
+                    flag.isSpecific() ? FlagState.INHERIT : FlagState.ALLOW);
+        }
+        return new RegionResolver(index, defaults);
+    }
+
+    private CuboidRegion region(String id, String world, int priority,
+                                RegionFlag flag, FlagState state) {
+        Map<RegionFlag, FlagState> flags = new HashMap<RegionFlag, FlagState>();
+        if (state != FlagState.INHERIT) {
+            flags.put(flag, state);
+        }
+        return new CuboidRegion(
+                id, world, "",
+                0, 0, 0, 10, 10, 10,
+                priority, flags);
     }
 }
