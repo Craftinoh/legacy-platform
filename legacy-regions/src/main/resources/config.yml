@@ -17,6 +17,8 @@ defaults:
 
 language:
   fallback: "en"
+  translations-directory: "translations"
+  # Legacy fallback paths retained for existing installations.
   italian-file: "messages_it.yml"
   english-file: "messages_en.yml"
 
