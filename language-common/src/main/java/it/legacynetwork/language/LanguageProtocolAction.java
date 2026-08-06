@@ -1,7 +1,8 @@
 package it.legacynetwork.language;
 
 public enum LanguageProtocolAction {
-    LANGUAGE_SYNC(1);
+    LANGUAGE_SYNC(1),
+    LANGUAGE_CHANGE_REQUEST(2);
 
     private final int id;
 
