@@ -12,11 +12,15 @@ import java.util.UUID;
  */
 public final class BackendLanguageService implements PlayerLanguageProvider {
     private final PlayerLanguageProvider provider;
-    private final Language fallback;
+    private volatile Language fallback;
 
     public BackendLanguageService(PlayerLanguageProvider provider,
                                   String fallbackLanguage) {
         this.provider = provider;
+        setFallbackLanguage(fallbackLanguage);
+    }
+
+    public void setFallbackLanguage(String fallbackLanguage) {
         this.fallback = Language.findByInput(fallbackLanguage)
                 .orElse(Language.ENGLISH);
     }
