@@ -1,38 +1,35 @@
 package it.legacynetwork.lobby.command;
 
 import it.legacynetwork.lobby.bossbar.LegacyBossBarService;
-import it.legacynetwork.lobby.config.LobbyConfiguration;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 public final class LegacyLobbyCommand implements CommandExecutor, TabCompleter {
-    private final LobbyConfiguration configuration;
+    private final JavaPlugin plugin;
     private final LegacyBossBarService bossBarService;
     private final Runnable reloadAction;
 
-    public LegacyLobbyCommand(LobbyConfiguration configuration,
-                               LegacyBossBarService bossBarService,
-                               Runnable reloadAction) {
-        this.configuration = configuration;
+    public LegacyLobbyCommand(JavaPlugin plugin,
+                              LegacyBossBarService bossBarService,
+                              Runnable reloadAction) {
+        this.plugin = plugin;
         this.bossBarService = bossBarService;
         this.reloadAction = reloadAction;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command,
-                              String label, String[] args) {
+                             String label, String[] args) {
         if (args.length == 0) {
             sendUsage(sender);
             return true;
@@ -56,63 +53,45 @@ public final class LegacyLobbyCommand implements CommandExecutor, TabCompleter {
     }
 
     private boolean handleSlot(CommandSender sender, String[] args) {
-        if (args.length < 3 || !"set".equalsIgnoreCase(args[1])) {
-            sender.sendMessage(ChatColor.RED + "Usa: /legacylobby slot set <0-8>");
+        if (args.length != 3 || !"set".equalsIgnoreCase(args[1])) {
+            sender.sendMessage(ChatColor.RED
+                    + "Usa: /legacylobby slot set <0-8>");
             return true;
         }
-        if (!hasPermission(sender, "legacylobby.admin.reload")) {
+        if (!hasPermission(sender, "legacylobby.admin.slot")) {
             return true;
         }
-        int slot;
+
+        int zeroBasedSlot;
         try {
-            slot = Integer.parseInt(args[2]);
-        } catch (NumberFormatException e) {
-            sender.sendMessage(ChatColor.RED + "Slot non valido. Usa un numero tra 0 e 8.");
+            zeroBasedSlot = Integer.parseInt(args[2]);
+        } catch (NumberFormatException exception) {
+            sender.sendMessage(ChatColor.RED
+                    + "Slot non valido. Usa un numero tra 0 e 8.");
             return true;
         }
-        if (slot < 0 || slot > 8) {
-            sender.sendMessage(ChatColor.RED + "Slot non valido. Usa un numero tra 0 e 8.");
+        if (zeroBasedSlot < 0 || zeroBasedSlot > 8) {
+            sender.sendMessage(ChatColor.RED
+                    + "Slot non valido. Usa un numero tra 0 e 8.");
             return true;
         }
-        int configSlot = slot + 1;
-        saveSlotToConfig(configSlot);
-        updateLegacyItemsSlot(slot);
-        sender.sendMessage(ChatColor.GREEN + "Slot bussola impostato a " + slot
-                + ". Ricarica con /legacylobby reload o /legacyitems reload per applicare.");
+
+        try {
+            plugin.getConfig().set(
+                    "join.selected-slot.slot", zeroBasedSlot + 1);
+            plugin.saveConfig();
+            reloadAction.run();
+            sender.sendMessage(ChatColor.GREEN
+                    + "Slot selezionato predefinito impostato a "
+                    + zeroBasedSlot + ".");
+        } catch (RuntimeException exception) {
+            plugin.getLogger().warning(
+                    "Impossibile salvare lo slot predefinito: "
+                            + exception.getMessage());
+            sender.sendMessage(ChatColor.RED
+                    + "Salvataggio dello slot non riuscito.");
+        }
         return true;
-    }
-
-    private void saveSlotToConfig(int slot1Based) {
-        File configFile = new File(
-                Bukkit.getPluginManager().getPlugin("LegacyLobby").getDataFolder(),
-                "config.yml");
-        YamlConfiguration cfg = YamlConfiguration.loadConfiguration(configFile);
-        cfg.set("join.selected-slot.slot", slot1Based);
-        try {
-            cfg.save(configFile);
-        } catch (Exception e) {
-            Bukkit.getLogger().warning(
-                    "LegacyLobby: impossibile salvare lo slot in config.yml");
-        }
-    }
-
-    private void updateLegacyItemsSlot(int slot0Based) {
-        Plugin itemsPlugin = Bukkit.getPluginManager().getPlugin("LegacyItems");
-        if (itemsPlugin == null) {
-            return;
-        }
-        File itemsFile = new File(itemsPlugin.getDataFolder(), "items.yml");
-        if (!itemsFile.exists()) {
-            return;
-        }
-        YamlConfiguration cfg = YamlConfiguration.loadConfiguration(itemsFile);
-        cfg.set("items.server-selector.slot", slot0Based + 1);
-        try {
-            cfg.save(itemsFile);
-        } catch (Exception e) {
-            Bukkit.getLogger().warning(
-                    "LegacyLobby: impossibile salvare lo slot in items.yml");
-        }
     }
 
     private boolean handleBossBar(CommandSender sender, String[] args) {
@@ -142,7 +121,8 @@ public final class LegacyLobbyCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
             bossBarService.startPreview((Player) sender, args[2]);
-            sender.sendMessage(ChatColor.GREEN + "Preview bossbar: " + args[2]);
+            sender.sendMessage(ChatColor.GREEN
+                    + "Preview bossbar: " + args[2]);
             return true;
         }
         if ("stop".equalsIgnoreCase(args[1])) {
@@ -159,37 +139,41 @@ public final class LegacyLobbyCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command,
-                                       String alias, String[] args) {
+                                      String alias, String[] args) {
         if (args.length == 1) {
-            return filter(args[0], Arrays.asList("reload", "slot", "bossbar"));
+            return filter(args[0],
+                    Arrays.asList("reload", "slot", "bossbar"));
         }
         if (args.length == 2 && "slot".equalsIgnoreCase(args[0])) {
             return filter(args[1], Arrays.asList("set"));
         }
         if (args.length == 3 && "slot".equalsIgnoreCase(args[0])
                 && "set".equalsIgnoreCase(args[1])) {
-            return filter(args[2], Arrays.asList("0", "1", "2", "3", "4", "5", "6", "7", "8"));
+            return filter(args[2], Arrays.asList(
+                    "0", "1", "2", "3", "4", "5", "6", "7", "8"));
         }
         if (args.length == 2 && "bossbar".equalsIgnoreCase(args[0])) {
-            return filter(args[1], Arrays.asList("reload", "preview", "stop"));
+            return filter(args[1],
+                    Arrays.asList("reload", "preview", "stop"));
         }
         if (args.length == 3 && "bossbar".equalsIgnoreCase(args[0])
                 && "preview".equalsIgnoreCase(args[1])) {
-            List<String> ids = new ArrayList<>();
+            List<String> ids = new ArrayList<String>();
             for (it.legacynetwork.lobby.bossbar.BossBarDefinition bar
                     : bossBarService.getEnabledBars()) {
                 ids.add(bar.getId());
             }
             return filter(args[2], ids);
         }
-        return null;
+        return new ArrayList<String>();
     }
 
     private List<String> filter(String prefix, List<String> options) {
-        List<String> result = new ArrayList<>();
-        for (String opt : options) {
-            if (opt.toLowerCase().startsWith(prefix.toLowerCase())) {
-                result.add(opt);
+        String normalized = prefix.toLowerCase(Locale.ROOT);
+        List<String> result = new ArrayList<String>();
+        for (String option : options) {
+            if (option.toLowerCase(Locale.ROOT).startsWith(normalized)) {
+                result.add(option);
             }
         }
         return result;
@@ -198,15 +182,20 @@ public final class LegacyLobbyCommand implements CommandExecutor, TabCompleter {
     private void sendUsage(CommandSender sender) {
         sender.sendMessage(ChatColor.GOLD + "LegacyLobby comandi:");
         sender.sendMessage(ChatColor.YELLOW + "/legacylobby reload");
-        sender.sendMessage(ChatColor.YELLOW + "/legacylobby slot set <0-8>");
-        sender.sendMessage(ChatColor.YELLOW + "/legacylobby bossbar reload|preview|stop");
+        sender.sendMessage(ChatColor.YELLOW
+                + "/legacylobby slot set <0-8>");
+        sender.sendMessage(ChatColor.YELLOW
+                + "/legacylobby bossbar reload|preview|stop");
     }
 
     private void sendBossBarUsage(CommandSender sender) {
         sender.sendMessage(ChatColor.GOLD + "Bossbar comandi:");
-        sender.sendMessage(ChatColor.YELLOW + "/legacylobby bossbar reload");
-        sender.sendMessage(ChatColor.YELLOW + "/legacylobby bossbar preview <id>");
-        sender.sendMessage(ChatColor.YELLOW + "/legacylobby bossbar stop");
+        sender.sendMessage(ChatColor.YELLOW
+                + "/legacylobby bossbar reload");
+        sender.sendMessage(ChatColor.YELLOW
+                + "/legacylobby bossbar preview <id>");
+        sender.sendMessage(ChatColor.YELLOW
+                + "/legacylobby bossbar stop");
     }
 
     private boolean hasPermission(CommandSender sender, String permission) {
