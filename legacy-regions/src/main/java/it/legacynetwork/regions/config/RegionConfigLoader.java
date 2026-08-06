@@ -4,11 +4,18 @@ import it.legacynetwork.regions.model.CuboidRegion;
 import it.legacynetwork.regions.model.FlagState;
 import it.legacynetwork.regions.model.RegionFlag;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,139 +31,213 @@ public final class RegionConfigLoader {
     }
 
     public static List<CuboidRegion> loadRegions(File file, Logger logger) {
-        if (!file.exists()) {
-            if (logger != null) {
-                logger.warning("File regioni non trovato: " + file.getAbsolutePath());
-            }
-            return new ArrayList<CuboidRegion>();
-        }
-
         try {
-            YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
-            ConfigurationSection regionsSection = config.getConfigurationSection("regions");
-            if (regionsSection == null) {
-                if (logger != null) {
-                    logger.warning("Sezione 'regions' non trovata in " + file.getName());
-                }
-                return new ArrayList<CuboidRegion>();
-            }
-
-            Set<String> regionIds = regionsSection.getKeys(false);
-            List<CuboidRegion> regions = new ArrayList<CuboidRegion>();
-
-            for (String id : regionIds) {
-                ConfigurationSection regionSection = regionsSection.getConfigurationSection(id);
-                if (regionSection == null) {
-                    if (logger != null) {
-                        logger.warning("Sezione regione '" + id + "' non valida, saltata.");
-                    }
-                    continue;
-                }
-
-                try {
-                    CuboidRegion region = parseRegion(id, regionSection);
-                    if (region != null) {
-                        regions.add(region);
-                    }
-                } catch (Exception e) {
-                    if (logger != null) {
-                        logger.warning("Errore nel parsing della regione '" + id + "': " + e.getMessage());
-                    }
-                }
-            }
-
-            return regions;
-        } catch (Exception e) {
+            return loadRegionsStrict(file);
+        } catch (Exception exception) {
             if (logger != null) {
-                logger.warning("Errore nel caricamento del file regioni: " + e.getMessage());
+                logger.warning("Configurazione regioni non valida: "
+                        + exception.getMessage());
             }
-            return new ArrayList<CuboidRegion>();
+            return null;
         }
     }
 
-    private static CuboidRegion parseRegion(String id, ConfigurationSection section) {
-        String worldName = null;
-        String worldUuid = null;
-        ConfigurationSection worldSection = section.getConfigurationSection("world");
-        if (worldSection != null) {
-            worldName = worldSection.getString("name", null);
-            worldUuid = worldSection.getString("uuid", null);
+    public static List<CuboidRegion> loadRegionsStrict(File file)
+            throws IOException, InvalidConfigurationException {
+        if (file == null || !file.isFile()) {
+            throw new IOException("File regioni non trovato");
         }
 
-        ConfigurationSection minSection = section.getConfigurationSection("minimum");
-        ConfigurationSection maxSection = section.getConfigurationSection("maximum");
-        if (minSection == null || maxSection == null) {
-            return null;
+        YamlConfiguration config = new YamlConfiguration();
+        config.load(file);
+        ConfigurationSection regionsSection =
+                config.getConfigurationSection("regions");
+        if (regionsSection == null) {
+            throw new InvalidConfigurationException(
+                    "Sezione 'regions' mancante");
         }
 
-        int x1 = minSection.getInt("x");
-        int y1 = minSection.getInt("y");
-        int z1 = minSection.getInt("z");
-        int x2 = maxSection.getInt("x");
-        int y2 = maxSection.getInt("y");
-        int z2 = maxSection.getInt("z");
+        List<CuboidRegion> regions = new ArrayList<CuboidRegion>();
+        Set<String> normalizedIds = new HashSet<String>();
+        for (String rawId : regionsSection.getKeys(false)) {
+            String normalizedId = CuboidRegion.normalizeId(rawId);
+            if (!normalizedIds.add(normalizedId)) {
+                throw new InvalidConfigurationException(
+                        "ID regione duplicato: " + normalizedId);
+            }
+            ConfigurationSection regionSection =
+                    regionsSection.getConfigurationSection(rawId);
+            if (regionSection == null) {
+                throw new InvalidConfigurationException(
+                        "Regione non valida: " + rawId);
+            }
+            regions.add(parseRegion(normalizedId, regionSection));
+        }
+        return Collections.unmodifiableList(regions);
+    }
 
+    private static CuboidRegion parseRegion(String id,
+                                            ConfigurationSection section)
+            throws InvalidConfigurationException {
+        ConfigurationSection worldSection =
+                requireSection(section, "world", id);
+        String worldName = trimToNull(worldSection.getString("name"));
+        String worldUuid = trimToNull(worldSection.getString("uuid"));
+        if (worldName == null && worldUuid == null) {
+            throw new InvalidConfigurationException(
+                    "Mondo mancante per la regione '" + id + "'");
+        }
+
+        ConfigurationSection minimum =
+                requireSection(section, "minimum", id);
+        ConfigurationSection maximum =
+                requireSection(section, "maximum", id);
+        int minX = requireInt(minimum, "x", id);
+        int minY = requireInt(minimum, "y", id);
+        int minZ = requireInt(minimum, "z", id);
+        int maxX = requireInt(maximum, "x", id);
+        int maxY = requireInt(maximum, "y", id);
+        int maxZ = requireInt(maximum, "z", id);
+
+        if (section.contains("priority") && !section.isInt("priority")) {
+            throw new InvalidConfigurationException(
+                    "Priorita' non intera per la regione '" + id + "'");
+        }
         int priority = section.getInt("priority", 0);
 
-        Map<RegionFlag, FlagState> flags = new HashMap<RegionFlag, FlagState>();
-        ConfigurationSection flagsSection = section.getConfigurationSection("flags");
+        Map<RegionFlag, FlagState> flags =
+                new HashMap<RegionFlag, FlagState>();
+        ConfigurationSection flagsSection =
+                section.getConfigurationSection("flags");
         if (flagsSection != null) {
             for (String flagKey : flagsSection.getKeys(false)) {
                 RegionFlag flag = RegionFlag.fromString(flagKey);
                 if (flag == null) {
-                    continue;
+                    throw new InvalidConfigurationException(
+                            "Flag sconosciuto '" + flagKey
+                                    + "' nella regione '" + id + "'");
                 }
-                String value = flagsSection.getString(flagKey);
-                FlagState state = FlagState.fromString(value);
-                if (state != null && state != FlagState.INHERIT) {
+                FlagState state = FlagState.fromString(
+                        flagsSection.getString(flagKey));
+                if (state == null) {
+                    throw new InvalidConfigurationException(
+                            "Valore non valido per il flag '" + flagKey
+                                    + "' nella regione '" + id + "'");
+                }
+                if (state != FlagState.INHERIT) {
                     flags.put(flag, state);
                 }
             }
         }
 
-        return new CuboidRegion(id, worldName, worldUuid,
-                x1, y1, z1, x2, y2, z2,
-                priority, flags);
+        try {
+            return new CuboidRegion(id, worldName, worldUuid,
+                    minX, minY, minZ, maxX, maxY, maxZ,
+                    priority, flags);
+        } catch (IllegalArgumentException exception) {
+            throw new InvalidConfigurationException(
+                    "Regione '" + id + "': " + exception.getMessage());
+        }
     }
 
-    public static void saveRegions(File file, List<CuboidRegion> regions, Logger logger) {
+    private static ConfigurationSection requireSection(
+            ConfigurationSection parent, String key, String regionId)
+            throws InvalidConfigurationException {
+        ConfigurationSection section = parent.getConfigurationSection(key);
+        if (section == null) {
+            throw new InvalidConfigurationException(
+                    "Sezione '" + key + "' mancante nella regione '"
+                            + regionId + "'");
+        }
+        return section;
+    }
+
+    private static int requireInt(ConfigurationSection section,
+                                  String key, String regionId)
+            throws InvalidConfigurationException {
+        if (!section.contains(key) || !section.isInt(key)) {
+            throw new InvalidConfigurationException(
+                    "Coordinata '" + key + "' non valida nella regione '"
+                            + regionId + "'");
+        }
+        return section.getInt(key);
+    }
+
+    private static String trimToNull(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    public static boolean saveRegions(File file, List<CuboidRegion> regions,
+                                      Logger logger) {
+        try {
+            saveRegionsStrict(file, regions);
+            return true;
+        } catch (Exception exception) {
+            if (logger != null) {
+                logger.warning("Impossibile salvare regions.yml: "
+                        + exception.getMessage());
+            }
+            return false;
+        }
+    }
+
+    public static void saveRegionsStrict(File file, List<CuboidRegion> regions)
+            throws IOException {
+        File parent = file.getParentFile();
+        if (parent != null && !parent.exists() && !parent.mkdirs()) {
+            throw new IOException("Impossibile creare la cartella del plugin");
+        }
+
         YamlConfiguration config = new YamlConfiguration();
         ConfigurationSection regionsSection = config.createSection("regions");
+        for (CuboidRegion region : regions) {
+            ConfigurationSection regionSection =
+                    regionsSection.createSection(region.getId());
+            ConfigurationSection worldSection =
+                    regionSection.createSection("world");
+            worldSection.set("name",
+                    region.getWorldName() == null ? "" : region.getWorldName());
+            worldSection.set("uuid",
+                    region.getWorldUuid() == null ? "" : region.getWorldUuid());
 
-        for (int i = 0; i < regions.size(); i++) {
-            CuboidRegion region = regions.get(i);
-            ConfigurationSection regionSection = regionsSection.createSection(region.getId());
+            ConfigurationSection minimum =
+                    regionSection.createSection("minimum");
+            minimum.set("x", region.getMinX());
+            minimum.set("y", region.getMinY());
+            minimum.set("z", region.getMinZ());
 
-            ConfigurationSection worldSection = regionSection.createSection("world");
-            worldSection.set("name", region.getWorldName() != null ? region.getWorldName() : "");
-            worldSection.set("uuid", region.getWorldUuid() != null ? region.getWorldUuid() : "");
-
-            ConfigurationSection minSection = regionSection.createSection("minimum");
-            minSection.set("x", region.getMinX());
-            minSection.set("y", region.getMinY());
-            minSection.set("z", region.getMinZ());
-
-            ConfigurationSection maxSection = regionSection.createSection("maximum");
-            maxSection.set("x", region.getMaxX());
-            maxSection.set("y", region.getMaxY());
-            maxSection.set("z", region.getMaxZ());
-
+            ConfigurationSection maximum =
+                    regionSection.createSection("maximum");
+            maximum.set("x", region.getMaxX());
+            maximum.set("y", region.getMaxY());
+            maximum.set("z", region.getMaxZ());
             regionSection.set("priority", region.getPriority());
 
-            ConfigurationSection flagsSection = regionSection.createSection("flags");
-            Map<RegionFlag, FlagState> flags = region.getFlags();
-            for (Map.Entry<RegionFlag, FlagState> entry : flags.entrySet()) {
-                if (entry.getValue() != FlagState.INHERIT) {
-                    flagsSection.set(entry.getKey().getPermissionKey(), entry.getValue().name());
-                }
+            ConfigurationSection flagsSection =
+                    regionSection.createSection("flags");
+            for (Map.Entry<RegionFlag, FlagState> entry
+                    : region.getFlags().entrySet()) {
+                flagsSection.set(entry.getKey().getPermissionKey(),
+                        entry.getValue().name());
             }
         }
 
+        File temporary = new File(file.getParentFile(), file.getName() + ".tmp");
+        config.save(temporary);
         try {
-            config.save(file);
-        } catch (Exception e) {
-            if (logger != null) {
-                logger.warning("Errore nel salvataggio del file regioni: " + e.getMessage());
+            Files.move(temporary.toPath(), file.toPath(),
+                    StandardCopyOption.REPLACE_EXISTING,
+                    StandardCopyOption.ATOMIC_MOVE);
+        } catch (AtomicMoveNotSupportedException exception) {
+            Files.move(temporary.toPath(), file.toPath(),
+                    StandardCopyOption.REPLACE_EXISTING);
+        } finally {
+            if (temporary.exists() && !temporary.equals(file)) {
+                temporary.delete();
             }
         }
     }
