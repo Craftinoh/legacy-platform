@@ -1,5 +1,7 @@
 package it.legacynetwork.regions.model;
 
+import java.util.Locale;
+
 public enum RegionFlag {
     BUILD,
     BLOCK_BREAK,
@@ -17,33 +19,36 @@ public enum RegionFlag {
     VEHICLE_USE,
     INTERACT;
 
-    public static RegionFlag fromString(String s) {
-        if (s == null) {
+    public static RegionFlag fromString(String value) {
+        if (value == null) {
             return null;
         }
-        String normalized = s.toUpperCase().replace('-', '_');
+        String normalized = value.trim().toUpperCase(Locale.ROOT).replace('-', '_');
         try {
             return valueOf(normalized);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException exception) {
             return null;
         }
     }
 
     public boolean isSpecific() {
-        return this == BLOCK_BREAK || this == BLOCK_PLACE || this == FALL_DAMAGE;
+        return this == BLOCK_BREAK
+                || this == BLOCK_PLACE
+                || this == FALL_DAMAGE
+                || this == PVP;
     }
 
     public RegionFlag getGeneralFlag() {
         if (this == BLOCK_BREAK || this == BLOCK_PLACE) {
             return BUILD;
         }
-        if (this == FALL_DAMAGE) {
+        if (this == FALL_DAMAGE || this == PVP) {
             return DAMAGE;
         }
         return null;
     }
 
     public String getPermissionKey() {
-        return name().toLowerCase().replace('_', '-');
+        return name().toLowerCase(Locale.ROOT).replace('_', '-');
     }
 }
