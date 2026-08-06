@@ -4,6 +4,7 @@ import it.legacynetwork.regions.api.LegacyRegionsService;
 import it.legacynetwork.regions.api.LegacyRegionsServiceImpl;
 import it.legacynetwork.regions.command.RegionCommand;
 import it.legacynetwork.regions.config.RegionConfigLoader;
+import it.legacynetwork.regions.config.WorldFlagsConfigLoader;
 import it.legacynetwork.regions.core.RegionIndex;
 import it.legacynetwork.regions.core.RegionResolver;
 import it.legacynetwork.regions.listener.RegionProtectionListener;
@@ -11,6 +12,7 @@ import it.legacynetwork.regions.message.RegionMessageService;
 import it.legacynetwork.regions.model.CuboidRegion;
 import it.legacynetwork.regions.model.FlagState;
 import it.legacynetwork.regions.model.RegionFlag;
+import it.legacynetwork.regions.model.WorldRegionFlags;
 import it.legacynetwork.regions.selection.SelectionProvider;
 import it.legacynetwork.regions.selection.UnavailableSelectionProvider;
 import it.legacynetwork.regions.selection.WorldEditSelectionProvider;
@@ -25,6 +27,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +40,7 @@ public final class LegacyRegionsPlugin extends JavaPlugin {
     private volatile RegionIndex index = new RegionIndex();
     private volatile RegionResolver resolver;
     private volatile Map<RegionFlag, FlagState> defaultFlags = Collections.emptyMap();
+    private volatile List<WorldRegionFlags> worldFlagsSnapshot = Collections.emptyList();
     private volatile SelectionProvider selectionProvider =
             new UnavailableSelectionProvider();
     private RegionMessageService messageService;
@@ -47,6 +51,7 @@ public final class LegacyRegionsPlugin extends JavaPlugin {
         getConfig().options().copyDefaults(true);
         saveConfig();
         saveResource("regions.yml", false);
+        saveResource("worlds.yml", false);
         saveResource("messages_it.yml", false);
         saveResource("messages_en.yml", false);
 
@@ -55,7 +60,7 @@ public final class LegacyRegionsPlugin extends JavaPlugin {
             selectionProvider = initSelectionProvider();
             if (!reloadRegions()) {
                 throw new IllegalStateException(
-                        "config.yml, regions.yml o file messaggi non validi");
+                        "config.yml, regions.yml, worlds.yml o file messaggi non validi");
             }
 
             PluginCommand command = getCommand("legacyregion");
@@ -82,7 +87,8 @@ public final class LegacyRegionsPlugin extends JavaPlugin {
                     ServicePriority.Normal);
 
             getLogger().info("LegacyRegions inizializzato con "
-                    + snapshot.size() + " regioni.");
+                    + snapshot.size() + " regioni e "
+                    + worldFlagsSnapshot.size() + " mondi.");
             getLogger().info("WorldEdit/FAWE: "
                     + (selectionProvider.isAvailable()
                     ? "integrazione attiva" : "non disponibile"));
@@ -108,6 +114,7 @@ public final class LegacyRegionsPlugin extends JavaPlugin {
         index = new RegionIndex();
         resolver = null;
         defaultFlags = Collections.emptyMap();
+        worldFlagsSnapshot = Collections.emptyList();
         selectionProvider = new UnavailableSelectionProvider();
     }
 
@@ -121,6 +128,12 @@ public final class LegacyRegionsPlugin extends JavaPlugin {
                 getLogger().warning("Reload annullato: mantengo lo snapshot precedente.");
                 return false;
             }
+            List<WorldRegionFlags> newWorldFlags = WorldFlagsConfigLoader.load(
+                    new File(getDataFolder(), "worlds.yml"), getLogger());
+            if (newWorldFlags == null) {
+                getLogger().warning("Reload annullato: worlds.yml non valido.");
+                return false;
+            }
             if (messageService != null && !messageService.reload()) {
                 if (resolver == null) {
                     getLogger().warning(
@@ -130,9 +143,10 @@ public final class LegacyRegionsPlugin extends JavaPlugin {
                 getLogger().warning(
                         "Messaggi non ricaricati: mantengo quelli precedenti.");
             }
-            publish(newRegions, newDefaults);
+            publish(newRegions, newDefaults, newWorldFlags);
             getLogger().info("Regions reload completato ("
-                    + newRegions.size() + " regioni).");
+                    + newRegions.size() + " regioni, "
+                    + newWorldFlags.size() + " mondi).");
             return true;
         } catch (RuntimeException exception) {
             getLogger().warning("Reload annullato: " + exception.getMessage());
@@ -160,12 +174,29 @@ public final class LegacyRegionsPlugin extends JavaPlugin {
                 getLogger())) {
             return false;
         }
-        publish(safeSnapshot, defaultFlags);
+        publish(safeSnapshot, defaultFlags, worldFlagsSnapshot);
+        return true;
+    }
+
+    public boolean saveWorldFlagsAndRebuild(List<WorldRegionFlags> newWorldFlags) {
+        if (newWorldFlags == null) {
+            return false;
+        }
+        if (!WorldFlagsConfigLoader.save(
+                new File(getDataFolder(), "worlds.yml"),
+                newWorldFlags, getLogger())) {
+            return false;
+        }
+        List<WorldRegionFlags> immutable = Collections.unmodifiableList(
+                new ArrayList<WorldRegionFlags>(newWorldFlags));
+        this.worldFlagsSnapshot = immutable;
+        publish(snapshot, defaultFlags, immutable);
         return true;
     }
 
     private void publish(List<CuboidRegion> regions,
-                         Map<RegionFlag, FlagState> defaults) {
+                          Map<RegionFlag, FlagState> defaults,
+                          List<WorldRegionFlags> worldFlags) {
         List<CuboidRegion> immutableRegions = Collections.unmodifiableList(
                 new ArrayList<CuboidRegion>(regions));
         EnumMap<RegionFlag, FlagState> copiedDefaults =
@@ -174,14 +205,18 @@ public final class LegacyRegionsPlugin extends JavaPlugin {
         Map<RegionFlag, FlagState> immutableDefaults =
                 Collections.unmodifiableMap(copiedDefaults);
 
+        List<WorldRegionFlags> immutableWorldFlags = Collections.unmodifiableList(
+                new ArrayList<WorldRegionFlags>(worldFlags));
+
         RegionIndex newIndex = new RegionIndex();
         newIndex.build(immutableRegions);
         RegionResolver newResolver =
-                new RegionResolver(newIndex, immutableDefaults);
+                new RegionResolver(newIndex, immutableDefaults, immutableWorldFlags);
 
         this.snapshot = immutableRegions;
         this.index = newIndex;
         this.defaultFlags = immutableDefaults;
+        this.worldFlagsSnapshot = immutableWorldFlags;
         this.resolver = newResolver;
     }
 
@@ -265,6 +300,10 @@ public final class LegacyRegionsPlugin extends JavaPlugin {
 
     public Map<RegionFlag, FlagState> getDefaultFlags() {
         return defaultFlags;
+    }
+
+    public List<WorldRegionFlags> getWorldFlagsSnapshot() {
+        return worldFlagsSnapshot;
     }
 
     public SelectionProvider getSelectionProvider() {
