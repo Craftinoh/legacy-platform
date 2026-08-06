@@ -1,5 +1,6 @@
 package it.legacynetwork.regions;
 
+import it.legacynetwork.language.TranslationInstaller;
 import it.legacynetwork.regions.api.LegacyRegionsService;
 import it.legacynetwork.regions.api.LegacyRegionsServiceImpl;
 import it.legacynetwork.regions.command.RegionCommand;
@@ -27,7 +28,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -52,8 +52,10 @@ public final class LegacyRegionsPlugin extends JavaPlugin {
         saveConfig();
         saveResource("regions.yml", false);
         saveResource("worlds.yml", false);
-        saveResource("messages_it.yml", false);
-        saveResource("messages_en.yml", false);
+        int installed = TranslationInstaller.install(getDataFolder(),
+                "translations", getLogger(), getClassLoader());
+        getLogger().info("Traduzioni LegacyRegions installate: "
+                + installed + " file.");
 
         try {
             messageService = new RegionMessageService(this);
