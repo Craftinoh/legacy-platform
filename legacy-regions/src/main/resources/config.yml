@@ -1,10 +1,10 @@
 defaults:
   build: ALLOW
-  block-break: ALLOW
-  block-place: ALLOW
-  pvp: ALLOW
+  block-break: INHERIT
+  block-place: INHERIT
+  pvp: INHERIT
   damage: ALLOW
-  fall-damage: ALLOW
+  fall-damage: INHERIT
   hunger: ALLOW
   item-drop: ALLOW
   item-pickup: ALLOW
