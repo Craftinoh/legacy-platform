@@ -1,0 +1,14 @@
+menu:
+  title: "&8Select Language"
+  selected: "&a\u2714 &f"
+  click: "&aYou selected %language%"
+  lore:
+    selected: "&7This is your current language"
+    unselected: "&7Click to change language"
+    current: "&7Current language: %language%"
+    change: "&7Click to select this language"
+  page: "&ePage &f{current}&7/&f{total}"
+  close: "&cClose"
+  back: "&7Close"
+  next: "&aNext Page &7\u2192"
+  prev: "&7\u2190 &aPrevious Page"
