@@ -1,7 +1,8 @@
 package it.legacynetwork.menu.lang;
 
 import it.legacynetwork.language.Language;
-import it.legacynetwork.language.PlayerLanguageEventService;
+import it.legacynetwork.language.PlayerLanguageChangeListener;
+import it.legacynetwork.language.PlayerLanguageChangeRequestService;
 import it.legacynetwork.language.PlayerLanguageProvider;
 import it.legacynetwork.menu.LegacyMenuPlugin;
 import it.legacynetwork.menu.util.LegacyColorTranslator;
@@ -18,11 +19,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
-public class LanguageMenuService {
+public class LanguageMenuService implements PlayerLanguageChangeListener {
     private static final int[] LANGUAGE_SLOTS = {
             10, 11, 12, 13, 14, 15, 16,
             19, 20, 21, 22, 23, 24, 25,
@@ -31,16 +34,14 @@ public class LanguageMenuService {
     };
 
     private final LegacyMenuPlugin plugin;
-    private final PlayerLanguageProvider languageProvider;
     private final FlagTextureService flagTextureService;
     private final LanguageMenuMessages messages;
-    private final Map<UUID, Long> cooldowns = new HashMap<UUID, Long>();
+    private final Map<UUID, Long> clickCooldowns = new HashMap<UUID, Long>();
+    private final Set<UUID> pendingRequests = new HashSet<UUID>();
 
     public LanguageMenuService(LegacyMenuPlugin plugin,
-                               PlayerLanguageProvider languageProvider,
                                FlagTextureService flagTextureService) {
         this.plugin = plugin;
-        this.languageProvider = languageProvider;
         this.flagTextureService = flagTextureService;
         this.messages = new LanguageMenuMessages(plugin.getDataFolder());
     }
@@ -49,107 +50,103 @@ public class LanguageMenuService {
         openMenu(player, 1);
     }
 
-    public void openMenu(Player player, int page) {
-        Language currentLang = getPlayerLanguage(player);
-        String viewerLang = currentLang != null ? currentLang.getCode() : "en";
+    public void openMenu(Player player, int requestedPage) {
+        Language currentLanguage = getPlayerLanguage(player);
+        String viewerLanguage = currentLanguage != null
+                ? currentLanguage.getCode() : plugin.getFallbackLanguage();
 
-        String title = LegacyColorTranslator.translate(messages.get(viewerLang, "menu.title"));
+        List<Language> sorted = getSortedLanguages();
+        int totalPages = Math.max(1, (sorted.size() + 27) / 28);
+        int page = Math.max(1, Math.min(requestedPage, totalPages));
+
+        String title = LegacyColorTranslator.translate(
+                messages.get(viewerLanguage, "menu.title"));
         if (title.length() > 32) {
             title = title.substring(0, 32);
         }
 
-        Inventory inv = Bukkit.createInventory(new LanguageMenuHolder(page), 54, title);
+        Inventory inventory = Bukkit.createInventory(
+                new LanguageMenuHolder(page), 54, title);
 
-        List<Language> sorted = getSortedLanguages();
-        int totalPages = (sorted.size() + 27) / 28;
-
-        int startIdx = (page - 1) * 28;
-        for (int i = 0; i < LANGUAGE_SLOTS.length; i++) {
-            int langIdx = startIdx + i;
-            if (langIdx >= sorted.size()) {
+        int startIndex = (page - 1) * 28;
+        for (int index = 0; index < LANGUAGE_SLOTS.length; index++) {
+            int languageIndex = startIndex + index;
+            if (languageIndex >= sorted.size()) {
                 break;
             }
-            Language lang = sorted.get(langIdx);
-            boolean isSelected = lang == currentLang;
+            Language language = sorted.get(languageIndex);
+            boolean selected = language == currentLanguage;
 
-            ItemStack baseIcon = flagTextureService.getBaseIcon(lang.getCode());
-            setLanguageDisplay(baseIcon, lang, isSelected, viewerLang);
-            inv.setItem(LANGUAGE_SLOTS[i], baseIcon);
+            ItemStack icon = flagTextureService.getBaseIcon(language.getCode());
+            setLanguageDisplay(icon, language, selected, viewerLanguage);
+            inventory.setItem(LANGUAGE_SLOTS[index], icon);
         }
 
         ItemStack back = new ItemStack(Material.BARRIER);
         ItemMeta backMeta = back.getItemMeta();
         if (backMeta != null) {
             backMeta.setDisplayName(LegacyColorTranslator.translate(
-                    messages.get(viewerLang, "menu.back")));
+                    messages.get(viewerLanguage, "menu.back")));
             back.setItemMeta(backMeta);
         }
-        inv.setItem(45, back);
+        inventory.setItem(45, back);
 
         if (page > 1) {
-            ItemStack prev = new ItemStack(Material.ARROW);
-            ItemMeta prevMeta = prev.getItemMeta();
-            if (prevMeta != null) {
-                prevMeta.setDisplayName(LegacyColorTranslator.translate(
-                        messages.get(viewerLang, "menu.prev")));
-                prev.setItemMeta(prevMeta);
+            ItemStack previous = new ItemStack(Material.ARROW);
+            ItemMeta previousMeta = previous.getItemMeta();
+            if (previousMeta != null) {
+                previousMeta.setDisplayName(LegacyColorTranslator.translate(
+                        messages.get(viewerLanguage, "menu.prev")));
+                previous.setItemMeta(previousMeta);
             }
-            inv.setItem(48, prev);
+            inventory.setItem(48, previous);
         }
 
         ItemStack pageInfo = new ItemStack(Material.PAPER);
         ItemMeta pageMeta = pageInfo.getItemMeta();
         if (pageMeta != null) {
-            String pageText = messages.get(viewerLang, "menu.page")
+            String pageText = messages.get(viewerLanguage, "menu.page")
                     .replace("{current}", String.valueOf(page))
                     .replace("{total}", String.valueOf(totalPages));
             pageMeta.setDisplayName(LegacyColorTranslator.translate(pageText));
             pageInfo.setItemMeta(pageMeta);
         }
-        inv.setItem(49, pageInfo);
+        inventory.setItem(49, pageInfo);
 
         if (page < totalPages) {
             ItemStack next = new ItemStack(Material.ARROW);
             ItemMeta nextMeta = next.getItemMeta();
             if (nextMeta != null) {
                 nextMeta.setDisplayName(LegacyColorTranslator.translate(
-                        messages.get(viewerLang, "menu.next")));
+                        messages.get(viewerLanguage, "menu.next")));
                 next.setItemMeta(nextMeta);
             }
-            inv.setItem(50, next);
+            inventory.setItem(50, next);
         }
 
         ItemStack close = new ItemStack(Material.BARRIER);
         ItemMeta closeMeta = close.getItemMeta();
         if (closeMeta != null) {
             closeMeta.setDisplayName(LegacyColorTranslator.translate(
-                    messages.get(viewerLang, "menu.close")));
+                    messages.get(viewerLanguage, "menu.close")));
             close.setItemMeta(closeMeta);
         }
-        inv.setItem(53, close);
+        inventory.setItem(53, close);
 
-        player.openInventory(inv);
+        player.openInventory(inventory);
     }
 
     public void handleClick(Player player, int slot, int page) {
-        int navAction = getNavAction(slot);
-
-        if (navAction == -1 || navAction == 3) {
-            Bukkit.getScheduler().runTask(plugin, new Runnable() {
-                @Override
-                public void run() {
-                    player.closeInventory();
-                }
-            });
+        int navigation = getNavAction(slot);
+        if (navigation == -1 || navigation == 3) {
+            player.closeInventory();
             return;
         }
-
-        if (navAction == 1) {
+        if (navigation == 1) {
             openMenu(player, page - 1);
             return;
         }
-
-        if (navAction == 2) {
+        if (navigation == 2) {
             openMenu(player, page + 1);
             return;
         }
@@ -164,30 +161,73 @@ public class LanguageMenuService {
             return;
         }
 
-        UUID uuid = player.getUniqueId();
-        Long lastClick = cooldowns.get(uuid);
-        long now = System.currentTimeMillis();
-        if (lastClick != null && (now - lastClick) < 500) {
+        UUID playerId = player.getUniqueId();
+        if (pendingRequests.contains(playerId)) {
             return;
         }
-        cooldowns.put(uuid, now);
 
-        PlayerLanguageEventService eventService = plugin.getLanguageEventService();
-        if (eventService != null) {
-            eventService.fireLanguageChanged(uuid, current, clicked);
+        long now = System.currentTimeMillis();
+        Long lastClick = clickCooldowns.get(playerId);
+        if (lastClick != null && now - lastClick < 500L) {
+            return;
+        }
+        clickCooldowns.put(playerId, now);
+
+        PlayerLanguageChangeRequestService requestService =
+                plugin.getLanguageChangeRequestService();
+        if (requestService == null) {
+            plugin.getLogger().warning(
+                    "LanguageBackend non disponibile: cambio lingua non inviato.");
+            return;
         }
 
-        openMenu(player, page);
+        pendingRequests.add(playerId);
+        if (!requestService.requestLanguageChange(playerId, clicked)) {
+            pendingRequests.remove(playerId);
+            return;
+        }
+
+        Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+            @Override
+            public void run() {
+                pendingRequests.remove(playerId);
+            }
+        }, 100L);
+    }
+
+    @Override
+    public void onLanguageChanged(UUID playerId, Language previous, Language current) {
+        pendingRequests.remove(playerId);
+        final Player player = Bukkit.getPlayer(playerId);
+        if (player == null || !player.isOnline()) {
+            return;
+        }
+        Runnable refresh = new Runnable() {
+            @Override
+            public void run() {
+                if (player.getOpenInventory().getTopInventory().getHolder()
+                        instanceof LanguageMenuHolder) {
+                    LanguageMenuHolder holder = (LanguageMenuHolder) player
+                            .getOpenInventory().getTopInventory().getHolder();
+                    openMenu(player, holder.getPage());
+                }
+            }
+        };
+        if (Bukkit.isPrimaryThread()) {
+            refresh.run();
+        } else {
+            Bukkit.getScheduler().runTask(plugin, refresh);
+        }
     }
 
     public Language getLanguageAtSlot(int slot, int page) {
         List<Language> sorted = getSortedLanguages();
-        int startIdx = (page - 1) * 28;
-        for (int i = 0; i < LANGUAGE_SLOTS.length; i++) {
-            if (LANGUAGE_SLOTS[i] == slot) {
-                int langIdx = startIdx + i;
-                if (langIdx >= 0 && langIdx < sorted.size()) {
-                    return sorted.get(langIdx);
+        int startIndex = (page - 1) * 28;
+        for (int index = 0; index < LANGUAGE_SLOTS.length; index++) {
+            if (LANGUAGE_SLOTS[index] == slot) {
+                int languageIndex = startIndex + index;
+                if (languageIndex >= 0 && languageIndex < sorted.size()) {
+                    return sorted.get(languageIndex);
                 }
                 return null;
             }
@@ -212,61 +252,59 @@ public class LanguageMenuService {
     }
 
     public PlayerLanguageProvider getLanguageProvider() {
-        return languageProvider;
+        return plugin.getLanguageProvider();
     }
 
     public LanguageMenuMessages getMessages() {
         return messages;
     }
 
-    private void setLanguageDisplay(ItemStack item, Language lang, boolean isSelected, String viewerLang) {
+    private void setLanguageDisplay(ItemStack item, Language language,
+                                    boolean selected, String viewerLanguage) {
         ItemMeta meta = item.getItemMeta();
         if (meta == null) {
             return;
         }
-        String name = lang.getNativeName();
-        if (isSelected) {
-            name = messages.get(viewerLang, "menu.selected") + name;
+        String name = language.getNativeName();
+        if (selected) {
+            name = messages.get(viewerLanguage, "menu.selected") + name;
             meta.addEnchant(Enchantment.DURABILITY, 1, true);
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }
         meta.setDisplayName(LegacyColorTranslator.translate(name));
 
-        List<String> loreKeyList;
-        if (isSelected) {
-            loreKeyList = messages.getList(viewerLang, "menu.lore.selected");
-        } else {
-            loreKeyList = messages.getList(viewerLang, "menu.lore.unselected");
-        }
-        if (loreKeyList != null && !loreKeyList.isEmpty()) {
+        List<String> lore = selected
+                ? messages.getList(viewerLanguage, "menu.lore.selected")
+                : messages.getList(viewerLanguage, "menu.lore.unselected");
+        if (lore != null && !lore.isEmpty()) {
             List<String> translatedLore = new ArrayList<String>();
-            for (String line : loreKeyList) {
+            for (String line : lore) {
                 translatedLore.add(LegacyColorTranslator.translate(line));
             }
             meta.setLore(translatedLore);
         }
-
         item.setItemMeta(meta);
     }
 
     private Language getPlayerLanguage(Player player) {
-        if (languageProvider == null) {
-            return null;
+        PlayerLanguageProvider provider = plugin.getLanguageProvider();
+        if (provider == null) {
+            return Language.findByInput(plugin.getFallbackLanguage())
+                    .orElse(Language.ENGLISH);
         }
-        return languageProvider.getLanguage(player.getUniqueId());
+        Language language = provider.getLanguage(player.getUniqueId());
+        return language != null ? language : Language.ENGLISH;
     }
 
     private List<Language> getSortedLanguages() {
-        List<Language> all = new ArrayList<Language>();
-        for (Language lang : Language.values()) {
-            all.add(lang);
-        }
-        Collections.sort(all, new Comparator<Language>() {
+        List<Language> languages = new ArrayList<Language>();
+        Collections.addAll(languages, Language.values());
+        Collections.sort(languages, new Comparator<Language>() {
             @Override
-            public int compare(Language a, Language b) {
-                return Integer.compare(a.getMenuOrder(), b.getMenuOrder());
+            public int compare(Language first, Language second) {
+                return Integer.compare(first.getMenuOrder(), second.getMenuOrder());
             }
         });
-        return all;
+        return languages;
     }
 }
