@@ -1,0 +1,156 @@
+# Lista över globala taggar:
+# %nl% - Byter till ny rad.
+# %username% - Ersätts med användarnamnet på spelaren som tar emot meddelandet.
+# %displayname% - Ersätts med smeknamnet (och färgerna) på spelaren som tar emot meddelandet.
+
+# Registrering
+registration:
+    register_request: '&3Registrera dig på servern med kommandot: /register <lösenord> <bekräftaLösenord>'
+    command_usage: '&cAnvändning: /register <lösenord> <bekräftaLösenord>'
+    reg_only: '&4Endast registrerade användare kan ansluta till servern! Besök http://example.com för att registrera dig!'
+    kicked_admin_registered: 'En administratör har just registrerat dig; logga in igen.'
+    success: '&2Registreringen lyckades!'
+    disabled: '&cRegistrering i spelet är avstängd!'
+    name_taken: '&cDu har redan registrerat det här användarnamnet!'
+
+# Lösenordsfel vid registrering
+password:
+    match_error: '&cLösenorden stämde inte överens, kontrollera dem igen!'
+    name_in_password: '&cDu kan inte använda ditt namn som lösenord, välj ett annat...'
+    unsafe_password: '&cDet valda lösenordet är inte säkert, välj ett annat...'
+    forbidden_characters: '&4Ditt lösenord innehåller otillåtna tecken. Tillåtna tecken: %valid_chars'
+    wrong_length: '&cDitt lösenord är för kort eller för långt! Försök med ett annat!'
+
+# Inloggning
+login:
+    command_usage: '&cAnvändning: /login <lösenord>'
+    wrong_password: '&cFel lösenord!'
+    success: '&2Inloggningen lyckades!'
+    login_request: '&cLogga in med kommandot: /login <lösenord>'
+    timeout_error: '&4Tiden för inloggning har gått ut, du har kastats ut från servern, försök igen!'
+
+# Fel
+error:
+    unregistered_user: '&cDen här användaren är inte registrerad!'
+    denied_command: '&cFör att använda det här kommandot måste du vara inloggad!'
+    denied_chat: '&cFör att chatta måste du vara inloggad!'
+    not_logged_in: '&cDu är inte inloggad!'
+    tempban_max_logins: '&cDu har blivit tillfälligt bannad för att du misslyckats logga in för många gånger.'
+    max_registration: '&cDu har överskridit det högsta antalet registreringar (%reg_count/%max_acc %reg_names) för din anslutning!'
+    no_permission: '&4Du har inte behörighet att utföra den här åtgärden!'
+    unexpected_error: '&4Ett oväntat fel uppstod, kontakta en administratör!'
+    kick_for_vip: '&3En VIP-spelare anslöt till servern när den var full!'
+    logged_in: '&cDu är redan inloggad!'
+    kick_unresolved_hostname: '&cEtt fel uppstod: spelarens värdnamn kunde inte slås upp!'
+
+# AntiBot
+antibot:
+    kick_antibot: 'AntiBot-skyddet är aktiverat! Du måste vänta några minuter innan du kan ansluta till servern.'
+    auto_enabled: '&4[AntiBotService] AntiBot aktiverades på grund av det stora antalet anslutningar!'
+    auto_disabled: '&2[AntiBotService] AntiBot stängdes av efter %m minuter!'
+
+unregister:
+    success: '&cAvregistreringen lyckades!'
+    command_usage: '&cAnvändning: /unregister <lösenord>'
+
+# Övriga meddelanden
+misc:
+    accounts_owned_self: 'Du äger %count konton:'
+    accounts_owned_other: 'Spelaren %name har %count konton:'
+    account_not_activated: '&cDitt konto är inte aktiverat än, kontrollera din e-post!'
+    password_changed: '&2Lösenordet har ändrats!'
+    logout: '&2Du har loggat ut!'
+    reload: '&2Konfigurationen och databasen har lästs in på nytt!'
+    usage_change_password: '&cAnvändning: /changepassword <gammaltLösenord> <nyttLösenord>'
+
+# Sessionsmeddelanden
+session:
+    invalid_session: '&cDin IP har ändrats och dina sessionsdata har upphört att gälla!'
+    valid_session: '&2Inloggad tack vare återanslutning av sessionen.'
+
+# Felmeddelanden vid anslutning
+on_join_validation:
+    name_length: '&4Ditt användarnamn är antingen för kort eller för långt!'
+    characters_in_name: '&4Ditt användarnamn innehåller otillåtna tecken. Tillåtna tecken: %valid_chars'
+    country_banned: '&4Ditt land är bannat från den här servern!'
+    not_owner_error: 'Du är inte ägare till det här kontot. Välj ett annat namn!'
+    kick_full_server: '&4Servern är full, försök igen senare!'
+    same_nick_online: '&4Samma användarnamn spelar redan på servern!'
+    invalid_name_case: 'Du bör ansluta med användarnamnet %valid, inte %invalid.'
+    same_ip_online: 'En spelare med samma IP är redan i spelet!'
+    quick_command: 'Du använde ett kommando för snabbt! Anslut till servern igen och vänta längre innan du använder något kommando.'
+
+# E-post
+email:
+    usage_email_add: '&cAnvändning: /email add <e-post> <bekräftaE-post>'
+    usage_email_change: '&cAnvändning: /email change <gammalE-post> <nyE-post>'
+    new_email_invalid: '&cOgiltig ny e-postadress, försök igen!'
+    old_email_invalid: '&cOgiltig gammal e-postadress, försök igen!'
+    invalid: '&cOgiltig e-postadress, försök igen!'
+    added: '&2E-postadressen har lagts till på ditt konto!'
+    request_confirmation: '&cBekräfta din e-postadress!'
+    changed: '&2E-postadressen har ändrats!'
+    email_show: '&2Din nuvarande e-postadress är: &f%email'
+    incomplete_settings: 'Fel: alla inställningar som krävs för att skicka e-post är inte angivna. Kontakta en administratör.'
+    already_used: '&4E-postadressen används redan'
+    send_failure: 'E-postmeddelandet kunde inte skickas. Kontakta en administratör.'
+    no_email_for_account: '&2Du har för närvarande ingen e-postadress kopplad till det här kontot.'
+    add_email_request: '&3Lägg till din e-postadress på ditt konto med kommandot: /email add <dinE-post> <bekräftaE-post>'
+    change_password_expired: 'Du kan inte längre ändra ditt lösenord med det här kommandot.'
+    email_cooldown_error: '&cEtt e-postmeddelande har redan skickats nyligen. Du måste vänta %time innan du kan skicka ett nytt.'
+    add_not_allowed: '&cDet var inte tillåtet att lägga till e-post.'
+    change_not_allowed: '&cDet var inte tillåtet att ändra e-post.'
+
+# Återställning av lösenord via e-post
+recovery:
+    forgot_password_hint: '&3Har du glömt ditt lösenord? Använd kommandot: /email recovery <dinE-post>'
+    command_usage: '&cAnvändning: /email recovery <E-post>'
+    email_sent: '&2Återställningsmeddelandet har skickats! Kontrollera din inkorg!'
+    code:
+        code_sent: 'En återställningskod för att återställa ditt lösenord har skickats till din e-post.'
+        incorrect: 'Återställningskoden är inte korrekt! Du har %count försök kvar.'
+        tries_exceeded: 'Du har överskridit det högsta antalet försök att ange återställningskoden. Använd "/email recovery [email]" för att skapa en ny.'
+        correct: 'Återställningskoden angavs korrekt!'
+        change_password: 'Använd kommandot /email setpassword <nytt lösenord> för att ändra ditt lösenord omedelbart.'
+
+# Captcha
+captcha:
+    usage_captcha: '&3För att logga in måste du lösa en captcha-kod, använd kommandot: /captcha %captcha_code'
+    wrong_captcha: '&cFel captcha, skriv "/captcha %captcha_code" i chatten!'
+    valid_captcha: '&2Captcha-koden löstes korrekt!'
+    captcha_for_registration: 'För att registrera dig måste du först lösa en captcha, använd kommandot: /captcha %captcha_code'
+    register_captcha_valid: '&2Giltig captcha! Du kan nu registrera dig med /register'
+
+# Verifieringskod
+verification:
+    code_required: '&3Det här kommandot är känsligt och kräver en e-postverifiering! Kontrollera din inkorg och följ instruktionerna i e-postmeddelandet.'
+    command_usage: '&cAnvändning: /verification <kod>'
+    incorrect_code: '&cFelaktig kod, skriv "/verification <kod>" i chatten med koden du fick via e-post'
+    success: '&2Din identitet har verifierats! Du kan nu köra alla kommandon under den här sessionen!'
+    already_verified: '&2Du kan redan köra alla känsliga kommandon under den här sessionen!'
+    code_expired: '&3Din kod har upphört att gälla! Kör ett annat känsligt kommando för att få en ny kod!'
+    email_needed: '&3För att verifiera din identitet måste du koppla en e-postadress till ditt konto!'
+
+# Tvåfaktorsautentisering
+two_factor:
+    code_created: '&2Din hemliga kod är %code. Du kan skanna den härifrån: %url'
+    confirmation_required: 'Bekräfta din kod med /2fa confirm <kod>'
+    code_required: 'Ange din tvåfaktorskod med /2fa code <kod>'
+    already_enabled: 'Tvåfaktorsautentisering är redan aktiverad för ditt konto!'
+    enable_error_no_code: 'Ingen 2fa-nyckel har skapats för dig eller den har upphört att gälla. Kör /2fa add'
+    enable_success: 'Tvåfaktorsautentisering aktiverades för ditt konto'
+    enable_error_wrong_code: 'Fel kod eller koden har upphört att gälla. Kör /2fa add'
+    not_enabled_error: 'Tvåfaktorsautentisering är inte aktiverad för ditt konto. Kör /2fa add'
+    removed_success: 'Tvåfaktorsautentisering togs bort från ditt konto'
+    invalid_code: 'Ogiltig kod!'
+
+# Tidsenheter
+time:
+    second: 'sekund'
+    seconds: 'sekunder'
+    minute: 'minut'
+    minutes: 'minuter'
+    hour: 'timme'
+    hours: 'timmar'
+    day: 'dag'
+    days: 'dagar'

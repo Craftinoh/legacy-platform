@@ -1,0 +1,157 @@
+# List of global tags:
+# %nl% - Goes to new line.
+# %username% - Replaces the username of the player receiving the message.
+# %displayname% - Replaces the nickname (and colors) of the player receiving the message.
+
+# Registration
+registration:
+    disabled: '&cRekisteröinti on suljettu!'
+    name_taken: '&cPelaaja on jo rekisteröity'
+    register_request: '&cRekisteröidy palvelimellemme komennolla "/register <salasana> <salasana>"'
+    command_usage: '&cKäyttötapa: /register <salasana> <salasana>'
+    reg_only: '&fMene sivustolle: http://example.com rekisteröityäksesi!'
+    success: '&cRekisteröidyit onnistuneesti!'
+    kicked_admin_registered: 'Ylläpitäjä rekisteröi sinut juuri; kirjaudu sisään uudelleen.'
+
+# Password errors on registration
+password:
+    match_error: '&fSalasanat ei täsmää'
+    name_in_password: '&cEt voi käyttää nimeäsi salasanana, valitse jokin muu...'
+    unsafe_password: '&cValittu salasana ei ole turvallinen, valitse jokin muu...'
+    forbidden_characters: '&4Salasanasi sisältää kiellettyjä merkkejä. Sallitut merkit: %valid_chars'
+    wrong_length: '&fSalasanasi on liian pitkä tai lyhyt.'
+
+# Login
+login:
+    command_usage: '&cKäyttötapa: /login salasana'
+    wrong_password: '&cVäärä salasana'
+    success: '&cKirjauduit onnistuneesti'
+    login_request: '&cKirjaudu palvelimmelle komennolla "/login salasana"'
+    timeout_error: '&fKirjautumisaika meni umpeen.'
+
+# Errors
+error:
+    denied_command: '&cSinun täytyy kirjautua sisään käyttääksesi tätä komentoa!'
+    denied_chat: '&cSinun täytyy kirjautua sisään voidaksesi keskustella!'
+    unregistered_user: '&cSalasanat eivät täsmää'
+    not_logged_in: '&cEt ole kirjautunut sisään!'
+    no_permission: '&cEi oikeuksia'
+    unexpected_error: '&fVirhe: Ota yhteys palveluntarjoojaan!'
+    max_registration: '&cOlet ylittänyt yhteydellesi sallitun rekisteröintien enimmäismäärän (%reg_count/%max_acc %reg_names)!'
+    logged_in: '&cOlet jo kirjautunut!'
+    kick_for_vip: '&cVIP pelaaja liittyi täyteen palvelimeen!'
+    kick_unresolved_hostname: '&cTapahtui virhe: pelaajan isäntänimeä ei voitu selvittää!'
+    tempban_max_logins: '&cSinut on väliaikaisesti estetty liian monen epäonnistuneen kirjautumisen vuoksi.'
+
+# AntiBot
+antibot:
+    kick_antibot: 'AntiBot-suojaus on käytössä! Sinun on odotettava muutama minuutti ennen palvelimelle liittymistä.'
+    auto_enabled: '&4[AntiBotService] AntiBot otettiin käyttöön suuren yhteysmäärän vuoksi!'
+    auto_disabled: '&2[AntiBotService] AntiBot poistettiin käytöstä %m minuutin jälkeen!'
+
+# Unregister
+unregister:
+    success: '&cPelaajatili poistettu onnistuneesti!'
+    command_usage: '&cKäyttötapa: /unregister password'
+
+# Other messages
+misc:
+    account_not_activated: '&fKäyttäjäsi ei ole vahvistettu!'
+    password_changed: '&cSalasana vaihdettu!!'
+    logout: '&cKirjauduit ulos palvelimelta.'
+    reload: '&fAsetukset uudelleenladattu'
+    usage_change_password: '&fKäyttötapa: /changepassword vanhaSalasana uusiSalasana'
+    accounts_owned_self: 'Omistat %count tiliä:'
+    accounts_owned_other: 'Pelaajalla %name on %count tiliä:'
+
+# Session messages
+session:
+    valid_session: '&cIstunto jatkettu!'
+    invalid_session: '&fIstunto ei täsmää! Ole hyvä ja odota istunnon loppuun'
+
+# Error messages when joining
+on_join_validation:
+    same_ip_online: 'Pelaaja samasta IP-osoitteesta on jo pelissä!'
+    same_nick_online: '&COlet jo palvelimella! &COdota käyttäjän aikakatkaisua tai ota yhteyttä palveluntarjoojaan.'
+    name_length: '&cPelaajanimesi on liian lyhyt tai pitkä'
+    characters_in_name: '&cPelaajanimesi sisältää luvattomia merkkejä. Hyväksytyt merkit: %valid_chars'
+    kick_full_server: '&cPalvelin on täynnä, Yritä pian uudelleen!'
+    country_banned: '&4Maasi on estetty tältä palvelimelta!'
+    not_owner_error: 'Et ole tämän tilin omistaja. Valitse toinen nimi!'
+    invalid_name_case: 'Sinun tulisi liittyä käyttäjänimellä %valid, ei %invalid.'
+    quick_command: 'Käytit komentoa liian nopeasti! Liity palvelimelle uudelleen ja odota pidempään ennen komennon käyttöä.'
+
+# Email
+email:
+    add_email_request: '&cLisää sähköpostisi: /email add sähköpostisi sähköpostisiUudelleen'
+    usage_email_add: '&fKäyttötapa: /email add <email> <confirmEmail> '
+    usage_email_change: '&fKäyttötapa: /email change <oldEmail> <newEmail> '
+    new_email_invalid: '&c[AuthMe] Uusi sähköposti on väärä!'
+    old_email_invalid: '&c[AuthMe] Vanha sähköposti on väärä!'
+    invalid: '&c[AuthMe] Väärä sähköposti'
+    added: '&2[AuthMe] Sähköposti lisätty!'
+    add_not_allowed: '&cSähköpostin lisääminen ei ollut sallittua'
+    request_confirmation: '&c[AuthMe] Vahvistuta sähköposti!'
+    changed: '&2[AuthMe] Sähköposti vaihdettu!'
+    change_not_allowed: '&cSähköpostin vaihtaminen ei ollut sallittua'
+    email_show: '&2Nykyinen sähköpostiosoitteesi on: &f%email'
+    no_email_for_account: '&2Tähän tiliin ei ole tällä hetkellä liitetty sähköpostiosoitetta.'
+    already_used: '&4Sähköpostiosoite on jo käytössä'
+    incomplete_settings: 'Virhe: kaikkia sähköpostin lähettämiseen vaadittuja asetuksia ei ole määritetty. Ota yhteyttä ylläpitäjään.'
+    send_failure: 'Sähköpostia ei voitu lähettää. Ota yhteyttä ylläpitäjään.'
+    change_password_expired: 'Et voi enää vaihtaa salasanaasi tällä komennolla.'
+    email_cooldown_error: '&cSähköposti lähetettiin jo äskettäin. Sinun on odotettava %time ennen uuden lähettämistä.'
+
+# Password recovery by email
+recovery:
+    forgot_password_hint: '&cUnohtuiko salasana? Käytä komentoa: /email recovery <Sähköpostisi>'
+    command_usage: '&fKäyttötapa: /email recovery <Email>'
+    email_sent: '&2[AuthMe] Palautus sähköposti lähetetty!'
+    code:
+        code_sent: 'Salasanan palautuskoodi on lähetetty sähköpostiisi.'
+        incorrect: 'Palautuskoodi ei ole oikein! Sinulla on %count yritystä jäljellä.'
+        tries_exceeded: 'Olet ylittänyt palautuskoodin syöttöyritysten enimmäismäärän. Luo uusi komennolla "/email recovery [email]".'
+        correct: 'Palautuskoodi syötettiin oikein!'
+        change_password: 'Vaihda salasanasi välittömästi komennolla /email setpassword <uusi salasana>.'
+
+# Captcha
+captcha:
+    usage_captcha: '&cKäyttötapa: /captcha %captcha_code'
+    wrong_captcha: '&cVäärä varmistus, käytä : /captcha %captcha_code'
+    valid_captcha: '&cSinun varmistus onnistui.!'
+    captcha_for_registration: 'Rekisteröityäksesi sinun on ensin ratkaistava captcha, käytä komentoa: /captcha %captcha_code'
+    register_captcha_valid: '&2Captcha oikein! Voit nyt rekisteröityä komennolla /register'
+
+# Verification code
+verification:
+    code_required: '&3Tämä komento on arkaluontoinen ja vaatii sähköpostivarmennuksen! Tarkista postilaatikkosi ja seuraa sähköpostin ohjeita.'
+    command_usage: '&cKäyttö: /verification <koodi>'
+    incorrect_code: '&cVirheellinen koodi, kirjoita chattiin "/verification <koodi>" käyttäen sähköpostitse saamaasi koodia'
+    success: '&2Henkilöllisyytesi on vahvistettu! Voit nyt suorittaa kaikki komennot tämän istunnon aikana!'
+    already_verified: '&2Voit jo suorittaa kaikki arkaluontoiset komennot tämän istunnon aikana!'
+    code_expired: '&3Koodisi on vanhentunut! Suorita toinen arkaluontoinen komento saadaksesi uuden koodin!'
+    email_needed: '&3Vahvistaaksesi henkilöllisyytesi sinun on liitettävä sähköpostiosoite tiliisi!'
+
+# Time units
+time:
+    second: 'sekunti'
+    seconds: 'sekuntia'
+    minute: 'minuutti'
+    minutes: 'minuuttia'
+    hour: 'tunti'
+    hours: 'tuntia'
+    day: 'päivä'
+    days: 'päivää'
+
+# Two-factor authentication
+two_factor:
+    code_created: '&2Salainen koodisi on %code. Voit skannata sen täältä %url'
+    confirmation_required: 'Vahvista koodisi komennolla /2fa confirm <koodi>'
+    code_required: 'Anna kaksivaiheisen tunnistautumisen koodisi komennolla /2fa code <koodi>'
+    already_enabled: 'Kaksivaiheinen tunnistautuminen on jo käytössä tililläsi!'
+    enable_error_no_code: 'Sinulle ei ole luotu 2fa-avainta tai se on vanhentunut. Suorita /2fa add'
+    enable_success: 'Kaksivaiheinen tunnistautuminen otettiin onnistuneesti käyttöön tililläsi'
+    enable_error_wrong_code: 'Väärä koodi tai koodi on vanhentunut. Suorita /2fa add'
+    not_enabled_error: 'Kaksivaiheinen tunnistautuminen ei ole käytössä tililläsi. Suorita /2fa add'
+    removed_success: 'Kaksivaiheinen tunnistautuminen poistettiin onnistuneesti tililtäsi'
+    invalid_code: 'Virheellinen koodi!'

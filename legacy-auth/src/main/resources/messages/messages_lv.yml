@@ -1,0 +1,156 @@
+# Globālo tagu saraksts:
+# %nl% - Pāriet uz jaunu rindu.
+# %username% - Aizstāj tā spēlētāja lietotājvārdu, kurš saņem ziņojumu.
+# %displayname% - Aizstāj tā spēlētāja segvārdu (un krāsas), kurš saņem ziņojumu.
+
+# Reģistrācija
+registration:
+    register_request: '&3Lūdzu, reģistrējies serverī ar komandu: /register <parole> <apstiprinātParoli>'
+    command_usage: '&cLietošana: /register <parole> <apstiprinātParoli>'
+    reg_only: '&4Serverī var pievienoties tikai reģistrēti lietotāji! Apmeklē http://example.com, lai reģistrētos!'
+    kicked_admin_registered: 'Administrators tikko tevi reģistrēja; lūdzu, pieslēdzies vēlreiz.'
+    success: '&2Reģistrācija veiksmīga!'
+    disabled: '&cReģistrācija spēlē ir atspējota!'
+    name_taken: '&cŠis lietotājvārds jau ir reģistrēts!'
+
+# Paroles kļūdas reģistrācijas laikā
+password:
+    match_error: '&cParoles nesakrita, pārbaudi tās vēlreiz!'
+    name_in_password: '&cTu nevari izmantot savu vārdu kā paroli, lūdzu, izvēlies citu...'
+    unsafe_password: '&cIzvēlētā parole nav droša, lūdzu, izvēlies citu...'
+    forbidden_characters: '&4Tavā parolē ir neatļautas rakstzīmes. Atļautās rakstzīmes: %valid_chars'
+    wrong_length: '&cTava parole ir pārāk īsa vai pārāk gara! Mēģini ar citu!'
+
+# Pieslēgšanās
+login:
+    command_usage: '&cLietošana: /login <parole>'
+    wrong_password: '&cNepareiza parole!'
+    success: '&2Pieslēgšanās veiksmīga!'
+    login_request: '&cLūdzu, pieslēdzies ar komandu: /login <parole>'
+    timeout_error: '&4Pieslēgšanās laiks beidzies, tu tiki izmests no servera, mēģini vēlreiz!'
+
+# Kļūdas
+error:
+    unregistered_user: '&cŠis lietotājs nav reģistrēts!'
+    denied_command: '&cLai izmantotu šo komandu, tev jābūt pieslēgtam!'
+    denied_chat: '&cLai sarakstītos, tev jābūt pieslēgtam!'
+    not_logged_in: '&cTu neesi pieslēdzies!'
+    tempban_max_logins: '&cTu tiki uz laiku bloķēts, jo pārāk daudz reižu neizdevās pieslēgties.'
+    max_registration: '&cTu esi pārsniedzis maksimālo reģistrāciju skaitu (%reg_count/%max_acc %reg_names) savam savienojumam!'
+    no_permission: '&4Tev nav atļaujas veikt šo darbību!'
+    unexpected_error: '&4Radās neparedzēta kļūda, lūdzu, sazinies ar administratoru!'
+    kick_for_vip: '&3VIP spēlētājs pievienojās serverim, kad tas bija pilns!'
+    logged_in: '&cTu jau esi pieslēdzies!'
+    kick_unresolved_hostname: '&cRadās kļūda: neizdevās noteikt spēlētāja resursdatora nosaukumu!'
+
+# AntiBot
+antibot:
+    kick_antibot: 'AntiBot aizsardzība ir ieslēgta! Tev jāpagaida dažas minūtes pirms pievienošanās serverim.'
+    auto_enabled: '&4[AntiBotService] AntiBot tika ieslēgts lielā savienojumu skaita dēļ!'
+    auto_disabled: '&2[AntiBotService] AntiBot tika izslēgts pēc %m minūtēm!'
+
+unregister:
+    success: '&cReģistrācija veiksmīgi atcelta!'
+    command_usage: '&cLietošana: /unregister <parole>'
+
+# Citi ziņojumi
+misc:
+    accounts_owned_self: 'Tev pieder %count konti:'
+    accounts_owned_other: 'Spēlētājam %name ir %count konti:'
+    account_not_activated: '&cTavs konts vēl nav aktivizēts, lūdzu, pārbaudi savu e-pastu!'
+    password_changed: '&2Parole veiksmīgi nomainīta!'
+    logout: '&2Veiksmīgi atslēdzies!'
+    reload: '&2Konfigurācija un datubāze tika pareizi pārlādētas!'
+    usage_change_password: '&cLietošana: /changepassword <vecāParole> <jaunāParole>'
+
+# Sesijas ziņojumi
+session:
+    invalid_session: '&cTava IP adrese ir mainījusies un tavas sesijas dati ir beigušies!'
+    valid_session: '&2Pieslēgts, pateicoties sesijas atjaunošanai.'
+
+# Kļūdu ziņojumi pievienojoties
+on_join_validation:
+    name_length: '&4Tavs lietotājvārds ir vai nu pārāk īss, vai pārāk garš!'
+    characters_in_name: '&4Tavā lietotājvārdā ir neatļautas rakstzīmes. Atļautās rakstzīmes: %valid_chars'
+    country_banned: '&4Tava valsts ir bloķēta šajā serverī!'
+    not_owner_error: 'Tu neesi šī konta īpašnieks. Lūdzu, izvēlies citu vārdu!'
+    kick_full_server: '&4Serveris ir pilns, mēģini vēlāk!'
+    same_nick_online: '&4Tāds pats lietotājvārds jau spēlē serverī!'
+    invalid_name_case: 'Tev vajadzētu pievienoties ar lietotājvārdu %valid, nevis %invalid.'
+    same_ip_online: 'Spēlētājs ar tādu pašu IP adresi jau ir spēlē!'
+    quick_command: 'Tu izmantoji komandu pārāk ātri! Lūdzu, pievienojies serverim vēlreiz un pagaidi ilgāk pirms jebkuras komandas izmantošanas.'
+
+# E-pasts
+email:
+    usage_email_add: '&cLietošana: /email add <e-pasts> <apstiprinātE-pastu>'
+    usage_email_change: '&cLietošana: /email change <vecaisE-pasts> <jaunaisE-pasts>'
+    new_email_invalid: '&cNederīgs jaunais e-pasts, mēģini vēlreiz!'
+    old_email_invalid: '&cNederīgs vecais e-pasts, mēģini vēlreiz!'
+    invalid: '&cNederīga e-pasta adrese, mēģini vēlreiz!'
+    added: '&2E-pasta adrese veiksmīgi pievienota tavam kontam!'
+    request_confirmation: '&cLūdzu, apstiprini savu e-pasta adresi!'
+    changed: '&2E-pasta adrese veiksmīgi nomainīta!'
+    email_show: '&2Tava pašreizējā e-pasta adrese ir: &f%email'
+    incomplete_settings: 'Kļūda: nav iestatīti visi e-pasta sūtīšanai nepieciešamie parametri. Lūdzu, sazinies ar administratoru.'
+    already_used: '&4Šī e-pasta adrese jau tiek izmantota'
+    send_failure: 'E-pastu neizdevās nosūtīt. Lūdzu, sazinies ar administratoru.'
+    no_email_for_account: '&2Šobrīd šim kontam nav piesaistīta e-pasta adrese.'
+    add_email_request: '&3Lūdzu, pievieno savu e-pastu kontam ar komandu: /email add <tavsE-pasts> <apstiprinātE-pastu>'
+    change_password_expired: 'Tu vairs nevari mainīt savu paroli ar šo komandu.'
+    email_cooldown_error: '&cE-pasts jau nesen tika nosūtīts. Tev jāgaida %time, pirms vari nosūtīt jaunu.'
+    add_not_allowed: '&cE-pasta pievienošana nebija atļauta.'
+    change_not_allowed: '&cE-pasta maiņa nebija atļauta.'
+
+# Paroles atjaunošana pa e-pastu
+recovery:
+    forgot_password_hint: '&3Aizmirsi savu paroli? Lūdzu, izmanto komandu: /email recovery <tavsE-pasts>'
+    command_usage: '&cLietošana: /email recovery <E-pasts>'
+    email_sent: '&2Atjaunošanas e-pasts veiksmīgi nosūtīts! Lūdzu, pārbaudi savu e-pasta kastīti!'
+    code:
+        code_sent: 'Atjaunošanas kods paroles atiestatīšanai ir nosūtīts uz tavu e-pastu.'
+        incorrect: 'Atjaunošanas kods nav pareizs! Tev atlikuši %count mēģinājumi.'
+        tries_exceeded: 'Tu esi pārsniedzis maksimālo atjaunošanas koda ievadīšanas mēģinājumu skaitu. Izmanto "/email recovery [email]", lai izveidotu jaunu.'
+        correct: 'Atjaunošanas kods ievadīts pareizi!'
+        change_password: 'Lūdzu, izmanto komandu /email setpassword <jaunā parole>, lai nekavējoties nomainītu paroli.'
+
+# Captcha
+captcha:
+    usage_captcha: '&3Lai pieslēgtos, tev jāatrisina captcha kods, lūdzu, izmanto komandu: /captcha %captcha_code'
+    wrong_captcha: '&cNepareiza captcha, lūdzu, ieraksti čatā "/captcha %captcha_code"!'
+    valid_captcha: '&2Captcha kods atrisināts pareizi!'
+    captcha_for_registration: 'Lai reģistrētos, tev vispirms jāatrisina captcha, lūdzu, izmanto komandu: /captcha %captcha_code'
+    register_captcha_valid: '&2Derīga captcha! Tagad vari reģistrēties ar /register'
+
+# Verifikācijas kods
+verification:
+    code_required: '&3Šī komanda ir jutīga un prasa e-pasta verifikāciju! Pārbaudi savu e-pasta kastīti un seko norādījumiem e-pastā.'
+    command_usage: '&cLietošana: /verification <kods>'
+    incorrect_code: '&cNepareizs kods, lūdzu, ieraksti čatā "/verification <kods>", izmantojot kodu, ko saņēmi e-pastā'
+    success: '&2Tava identitāte ir apstiprināta! Tagad šajā sesijā vari izpildīt visas komandas!'
+    already_verified: '&2Tu jau vari izpildīt visas jutīgās komandas šajā sesijā!'
+    code_expired: '&3Tavam kodam ir beidzies derīguma termiņš! Izpildi citu jutīgu komandu, lai saņemtu jaunu kodu!'
+    email_needed: '&3Lai apstiprinātu savu identitāti, tev jāpiesaista e-pasta adrese savam kontam!'
+
+# Divpakāpju autentifikācija
+two_factor:
+    code_created: '&2Tavs slepenais kods ir %code. Tu vari to noskenēt šeit: %url'
+    confirmation_required: 'Lūdzu, apstiprini savu kodu ar /2fa confirm <kods>'
+    code_required: 'Lūdzu, ievadi savu divpakāpju autentifikācijas kodu ar /2fa code <kods>'
+    already_enabled: 'Divpakāpju autentifikācija tavam kontam jau ir ieslēgta!'
+    enable_error_no_code: 'Tev nav izveidota 2fa atslēga vai tai beidzies derīguma termiņš. Lūdzu, izpildi /2fa add'
+    enable_success: 'Divpakāpju autentifikācija tavam kontam veiksmīgi ieslēgta'
+    enable_error_wrong_code: 'Nepareizs kods vai kodam beidzies derīguma termiņš. Lūdzu, izpildi /2fa add'
+    not_enabled_error: 'Divpakāpju autentifikācija tavam kontam nav ieslēgta. Izpildi /2fa add'
+    removed_success: 'Divpakāpju autentifikācija veiksmīgi noņemta no tava konta'
+    invalid_code: 'Nederīgs kods!'
+
+# Laika vienības
+time:
+    second: 'sekunde'
+    seconds: 'sekundes'
+    minute: 'minūte'
+    minutes: 'minūtes'
+    hour: 'stunda'
+    hours: 'stundas'
+    day: 'diena'
+    days: 'dienas'

@@ -1,0 +1,156 @@
+# Liste over globale tagger:
+# %nl% - Går til ny linje.
+# %username% - Erstattes med brukernavnet til spilleren som mottar meldingen.
+# %displayname% - Erstattes med kallenavnet (og fargene) til spilleren som mottar meldingen.
+
+# Registrering
+registration:
+    register_request: '&3Vennligst registrer deg på serveren med kommandoen: /register <passord> <bekreftPassord>'
+    command_usage: '&cBruk: /register <passord> <bekreftPassord>'
+    reg_only: '&4Bare registrerte brukere kan koble til serveren! Besøk http://example.com for å registrere deg!'
+    kicked_admin_registered: 'En administrator har nettopp registrert deg; vennligst logg inn på nytt.'
+    success: '&2Registreringen var vellykket!'
+    disabled: '&cRegistrering i spillet er deaktivert!'
+    name_taken: '&cDu har allerede registrert dette brukernavnet!'
+
+# Passordfeil ved registrering
+password:
+    match_error: '&cPassordene var ikke like, sjekk dem på nytt!'
+    name_in_password: '&cDu kan ikke bruke navnet ditt som passord, velg et annet...'
+    unsafe_password: '&cDet valgte passordet er ikke trygt, velg et annet...'
+    forbidden_characters: '&4Passordet ditt inneholder ulovlige tegn. Tillatte tegn: %valid_chars'
+    wrong_length: '&cPassordet ditt er for kort eller for langt! Prøv med et annet!'
+
+# Innlogging
+login:
+    command_usage: '&cBruk: /login <passord>'
+    wrong_password: '&cFeil passord!'
+    success: '&2Innloggingen var vellykket!'
+    login_request: '&cVennligst logg inn med kommandoen: /login <passord>'
+    timeout_error: '&4Tidsfristen for innlogging er overskredet, du har blitt kastet ut av serveren, prøv igjen!'
+
+# Feil
+error:
+    unregistered_user: '&cDenne brukeren er ikke registrert!'
+    denied_command: '&cFor å bruke denne kommandoen må du være innlogget!'
+    denied_chat: '&cFor å chatte må du være innlogget!'
+    not_logged_in: '&cDu er ikke innlogget!'
+    tempban_max_logins: '&cDu har blitt midlertidig utestengt fordi du mislyktes med innlogging for mange ganger.'
+    max_registration: '&cDu har overskredet maksimalt antall registreringer (%reg_count/%max_acc %reg_names) for tilkoblingen din!'
+    no_permission: '&4Du har ikke tillatelse til å utføre denne handlingen!'
+    unexpected_error: '&4Det oppstod en uventet feil, vennligst kontakt en administrator!'
+    kick_for_vip: '&3En VIP-spiller koblet til serveren mens den var full!'
+    logged_in: '&cDu er allerede innlogget!'
+    kick_unresolved_hostname: '&cDet oppstod en feil: spillerens vertsnavn kunne ikke slås opp!'
+
+# AntiBot
+antibot:
+    kick_antibot: 'AntiBot-beskyttelsen er aktivert! Du må vente noen minutter før du kan koble til serveren.'
+    auto_enabled: '&4[AntiBotService] AntiBot ble aktivert på grunn av det store antallet tilkoblinger!'
+    auto_disabled: '&2[AntiBotService] AntiBot ble deaktivert etter %m minutter!'
+
+unregister:
+    success: '&cAvregistreringen var vellykket!'
+    command_usage: '&cBruk: /unregister <passord>'
+
+# Andre meldinger
+misc:
+    accounts_owned_self: 'Du eier %count kontoer:'
+    accounts_owned_other: 'Spilleren %name har %count kontoer:'
+    account_not_activated: '&cKontoen din er ikke aktivert ennå, vennligst sjekk e-posten din!'
+    password_changed: '&2Passordet ble endret!'
+    logout: '&2Du er logget ut!'
+    reload: '&2Konfigurasjonen og databasen har blitt lastet inn på nytt!'
+    usage_change_password: '&cBruk: /changepassword <gammeltPassord> <nyttPassord>'
+
+# Øktmeldinger
+session:
+    invalid_session: '&cIP-en din har blitt endret og øktdataene dine har utløpt!'
+    valid_session: '&2Innlogget på grunn av gjenoppkobling av økten.'
+
+# Feilmeldinger ved tilkobling
+on_join_validation:
+    name_length: '&4Brukernavnet ditt er enten for kort eller for langt!'
+    characters_in_name: '&4Brukernavnet ditt inneholder ulovlige tegn. Tillatte tegn: %valid_chars'
+    country_banned: '&4Landet ditt er utestengt fra denne serveren!'
+    not_owner_error: 'Du er ikke eieren av denne kontoen. Vennligst velg et annet navn!'
+    kick_full_server: '&4Serveren er full, prøv igjen senere!'
+    same_nick_online: '&4Det samme brukernavnet spiller allerede på serveren!'
+    invalid_name_case: 'Du bør koble til med brukernavnet %valid, ikke %invalid.'
+    same_ip_online: 'En spiller med samme IP er allerede i spillet!'
+    quick_command: 'Du brukte en kommando for raskt! Vennligst koble til serveren igjen og vent lenger før du bruker noen kommando.'
+
+# E-post
+email:
+    usage_email_add: '&cBruk: /email add <e-post> <bekreftE-post>'
+    usage_email_change: '&cBruk: /email change <gammelE-post> <nyE-post>'
+    new_email_invalid: '&cUgyldig ny e-postadresse, prøv igjen!'
+    old_email_invalid: '&cUgyldig gammel e-postadresse, prøv igjen!'
+    invalid: '&cUgyldig e-postadresse, prøv igjen!'
+    added: '&2E-postadressen ble lagt til kontoen din!'
+    request_confirmation: '&cVennligst bekreft e-postadressen din!'
+    changed: '&2E-postadressen ble endret!'
+    email_show: '&2Din nåværende e-postadresse er: &f%email'
+    incomplete_settings: 'Feil: ikke alle nødvendige innstillinger for å sende e-post er satt. Vennligst kontakt en administrator.'
+    already_used: '&4E-postadressen er allerede i bruk'
+    send_failure: 'E-posten kunne ikke sendes. Vennligst kontakt en administrator.'
+    no_email_for_account: '&2Du har for øyeblikket ingen e-postadresse knyttet til denne kontoen.'
+    add_email_request: '&3Vennligst legg til e-posten din på kontoen din med kommandoen: /email add <dinE-post> <bekreftE-post>'
+    change_password_expired: 'Du kan ikke lenger endre passordet ditt med denne kommandoen.'
+    email_cooldown_error: '&cEn e-post ble allerede sendt nylig. Du må vente %time før du kan sende en ny.'
+    add_not_allowed: '&cDet var ikke tillatt å legge til e-post.'
+    change_not_allowed: '&cDet var ikke tillatt å endre e-post.'
+
+# Gjenoppretting av passord via e-post
+recovery:
+    forgot_password_hint: '&3Har du glemt passordet ditt? Vennligst bruk kommandoen: /email recovery <dinE-post>'
+    command_usage: '&cBruk: /email recovery <E-post>'
+    email_sent: '&2Gjenopprettings-e-posten ble sendt! Vennligst sjekk innboksen din!'
+    code:
+        code_sent: 'En gjenopprettingskode for å tilbakestille passordet ditt har blitt sendt til e-posten din.'
+        incorrect: 'Gjenopprettingskoden er ikke riktig! Du har %count forsøk igjen.'
+        tries_exceeded: 'Du har overskredet maksimalt antall forsøk på å skrive inn gjenopprettingskoden. Bruk "/email recovery [email]" for å lage en ny.'
+        correct: 'Gjenopprettingskoden ble skrevet inn riktig!'
+        change_password: 'Vennligst bruk kommandoen /email setpassword <nytt passord> for å endre passordet ditt umiddelbart.'
+
+# Captcha
+captcha:
+    usage_captcha: '&3For å logge inn må du løse en captcha-kode, vennligst bruk kommandoen: /captcha %captcha_code'
+    wrong_captcha: '&cFeil captcha, vennligst skriv "/captcha %captcha_code" i chatten!'
+    valid_captcha: '&2Captcha-koden ble løst riktig!'
+    captcha_for_registration: 'For å registrere deg må du først løse en captcha, vennligst bruk kommandoen: /captcha %captcha_code'
+    register_captcha_valid: '&2Gyldig captcha! Du kan nå registrere deg med /register'
+
+# Verifiseringskode
+verification:
+    code_required: '&3Denne kommandoen er sensitiv og krever en e-postverifisering! Sjekk innboksen din og følg instruksjonene i e-posten.'
+    command_usage: '&cBruk: /verification <kode>'
+    incorrect_code: '&cFeil kode, vennligst skriv "/verification <kode>" i chatten med koden du mottok på e-post'
+    success: '&2Identiteten din har blitt verifisert! Du kan nå kjøre alle kommandoer i denne økten!'
+    already_verified: '&2Du kan allerede kjøre alle sensitive kommandoer i denne økten!'
+    code_expired: '&3Koden din har utløpt! Kjør en annen sensitiv kommando for å få en ny kode!'
+    email_needed: '&3For å verifisere identiteten din må du knytte en e-postadresse til kontoen din!'
+
+# Tofaktorautentisering
+two_factor:
+    code_created: '&2Den hemmelige koden din er %code. Du kan skanne den herfra: %url'
+    confirmation_required: 'Vennligst bekreft koden din med /2fa confirm <kode>'
+    code_required: 'Vennligst oppgi tofaktorkoden din med /2fa code <kode>'
+    already_enabled: 'Tofaktorautentisering er allerede aktivert for kontoen din!'
+    enable_error_no_code: 'Ingen 2fa-nøkkel har blitt generert for deg, eller den har utløpt. Kjør /2fa add'
+    enable_success: 'Tofaktorautentisering ble aktivert for kontoen din'
+    enable_error_wrong_code: 'Feil kode eller koden har utløpt. Kjør /2fa add'
+    not_enabled_error: 'Tofaktorautentisering er ikke aktivert for kontoen din. Kjør /2fa add'
+    removed_success: 'Tofaktorautentisering ble fjernet fra kontoen din'
+    invalid_code: 'Ugyldig kode!'
+
+# Tidsenheter
+time:
+    second: 'sekund'
+    seconds: 'sekunder'
+    minute: 'minutt'
+    minutes: 'minutter'
+    hour: 'time'
+    hours: 'timer'
+    day: 'dag'
+    days: 'dager'
