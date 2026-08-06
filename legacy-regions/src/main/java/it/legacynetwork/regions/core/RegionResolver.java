@@ -42,20 +42,28 @@ public final class RegionResolver {
     public RegionDecision resolveEffective(String worldName, String worldUuid,
                                            int x, int y, int z,
                                            RegionFlag flag) {
-        RegionDecision explicit = resolveExplicit(
+        RegionDecision specific = resolveExplicit(
                 worldName, worldUuid, x, y, z, flag);
-        if (explicit.getFinalState() != FlagState.INHERIT) {
-            return explicit;
-        }
-
-        FlagState configuredDefault = defaultFlags.get(flag);
-        if (configuredDefault != null && configuredDefault != FlagState.INHERIT) {
-            return decisionFromDefault(flag, configuredDefault);
+        if (specific.getFinalState() != FlagState.INHERIT) {
+            return specific;
         }
 
         RegionFlag generalFlag = flag.getGeneralFlag();
         if (generalFlag != null) {
-            return resolve(worldName, worldUuid, x, y, z, generalFlag);
+            RegionDecision general = resolveExplicit(
+                    worldName, worldUuid, x, y, z, generalFlag);
+            if (general.getFinalState() != FlagState.INHERIT) {
+                return general;
+            }
+        }
+
+        FlagState specificDefault = defaultFlags.get(flag);
+        if (specificDefault != null && specificDefault != FlagState.INHERIT) {
+            return decisionFromDefault(flag, specificDefault);
+        }
+
+        if (generalFlag != null) {
+            return defaultDecision(generalFlag);
         }
         return RegionDecision.allowed(null, 0, flag);
     }
