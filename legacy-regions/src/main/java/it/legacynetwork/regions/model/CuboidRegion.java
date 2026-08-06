@@ -2,9 +2,14 @@ package it.legacynetwork.regions.model;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
+import java.util.regex.Pattern;
 
 public final class CuboidRegion {
+
+    private static final Pattern VALID_ID = Pattern.compile("[a-z0-9._-]+");
 
     private final String id;
     private final String worldName;
@@ -21,9 +26,12 @@ public final class CuboidRegion {
     public CuboidRegion(String id, String worldName, String worldUuid,
                         int x1, int y1, int z1, int x2, int y2, int z2,
                         int priority, Map<RegionFlag, FlagState> flags) {
-        this.id = id;
-        this.worldName = worldName;
-        this.worldUuid = worldUuid;
+        this.id = normalizeId(id);
+        this.worldName = normalizeOptional(worldName);
+        this.worldUuid = normalizeWorldUuid(worldUuid);
+        if (this.worldName == null && this.worldUuid == null) {
+            throw new IllegalArgumentException("La regione deve avere un mondo valido");
+        }
         this.minX = Math.min(x1, x2);
         this.minY = Math.min(y1, y2);
         this.minZ = Math.min(z1, z2);
@@ -31,7 +39,43 @@ public final class CuboidRegion {
         this.maxY = Math.max(y1, y2);
         this.maxZ = Math.max(z1, z2);
         this.priority = priority;
-        this.flags = Collections.unmodifiableMap(new HashMap<RegionFlag, FlagState>(flags));
+        Map<RegionFlag, FlagState> safeFlags = flags == null
+                ? Collections.<RegionFlag, FlagState>emptyMap()
+                : flags;
+        this.flags = Collections.unmodifiableMap(
+                new HashMap<RegionFlag, FlagState>(safeFlags));
+    }
+
+    public static String normalizeId(String rawId) {
+        if (rawId == null) {
+            throw new IllegalArgumentException("ID regione mancante");
+        }
+        String normalized = rawId.trim().toLowerCase(Locale.ROOT);
+        if (normalized.isEmpty() || !VALID_ID.matcher(normalized).matches()) {
+            throw new IllegalArgumentException(
+                    "ID regione non valido: usa solo lettere, numeri, punto, trattino e underscore");
+        }
+        return normalized;
+    }
+
+    private static String normalizeOptional(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private static String normalizeWorldUuid(String value) {
+        String normalized = normalizeOptional(value);
+        if (normalized == null) {
+            return null;
+        }
+        try {
+            return UUID.fromString(normalized).toString();
+        } catch (IllegalArgumentException exception) {
+            throw new IllegalArgumentException("UUID mondo non valido: " + normalized);
+        }
     }
 
     public boolean contains(int x, int y, int z) {
@@ -40,12 +84,20 @@ public final class CuboidRegion {
                 && z >= minZ && z <= maxZ;
     }
 
+    public boolean matchesWorld(String candidateWorldName, String candidateWorldUuid) {
+        String normalizedUuid = normalizeOptional(candidateWorldUuid);
+        if (worldUuid != null && normalizedUuid != null
+                && worldUuid.equalsIgnoreCase(normalizedUuid)) {
+            return true;
+        }
+        String normalizedName = normalizeOptional(candidateWorldName);
+        return worldName != null && normalizedName != null
+                && worldName.equalsIgnoreCase(normalizedName);
+    }
+
     public FlagState getFlag(RegionFlag flag) {
         FlagState state = flags.get(flag);
-        if (state != null) {
-            return state;
-        }
-        return FlagState.INHERIT;
+        return state == null ? FlagState.INHERIT : state;
     }
 
     public String getId() {
