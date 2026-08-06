@@ -28,6 +28,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.util.function.Supplier;
 
 public final class LegacyLobbyPlugin extends JavaPlugin {
     private BackendLanguageService languageService;
@@ -94,26 +95,36 @@ public final class LegacyLobbyPlugin extends JavaPlugin {
             getServer().getMessenger().registerOutgoingPluginChannel(this, channel);
 
             getServer().getPluginManager().registerEvents(
-                    new LobbyJoinListener(this, configuration, languageService,
-                            messageService, scoreboardService, bossBarService),
+                    new LobbyJoinListener(
+                            this,
+                            new Supplier<LobbyConfiguration>() {
+                                @Override
+                                public LobbyConfiguration get() {
+                                    return configuration;
+                                }
+                            },
+                            languageService,
+                            new Supplier<MessageService>() {
+                                @Override
+                                public MessageService get() {
+                                    return messageService;
+                                }
+                            },
+                            scoreboardService,
+                            bossBarService),
                     this);
             getServer().getPluginManager().registerEvents(
                     new LobbyQuitListener(languageService, scoreboardService, bossBarService),
                     this);
 
             getCommand("legacylobby").setExecutor(
-                    new LegacyLobbyCommand(configuration, bossBarService, this::reloadAll));
+                    new LegacyLobbyCommand(this, bossBarService, this::reloadAll));
 
             scoreboardService.start();
             bossBarService.start();
 
             voidTeleportService = new VoidTeleportService(this);
-            voidTeleportService.configure(
-                    configuration.isVoidTeleportEnabled(),
-                    configuration.getVoidTeleportBelowY(),
-                    configuration.getVoidTeleportTarget(),
-                    configuration.getVoidTeleportFallback(),
-                    configuration.getVoidTeleportCheckTicks());
+            configureVoidTeleport();
 
             getLogger().info("LegacyLobby inizializzato.");
             getLogger().info("PlaceholderAPI: "
@@ -156,16 +167,21 @@ public final class LegacyLobbyPlugin extends JavaPlugin {
                 bossBarConfiguration, placeholderService, configuration.getServerId());
         bossBarService.reload(newBossBarTextRenderer, bossBarConfiguration);
 
-        if (voidTeleportService != null) {
-            voidTeleportService.configure(
-                    configuration.isVoidTeleportEnabled(),
-                    configuration.getVoidTeleportBelowY(),
-                    configuration.getVoidTeleportTarget(),
-                    configuration.getVoidTeleportFallback(),
-                    configuration.getVoidTeleportCheckTicks());
-        }
-
+        configureVoidTeleport();
         getLogger().info("LegacyLobby reload completato.");
+    }
+
+    private void configureVoidTeleport() {
+        if (voidTeleportService == null) {
+            return;
+        }
+        voidTeleportService.configure(
+                configuration.isVoidTeleportEnabled(),
+                configuration.isAuthmeIntegration(),
+                configuration.getVoidTeleportBelowY(),
+                configuration.getVoidTeleportTarget(),
+                configuration.getVoidTeleportFallback(),
+                configuration.getVoidTeleportCheckTicks());
     }
 
     private PlaceholderService initPlaceholderAPI() {
