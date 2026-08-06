@@ -4,6 +4,7 @@ version: "${version}"
 author: LegacyNetwork
 description: Sistema GUI configurabile per backend legacy
 softdepend:
+  - LanguageBackend
   - PlaceholderAPI
   - LegacyLobby
 commands:
