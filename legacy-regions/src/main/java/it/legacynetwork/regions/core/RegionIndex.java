@@ -6,11 +6,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 public final class RegionIndex {
 
@@ -18,7 +16,8 @@ public final class RegionIndex {
             new Comparator<CuboidRegion>() {
                 @Override
                 public int compare(CuboidRegion first, CuboidRegion second) {
-                    int priority = Integer.compare(second.getPriority(), first.getPriority());
+                    int priority = Integer.compare(
+                            second.getPriority(), first.getPriority());
                     if (priority != 0) {
                         return priority;
                     }
@@ -34,8 +33,11 @@ public final class RegionIndex {
                 new HashMap<String, Map<Long, List<CuboidRegion>>>();
         if (regions != null) {
             for (CuboidRegion region : regions) {
-                indexRegion(mutable, worldNameKey(region.getWorldName()), region);
-                indexRegion(mutable, worldUuidKey(region.getWorldUuid()), region);
+                String worldKey = worldNameKey(region.getWorldName());
+                if (worldKey == null) {
+                    worldKey = worldUuidKey(region.getWorldUuid());
+                }
+                indexRegion(mutable, worldKey, region);
             }
         }
         this.index = freeze(mutable);
@@ -93,30 +95,23 @@ public final class RegionIndex {
 
     public List<CuboidRegion> getCandidates(String worldName, String worldUuid,
                                              int blockX, int blockZ) {
-        long chunkKey = chunkKey(blockX >> 4, blockZ >> 4);
-        Set<CuboidRegion> merged = new LinkedHashSet<CuboidRegion>();
-        addCandidates(merged, worldUuidKey(worldUuid), chunkKey);
-        addCandidates(merged, worldNameKey(worldName), chunkKey);
-        if (merged.isEmpty()) {
-            return Collections.emptyList();
+        long key = chunkKey(blockX >> 4, blockZ >> 4);
+        List<CuboidRegion> candidates = candidatesFor(
+                worldNameKey(worldName), key);
+        if (candidates != null) {
+            return candidates;
         }
-        List<CuboidRegion> ordered = new ArrayList<CuboidRegion>(merged);
-        Collections.sort(ordered, REGION_ORDER);
-        return Collections.unmodifiableList(ordered);
+        candidates = candidatesFor(worldUuidKey(worldUuid), key);
+        return candidates == null ? Collections.<CuboidRegion>emptyList()
+                : candidates;
     }
 
-    private void addCandidates(Set<CuboidRegion> target, String worldKey, long chunkKey) {
+    private List<CuboidRegion> candidatesFor(String worldKey, long chunkKey) {
         if (worldKey == null) {
-            return;
+            return null;
         }
         Map<Long, List<CuboidRegion>> worldIndex = index.get(worldKey);
-        if (worldIndex == null) {
-            return;
-        }
-        List<CuboidRegion> candidates = worldIndex.get(chunkKey);
-        if (candidates != null) {
-            target.addAll(candidates);
-        }
+        return worldIndex == null ? null : worldIndex.get(chunkKey);
     }
 
     public int size() {
