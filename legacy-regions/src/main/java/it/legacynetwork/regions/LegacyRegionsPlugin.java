@@ -44,6 +44,8 @@ public final class LegacyRegionsPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        getConfig().options().copyDefaults(true);
+        saveConfig();
         saveResource("regions.yml", false);
         saveResource("messages_it.yml", false);
         saveResource("messages_en.yml", false);
