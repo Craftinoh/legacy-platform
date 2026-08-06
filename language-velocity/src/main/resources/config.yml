@@ -1,14 +1,19 @@
-postgres:
-  enabled: false
+storage:
+  type: sqlite
+
+sqlite:
+  file: languages.db
+  busy-timeout-ms: 5000
+  journal-mode: WAL
+  synchronous: NORMAL
+
+postgresql:
   host: localhost
   port: 5432
   database: networklanguage
   username: postgres
   password: ""
-  pool:
-    maximum-pool-size: 10
-    minimum-idle: 2
-    connection-timeout: 5000
-    idle-timeout: 600000
-    max-lifetime: 1800000
+  pool-size: 10
+  connection-timeout-ms: 5000
   proxy-id: "velocity-1"
+  notification-channel: legacy_language_updates
