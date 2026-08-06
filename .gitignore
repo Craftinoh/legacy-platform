@@ -9,3 +9,7 @@ secrets/
 
 legacy-auth/target/
 legacy-auth/.idea/
+
+languages.db
+*.db-wal
+*.db-shm

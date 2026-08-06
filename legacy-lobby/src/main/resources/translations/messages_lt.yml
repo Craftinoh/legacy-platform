@@ -1,0 +1,10 @@
+welcome:
+  enabled: true
+  text:
+    - "&aSveiki atvyke i Apteris, &f%player_name%&a!"
+    - "&7Naudok &f/lang &7kalbai pakeisti."
+
+language-change:
+  enabled: false
+  text:
+    - "&aFojė kalba buvo atnaujinta."

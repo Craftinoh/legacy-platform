@@ -14,5 +14,6 @@ include(
     "legacy-items",
     "legacy-menu",
     "legacy-combat",
-    "legacy-regions"
+    "legacy-regions",
+    "language-backend"
 )

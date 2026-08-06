@@ -1,0 +1,10 @@
+welcome:
+  enabled: true
+  text:
+    - "&aWelcome to Apteris, &f%player_name%&a!"
+    - "&7Use &f/lang &7to change language."
+
+language-change:
+  enabled: false
+  text:
+    - "&aThe lobby language has been updated."

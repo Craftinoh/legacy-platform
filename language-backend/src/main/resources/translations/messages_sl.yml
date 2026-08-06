@@ -1,0 +1,10 @@
+welcome:
+  enabled: true
+  text:
+    - "&aDobrodosel na Apteris, &f%player_name%&a!"
+    - "&7Uporabi &f/lang &7za spremembo jezika."
+
+language-change:
+  enabled: false
+  text:
+    - "&aJezik lobbyja je bil posodobljen."

@@ -10,6 +10,11 @@ dependencies {
     compileOnly("com.velocitypowered:velocity-api:4.1.0-SNAPSHOT")
     annotationProcessor("com.velocitypowered:velocity-api:4.1.0-SNAPSHOT")
     compileOnly("org.yaml:snakeyaml:2.0")
+    compileOnly("net.luckperms:api:5.4")
+
+    implementation("com.zaxxer:HikariCP:4.0.3")
+    implementation("org.postgresql:postgresql:42.7.3")
+    implementation("org.xerial:sqlite-jdbc:3.46.1.3")
 
     testImplementation(platform("org.junit:junit-bom:5.13.4"))
     testImplementation("org.junit.jupiter:junit-jupiter")
@@ -45,6 +50,9 @@ tasks.shadowJar {
     archiveBaseName.set("NetworkLanguage")
     archiveClassifier.set("")
     archiveVersion.set(project.version.toString())
+
+    relocate("com.zaxxer.hikari", "it.legacynetwork.shadow.hikari")
+    relocate("org.postgresql", "it.legacynetwork.shadow.postgresql")
 }
 
 tasks.assemble {

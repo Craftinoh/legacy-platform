@@ -1,0 +1,11 @@
+enabled: true
+
+backend-id: "lobby-01"
+
+channel: "legacy:language"
+
+request-timeout-millis: 5000
+
+fallback-language: "en"
+
+debug: false

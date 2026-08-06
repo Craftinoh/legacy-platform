@@ -1,0 +1,14 @@
+postgres:
+  enabled: false
+  host: localhost
+  port: 5432
+  database: networklanguage
+  username: postgres
+  password: ""
+  pool:
+    maximum-pool-size: 10
+    minimum-idle: 2
+    connection-timeout: 5000
+    idle-timeout: 600000
+    max-lifetime: 1800000
+  proxy-id: "velocity-1"

@@ -1,0 +1,10 @@
+welcome:
+  enabled: true
+  text:
+    - "&aFáilte go Apteris, &f%player_name%&a!"
+    - "&7Úsáid &f/lang &7chun teanga a athrú."
+
+language-change:
+  enabled: false
+  text:
+    - "&aTá teanga an stocaireachta nuashonraithe."

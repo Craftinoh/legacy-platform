@@ -48,8 +48,8 @@ public final class LegacyLobbyPlugin extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
         saveResource("scoreboard.yml", false);
-        saveResource("messages_it.yml", false);
-        saveResource("messages_en.yml", false);
+        saveResource("translations/messages_it.yml", false);
+        saveResource("translations/messages_en.yml", false);
         saveResource("bossbar.yml", false);
 
         try {

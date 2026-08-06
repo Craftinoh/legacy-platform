@@ -12,8 +12,8 @@ bossbar:
   config-file: "bossbar.yml"
 
 messages:
-  italian-file: "messages_it.yml"
-  english-file: "messages_en.yml"
+  italian-file: "translations/messages_it.yml"
+  english-file: "translations/messages_en.yml"
 
 join:
   selected-slot:
