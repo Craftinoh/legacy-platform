@@ -155,18 +155,20 @@ public final class LegacyLobbyPlugin extends JavaPlugin
         File dataFolder = getDataFolder();
         File scoreboardFile = new File(dataFolder,
                 configuration.getScoreboardConfigFile());
-        scoreboardConfiguration = ScoreboardConfiguration.load(scoreboardFile);
+        scoreboardConfiguration = ScoreboardConfiguration.load(
+                scoreboardFile, getResource("scoreboard.yml"));
         File bossbarFile = new File(dataFolder,
                 configuration.getBossbarConfigFile());
-        bossBarConfiguration = BossBarConfiguration.load(bossbarFile);
+        bossBarConfiguration = BossBarConfiguration.load(
+                bossbarFile, getResource("bossbar.yml"));
     }
 
     private void reloadAll() {
         reloadConfig();
         configuration = LobbyConfiguration.from(getConfig());
         loadConfigurations();
-        languageService = new BackendLanguageService(
-                languageProvider, configuration.getLanguageFallback());
+        languageService.setFallbackLanguage(
+                configuration.getLanguageFallback());
         messageService = createMessageService();
 
         LobbyScoreboardRenderer newScoreboardRenderer =
