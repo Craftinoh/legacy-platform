@@ -4,8 +4,9 @@ version: "${version}"
 author: LegacyNetwork
 description: Sistema custom items riutilizzabile per i backend legacy
 
-softdepend:
+depend:
   - LanguageBackend
+softdepend:
   - PlaceholderAPI
   - LegacyLobby
   - LegacyMenu
