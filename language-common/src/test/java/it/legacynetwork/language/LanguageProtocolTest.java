@@ -33,6 +33,22 @@ class LanguageProtocolTest {
     }
 
     @Test
+    void serializesBackendChangeRequest() throws Exception {
+        LanguageProtocolMessage source =
+                LanguageProtocolMessage.languageChangeRequest(
+                        uuid, Language.SPANISH);
+
+        LanguageProtocolMessage decoded = protocol.deserialize(
+                protocol.serialize(source));
+
+        assertEquals(LanguageProtocolAction.LANGUAGE_CHANGE_REQUEST,
+                decoded.getAction());
+        assertEquals(uuid, decoded.getPlayerUuid());
+        assertEquals("es", decoded.getLanguageCode());
+        assertTrue(decoded.isManualPreference());
+    }
+
+    @Test
     void rejectsWrongVersion() throws Exception {
         assertThrows(LanguageProtocolException.class,
                 () -> protocol.deserialize(rawPayload(2, uuid.toString(), "en")));
