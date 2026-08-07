@@ -1,5 +1,8 @@
 package it.legacynetwork.chickenwars.arena;
 
+import it.legacynetwork.chickenwars.mode.MatchMode;
+import it.legacynetwork.chickenwars.mode.ModeProfile;
+import it.legacynetwork.chickenwars.mode.ModeProfileRegistry;
 import it.legacynetwork.chickenwars.model.SimpleLocation;
 
 import java.util.ArrayList;
@@ -28,6 +31,7 @@ public final class ArenaDefinition {
     private String world;
     private int minimumPlayers = 2;
     private int playersPerTeam = 1;
+    private MatchMode mode;
 
     private SimpleLocation lobby;
     private SimpleLocation spectator;
@@ -237,6 +241,23 @@ public final class ArenaDefinition {
 
     public void setPlayersPerTeam(int playersPerTeam) {
         this.playersPerTeam = Math.max(1, playersPerTeam);
+    }
+
+    /**
+     * Restituisce la modalita' esplicita oppure la deduce per le vecchie arene.
+     */
+    public MatchMode getMode() {
+        return mode == null
+                ? MatchMode.infer(teams.size(), playersPerTeam)
+                : mode;
+    }
+
+    public void setMode(MatchMode mode) {
+        this.mode = mode;
+    }
+
+    public ModeProfile getModeProfile() {
+        return ModeProfileRegistry.defaults().get(getMode());
     }
 
     public SimpleLocation getLobby() {
