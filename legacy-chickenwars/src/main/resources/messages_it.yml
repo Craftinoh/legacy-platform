@@ -1,0 +1,487 @@
+prefix: "&6&lCW &8» &r"
+
+help:
+  main:
+    - ""
+    - "&6&l  CHICKEN WARS &8- &7guida"
+    - "&8  &m                                        "
+    - ""
+    - "  &7Ogni squadra difende una &e&lGallina Reale&7."
+    - "  &7Finche' e' viva la squadra rinasce."
+    - "  &7Quando muore, ogni morte e' definitiva."
+    - ""
+    - "  &e/cw quickjoin &8» &7entra subito in partita"
+    - "  &e/cw leave &8» &7esci dalla partita"
+    - "  &e/cw shop &8» &7apri lo shop"
+    - ""
+  topics-hint: "  &7Approfondimenti: &f/cw help <sezione>&7 — {topics}"
+  unknown-topic: "&cSezione &f{topic} &cinesistente. Disponibili: &f{topics}"
+
+  game:
+    - ""
+    - "&6&l  COMANDI DI GIOCO"
+    - "&8  &m                                        "
+    - ""
+    - "  &e/cw quickjoin"
+    - "    &7Entra nell'arena piu' vicina all'avvio."
+    - ""
+    - "  &e/cw join <arena>"
+    - "    &7Entra in un'arena specifica."
+    - "    &8Vedi l'elenco con /cw list"
+    - ""
+    - "  &e/cw team <squadra>"
+    - "    &7Scegli la squadra prima dell'avvio."
+    - "    &8Dopo l'inizio non si puo' piu' cambiare."
+    - ""
+    - "  &e/cw shop"
+    - "    &7Apre lo shop, come il venditore in base."
+    - ""
+    - "  &e/cw leave &8| &e/cw stats &8| &e/cw list"
+    - "    &7Uscita, statistiche e arene disponibili."
+    - ""
+
+  chicken:
+    - ""
+    - "&6&l  COME SI GIOCA"
+    - "&8  &m                                        "
+    - ""
+    - "  &e&lLA GALLINA REALE"
+    - "  &7E' viva e ha due barre distinte:"
+    - "  &b&lScudo &7assorbe sempre il danno per primo,"
+    - "  &c&lVita &7viene intaccata solo dopo."
+    - "  &7Entrambe si rigenerano da sole, ma solo"
+    - "  &7dopo alcuni secondi senza subire colpi."
+    - ""
+    - "  &a&lNUTRIRLA"
+    - "  &7Compra i &aSemi Curativi &7dallo shop e fai"
+    - "  &7clic destro sulla &7tua &7gallina: recupera"
+    - "  &7vita e scudo. C'e' un breve cooldown."
+    - ""
+    - "  &c&lQUANDO MUORE"
+    - "  &7La squadra perde il respawn: da quel"
+    - "  &7momento ogni morte e' &cdefinitiva&7."
+    - "  &7I superstiti ricevono l'&e&lUltima Piuma&7,"
+    - "  &7un bonus temporaneo di velocita' e forza."
+    - ""
+    - "  &6&lVITTORIA"
+    - "  &7Vince l'ultima squadra con un giocatore vivo."
+    - ""
+
+  admin:
+    - ""
+    - "&6&l  AMMINISTRAZIONE"
+    - "&8  &m                                        "
+    - ""
+    - "  &e&lCreare"
+    - "  &e/cw admin create <arena> [void|flat|normal]"
+    - "    &7Crea arena e mondo, ti teletrasporta"
+    - "    &7dentro e apre subito l'editor."
+    - "  &e/cw admin create <arena> here"
+    - "    &7Usa il mondo in cui ti trovi gia'."
+    - ""
+    - "  &e&lConfigurare"
+    - "  &e/cw admin edit <arena> &8» &7riapre l'editor"
+    - "  &e/cw admin exit &8» &7chiude l'editor salvando"
+    - "  &e/cw admin validate <arena> &8» &7cosa manca"
+    - "  &e/cw admin save <arena> &8» &7salva su file"
+    - ""
+    - "  &e&lAttivare"
+    - "  &e/cw admin enable|disable <arena>"
+    - "  &e/cw admin start|stop <arena>"
+    - ""
+    - "  &e&lAltro"
+    - "  &e/cw admin list|info <arena> &8» &7stato arene"
+    - "  &e/cw admin tp <arena> &8» &7raggiungi l'arena"
+    - "  &e/cw admin delete <arena> &8» &7elimina"
+    - "  &e/cw admin reload &8» &7ricarica tutto"
+    - ""
+    - "  &7Dettagli: &f/cw help setup &7e &f/cw help mondi"
+    - ""
+
+  setup:
+    - ""
+    - "&6&l  EDITOR ARENA"
+    - "&8  &m                                        "
+    - ""
+    - "  &7Con &f/cw admin edit <arena> &7ricevi 9"
+    - "  &7strumenti. &e&lOgni azione usa il punto in"
+    - "  &e&lcui ti trovi&7."
+    - ""
+    - "  &b1 Bussola &8» &7lobby, spettatori, angoli"
+    - "  &d2 Lana &8» &7crea e seleziona le squadre"
+    - "  &a3 Letto &8» &7spawn della squadra scelta"
+    - "  &64 Fieno &8» &7nido della squadra scelta"
+    - "  &e5 Uovo &8» &7dove nasce la Gallina Reale"
+    - "  &26 Smeraldo &8» &7dove appare il venditore"
+    - "  &f7 Ferro &8» &7generatori centrali e squadra"
+    - "  &b8 Libro &8» &7controlla cosa manca ancora"
+    - "  &a9 Blocco smeraldo &8» &7salva ed esci"
+    - ""
+    - "  &7Ordine consigliato: bussola, poi lana per"
+    - "  &7creare una squadra, poi in base gli"
+    - "  &7strumenti 3-6, infine ferro e libro."
+    - ""
+    - "  &8Nel menu squadre: sinistro seleziona,"
+    - "  &8destro elimina. Tutto si salva subito."
+    - ""
+
+  worlds:
+    - ""
+    - "&6&l  GESTIONE MONDI"
+    - "&8  &m                                        "
+    - ""
+    - "  &7Ogni arena ha il suo mondo. All'avvio i"
+    - "  &7mondi delle arene vengono attivati soli."
+    - ""
+    - "  &e&lUSARE UNA MAPPA GIA' PRONTA"
+    - "  &e/cw admin create <arena> here"
+    - "    &7Usa il mondo in cui ti trovi, senza"
+    - "    &7crearne nessuno."
+    - ""
+    - "  &e/cw admin create <arena> <mondo>"
+    - "    &7Usa un mondo esistente indicandone il nome."
+    - ""
+    - "  &e/cw admin setworld <arena> [mondo]"
+    - "    &7Cambia il mondo di un'arena gia' creata."
+    - "    &8Senza argomento usa il mondo in cui sei."
+    - ""
+    - "  &8I mondi adottati non vengono mai rigenerati:"
+    - "  &8il plugin li carica esattamente come sono."
+    - ""
+    - "  &e&lCOMANDI MONDO"
+    - "  &e/cw admin world list"
+    - "    &7Mondi gestiti, tipo e stato."
+    - ""
+    - "  &e/cw admin world load <mondo>"
+    - "    &7Attiva un mondo presente su disco."
+    - ""
+    - "  &e/cw admin world unload <mondo>"
+    - "    &7Salva e disattiva il mondo."
+    - ""
+    - "  &e/cw admin world tp <mondo>"
+    - "    &7Ti porta allo spawn del mondo."
+    - ""
+    - "  &e&lTIPI DI GENERAZIONE"
+    - "  &fVOID &8» &7vuoto, per mappe da schematic"
+    - "  &fFLAT &8» &7superpiatto, per prototipi"
+    - "  &fNORMAL &8» &7generazione normale"
+    - "  &fEXISTING &8» &7mondo adottato, non toccato"
+    - ""
+    - "  &8Il tipo viene ricordato in worlds.yml e"
+    - "  &8riapplicato a ogni caricamento."
+    - ""
+
+command:
+  no-permission: "&cNon hai il permesso per questo comando."
+  unknown-subcommand: "&cComando &f{subcommand} &cinesistente. Usa &f/cw help&c."
+  players-only: "&cSolo un giocatore puo' usare questo comando."
+  usage: "&cUso corretto: &f{usage}"
+  invalid-number: "&cValore numerico non valido: &f{value}"
+  already-in-game: "&cSei gia' in una partita."
+  not-in-game: "&cNon sei in una partita."
+  left: "&7Hai abbandonato la partita."
+
+arena:
+  not-found: "&cArena &f{arena} &cnon trovata."
+  not-joinable: "&cL'arena &f{arena} &cnon accetta giocatori in questo momento."
+  none-available: "&cNessuna arena disponibile al momento."
+  none-configured: "&cNessuna arena configurata."
+  world-not-loaded: "&cIl mondo dell'arena non e' caricato."
+  list-header: "&6Arene disponibili:"
+  list-entry: "&7- &f{arena} &8[&7{state}&8] &7{online}/{max}"
+
+game:
+  player-joined: "&a{player} &7e' entrato in partita &8({online}/{max})"
+  player-left: "&c{player} &7ha lasciato la partita &8({online}/{max})"
+  countdown: "&eLa partita inizia tra &f{seconds} &esecondi."
+  countdown-cancelled: "&cConto alla rovescia annullato: giocatori insufficienti."
+  not-enough-teams: "&cSquadre insufficienti per iniziare."
+  started:
+    - "&8&m--------------------------------"
+    - "&6&lCHICKEN WARS"
+    - "&7Proteggi la tua &e&lGallina Reale&7."
+    - "&7Se muore, la squadra non rinasce piu'."
+    - "&8&m--------------------------------"
+  victory:
+    - "&8&m--------------------------------"
+    - "&6&lVITTORIA"
+    - "&7Ha vinto la squadra {team}&7!"
+    - "&8&m--------------------------------"
+  draw: "&7La partita si e' conclusa senza vincitori."
+  summary: "&7Uccisioni: &f{kills} &8| &7Finali: &f{final_kills} &8| &7Galline: &f{chickens} &8| &7Morti: &f{deaths}"
+
+chicken:
+  under-attack: "&c&lLA TUA GALLINA E' SOTTO ATTACCO! &7({health}/{max_health})"
+  damaged: "&7Gallina di {team} &7- &c{health}/{max_health}"
+  own-team: "&cNon puoi colpire la gallina della tua squadra."
+  destroyed:
+    - ""
+    - "&c&lGALLINA ELIMINATA"
+    - "&7La Gallina Reale di {team} &7e' stata uccisa da &f{killer}&7."
+    - ""
+  last-feather: "&e&lULTIMA PIUMA! &7Bonus attivo per &f{seconds} &7secondi."
+  fed: "&aHai nutrito la gallina: &f+{health} &avita, &f+{shield} &ascudo &8({current}/{max})"
+  feed-full: "&7La tua gallina e' gia' al massimo."
+  feed-other-team: "&cPuoi nutrire solo la gallina della tua squadra."
+
+death:
+  normal: "&7{player} &7e' stato ucciso da &f{killer}&7."
+  final: "&7{player} &7e' stato eliminato definitivamente da &f{killer}&7."
+  unknown-killer: "cause naturali"
+
+respawn:
+  countdown: "&7Rinasci tra &f{seconds} &7secondi."
+  done: "&aSei tornato in gioco!"
+
+team:
+  selected: "&7Squadra selezionata: {team}"
+  not-found: "&cSquadra &f{team} &cnon trovata."
+  full: "&cLa squadra {team} &ce' al completo."
+  already-started: "&cNon puoi cambiare squadra a partita iniziata."
+  eliminated: "&7La squadra {team} &7e' stata eliminata."
+
+shop:
+  title: "&8Shop Chicken Wars"
+  npc-name: "&e&lVENDITORE"
+  purchased: "&aAcquistato: &f{item}"
+  not-enough: "&cTi mancano &f{amount} {currency}&c."
+  inventory-full: "&cInventario pieno."
+  unavailable: "&cLo shop non e' disponibile."
+
+generator:
+  countdown: "&7Prossima risorsa: &f{seconds}s"
+
+world:
+  protected-block: "&cPuoi rompere solo i blocchi piazzati in partita."
+  outside-arena: "&cNon puoi costruire fuori dall'arena."
+  build-limit: "&cNon puoi costruire oltre y={limit}."
+
+scoreboard:
+  title: "&6&lCHICKEN WARS"
+  waiting: "&7In attesa: &f{online}/{min}"
+  starting: "&7Inizio tra &f{seconds}s"
+  kills: "&7Uccisioni: &f{kills} &8(&f{final_kills}&8)"
+  time: "&7Tempo: &f{time}"
+
+world:
+  created: "&aMondo &f{world} &acreato &8({template})"
+  loaded: "&aMondo &f{world} &aattivato &8({template})"
+  adopted: "&aArena collegata al mondo esistente &f{world}&a."
+  arena-bound: "&aArena &f{arena} &aora usa il mondo &f{world}&a."
+  positions-outdated: "&e&lATTENZIONE &7Le posizioni di &f{arena} &7appartengono al mondo precedente: vanno reimpostate con &f/cw admin edit {arena}&7."
+  unknown-target: "&cValore &f{value} &cnon valido: usa &fvoid&c, &fflat&c, &fnormal&c, &fhere &co il nome di un mondo esistente."
+  created-console: "&7Entra in gioco e usa &f/cw admin edit {arena}&7."
+  create-failed: "&cImpossibile creare o caricare il mondo &f{world}&c."
+  not-found: "&cMondo &f{world} &cnon presente su disco."
+  not-loaded: "&cMondo &f{world} &cnon attivo."
+  unloaded: "&7Mondo &f{world} &7salvato e disattivato."
+  unloaded-kept: "&7Mondo &f{world} &7disattivato. La cartella resta su disco."
+  unload-failed: "&cImpossibile disattivare &f{world}&c."
+  teleported: "&aTeletrasportato nel mondo &f{world}&a."
+  invalid-template: "&cTipo &f{template} &cnon valido. Usa void, flat o normal."
+  none: "&cNessun mondo gestito da ChickenWars."
+  list-header: "&6Mondi gestiti:"
+  list-entry: "&7- &f{world} &8[&7{template}&8] {state} &8{players} giocatori"
+  state-loaded: "&aattivo"
+  state-unloaded: "&7spento"
+
+admin:
+  created: "&aArena &f{arena} &acreata."
+  already-exists: "&cL'arena &f{arena} &cesiste gia'."
+  deleted: "&aArena &f{arena} &aeliminata."
+  delete-failed: "&cImpossibile eliminare l'arena &f{arena}&c."
+  saved: "&aArena &f{arena} &asalvata."
+  save-failed: "&cImpossibile salvare l'arena &f{arena}&c."
+  enabled: "&aArena &f{arena} &aabilitata."
+  disabled: "&7Arena &f{arena} &7disabilitata."
+  cannot-enable: "&cL'arena non e' completa. Elementi mancanti:"
+  validate-ok: "&aL'arena &f{arena} &ae' completa e puo' essere abilitata."
+  validate-failed: "&cL'arena &f{arena} &cnon e' completa:"
+  lobby-set: "&aLobby dell'arena &f{arena} &aimpostata."
+  spectator-set: "&aSpawn spettatori dell'arena &f{arena} &aimpostato."
+  pos1-set: "&aPrimo angolo dell'arena &f{arena} &aimpostato."
+  pos2-set: "&aSecondo angolo dell'arena &f{arena} &aimpostato."
+  build-limit-set: "&aLimite di costruzione dell'arena &f{arena} &aaggiornato."
+  min-players-set: "&aMinimo giocatori dell'arena &f{arena} &aaggiornato."
+  team-added: "&aSquadra aggiunta all'arena &f{arena}&a."
+  team-removed: "&aSquadra rimossa dall'arena &f{arena}&a."
+  team-exists: "&cLa squadra &f{team} &cesiste gia'."
+  team-not-found: "&cSquadra &f{team} &cnon trovata."
+  team-location-set: "&aPosizione della squadra aggiornata &8({arena})"
+  invalid-color: "&cColore &f{color} &cnon valido."
+  invalid-resource: "&cRisorsa &f{type} &cnon valida."
+  generator-added: "&aGeneratore &f{id} &aaggiunto all'arena &f{arena}&a."
+  generator-removed: "&aGeneratore &f{id} &arimosso."
+  generator-not-found: "&cGeneratore &f{id} &cnon trovato."
+  generator-level-set: "&aGeneratore &f{id} &aportato al livello &f{level}&a."
+  started: "&aPartita avviata sull'arena &f{arena}&a."
+  start-failed: "&cImpossibile avviare l'arena &f{arena}&c."
+  stopped: "&7Partita interrotta sull'arena &f{arena}&7."
+  teleported: "&aTeletrasportato all'arena &f{arena}&a."
+  no-teleport-target: "&cL'arena non ha una destinazione impostata."
+  reloaded: "&aChickenWars ricaricato: &f{arenas} &aarene."
+  reload-failed: "&cRicaricamento annullato: configurazione non valida."
+
+setup:
+  entered:
+    - "&8&m--------------------------------"
+    - "&6&lEDITOR ARENA &7- {arena}"
+    - "&7Usa gli strumenti nella barra rapida."
+    - "&7Ogni azione usa la posizione in cui ti trovi."
+    - "&eClicca con il blocco di smeraldo per salvare e uscire."
+    - "&8&m--------------------------------"
+  exited: "&7Editor chiuso, inventario ripristinato."
+  entities-cleared: "&7Rimosse &f{amount} &7creature preesistenti dal mondo."
+  already-editing: "&cSei gia' in modalita' editor."
+  not-editing: "&cNon sei in modalita' editor."
+  leave-game-first: "&cEsci dalla partita prima di aprire l'editor."
+  arena-busy: "&cL'arena &f{arena} &cha giocatori dentro."
+  no-team-selected: "&cSeleziona prima una squadra con la lana."
+  team-selected: "&aSquadra attiva: {team}"
+  team-created: "&aSquadra {team} &acreata e selezionata."
+  team-spawn-set: "&aSpawn di {team} &aimpostato qui."
+  team-nest-set: "&aNido di {team} &aimpostato qui."
+  team-chicken-set: "&aGallina Reale di {team} &aimpostata qui."
+  team-shop-set: "&aVenditore di {team} &aimpostato qui."
+  generator-added: "&aGeneratore &f{type} &aaggiunto &8({id})"
+  ready-to-enable: "&7Puoi abilitarla con &f/cw admin enable <arena>&7."
+
+  tool:
+    positions:
+      name: "&b&lPosizioni Arena"
+      lore:
+        - "&7Lobby, spettatori e angoli"
+        - "&7della regione di gioco."
+        - ""
+        - "&eClic destro per aprire."
+    teams:
+      name: "&d&lSquadre"
+      lore:
+        - "&7Crea, seleziona ed elimina"
+        - "&7le squadre dell'arena."
+        - ""
+        - "&eClic destro per aprire."
+    team-spawn:
+      name: "&a&lSpawn Squadra"
+      lore:
+        - "&7Imposta il punto di nascita"
+        - "&7della squadra selezionata."
+        - ""
+        - "&eClic destro qui dove sei."
+    team-nest:
+      name: "&6&lNido Reale"
+      lore:
+        - "&7Imposta il nido della"
+        - "&7squadra selezionata."
+        - ""
+        - "&eClic destro qui dove sei."
+    team-chicken:
+      name: "&e&lGallina Reale"
+      lore:
+        - "&7Imposta dove nascera' la"
+        - "&7Gallina Reale della squadra."
+        - ""
+        - "&eClic destro qui dove sei."
+    team-shop:
+      name: "&2&lVenditore"
+      lore:
+        - "&7Imposta dove comparira'"
+        - "&7l'NPC dello shop."
+        - ""
+        - "&eClic destro qui dove sei."
+    generators:
+      name: "&f&lGeneratori"
+      lore:
+        - "&7Aggiungi un generatore"
+        - "&7centrale o di squadra."
+        - ""
+        - "&eClic destro per aprire."
+    validate:
+      name: "&b&lValida Arena"
+      lore:
+        - "&7Mostra cosa manca ancora"
+        - "&7prima di poter abilitare."
+        - ""
+        - "&eClic destro per controllare."
+    save-exit:
+      name: "&a&lSalva ed Esci"
+      lore:
+        - "&7Salva l'arena e chiude"
+        - "&7l'editor."
+        - ""
+        - "&eClic destro per confermare."
+
+  menu:
+    positions:
+      title: "&8Posizioni arena"
+    teams:
+      title: "&8Squadre arena"
+    team_colors:
+      title: "&8Scegli un colore"
+    generators:
+      title: "&8Aggiungi generatore"
+
+  position:
+    not-set: "&cNon impostato"
+    set: "&aImpostato &8({value})"
+    lobby:
+      name: "&b&lLobby pre-partita"
+      lore:
+        - "&7Dove attendono i giocatori"
+        - "&7prima dell'avvio."
+    spectator:
+      name: "&d&lSpawn spettatori"
+      lore:
+        - "&7Dove vengono portati gli"
+        - "&7eliminati e chi osserva."
+    pos1:
+      name: "&6&lPrimo angolo"
+      lore:
+        - "&7Un vertice della regione"
+        - "&7che delimita l'arena."
+    pos2:
+      name: "&f&lSecondo angolo"
+      lore:
+        - "&7Il vertice opposto della"
+        - "&7regione dell'arena."
+    build-limit:
+      name: "&e&lLimite di costruzione"
+      lore:
+        - "&7Imposta la quota massima"
+        - "&7usando la tua altezza attuale."
+
+  team:
+    complete: "&aConfigurazione completa"
+    incomplete: "&cConfigurazione incompleta"
+    selected: "&aSquadra attualmente selezionata"
+    actions:
+      - "&eClic sinistro &7per selezionarla"
+      - "&cClic destro &7per eliminarla"
+    add:
+      name: "&a&lAggiungi squadra"
+      lore:
+        - "&7Scegli un colore per creare"
+        - "&7una nuova squadra."
+
+  color:
+    available:
+      - "&eClicca per creare la squadra."
+    used:
+      - "&cColore gia' utilizzato."
+
+  generator:
+    no-team: "&cnessuna squadra selezionata"
+    central:
+      name: "&f&lGeneratore centrale &7- {type}"
+      lore:
+        - "&7Accessibile a tutte le squadre."
+        - "&7Viene creato con ologramma."
+        - ""
+        - "&eClicca per posizionarlo qui."
+    team:
+      name: "&a&lGeneratore squadra &7- {type}"
+      lore:
+        - "&7Assegnato a: {team}"
+        - "&7Attivo solo se la squadra gioca."
+        - ""
+        - "&eClicca per posizionarlo qui."

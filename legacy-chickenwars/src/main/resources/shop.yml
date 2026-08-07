@@ -1,0 +1,262 @@
+# Shop di ChickenWars.
+#
+# categories: ogni categoria occupa uno slot della riga superiore (0-8).
+# items: gli slot partono da 18; con slot: -1 vengono assegnati in ordine.
+#
+# Campi articolo:
+#   material     nome Bukkit 1.8 del materiale
+#   data         data value (colori lana, vetro, ecc.)
+#   amount       quantita' consegnata
+#   name         nome italiano; name-en nome inglese
+#   lore         descrizione italiana; lore-en descrizione inglese
+#   currency     IRON, GOLD, DIAMOND, EMERALD, FEATHER
+#   price        costo nella valuta indicata
+#   team-color   true = colorato con il colore della squadra
+#   enchantments incantesimi applicati
+#   effects      effetti pozione, formato TIPO:secondi:livello
+
+categories:
+  blocchi:
+    name: "Blocchi"
+    name-en: "Blocks"
+    icon: WOOL
+    icon-data: 14
+    slot: 1
+    items:
+      lana:
+        material: WOOL
+        amount: 16
+        slot: 19
+        name: "&fLana"
+        name-en: "&fWool"
+        lore:
+          - "&7Il modo piu' rapido per costruire un ponte."
+        lore-en:
+          - "&7The fastest way to bridge."
+        currency: IRON
+        price: 4
+        team-color: true
+      legno:
+        material: WOOD
+        amount: 16
+        slot: 20
+        name: "&6Legno"
+        name-en: "&6Wood"
+        lore:
+          - "&7Piu' resistente della lana."
+        lore-en:
+          - "&7Tougher than wool."
+        currency: GOLD
+        price: 4
+      pietra:
+        material: ENDER_STONE
+        amount: 12
+        slot: 21
+        name: "&dPietra dell'End"
+        name-en: "&dEnd Stone"
+        lore:
+          - "&7Difesa solida per il nido."
+        lore-en:
+          - "&7Solid protection for the nest."
+        currency: IRON
+        price: 24
+
+  armi:
+    name: "Armi"
+    name-en: "Weapons"
+    icon: GOLD_SWORD
+    slot: 2
+    items:
+      spada_pietra:
+        material: STONE_SWORD
+        slot: 19
+        name: "&7Spada di Pietra"
+        name-en: "&7Stone Sword"
+        lore:
+          - "&7Un deciso passo avanti."
+        lore-en:
+          - "&7A solid upgrade."
+        currency: IRON
+        price: 10
+      spada_ferro:
+        material: IRON_SWORD
+        slot: 20
+        name: "&fSpada di Ferro"
+        name-en: "&fIron Sword"
+        lore:
+          - "&7Per gli assalti decisivi."
+        lore-en:
+          - "&7For decisive assaults."
+        currency: GOLD
+        price: 7
+      arco:
+        material: BOW
+        slot: 21
+        name: "&6Arco"
+        name-en: "&6Bow"
+        lore:
+          - "&7Colpisci la gallina da lontano."
+        lore-en:
+          - "&7Hit the chicken from afar."
+        currency: GOLD
+        price: 12
+      frecce:
+        material: ARROW
+        amount: 8
+        slot: 22
+        name: "&6Frecce"
+        name-en: "&6Arrows"
+        lore:
+          - "&7Munizioni per l'arco."
+        lore-en:
+          - "&7Ammunition for the bow."
+        currency: GOLD
+        price: 2
+
+  armature:
+    name: "Armature"
+    name-en: "Armor"
+    icon: IRON_CHESTPLATE
+    slot: 3
+    items:
+      elmo_ferro:
+        material: IRON_HELMET
+        slot: 19
+        name: "&fElmo di Ferro"
+        name-en: "&fIron Helmet"
+        lore:
+          - "&7Protezione affidabile."
+        lore-en:
+          - "&7Reliable protection."
+        currency: GOLD
+        price: 6
+      corazza_ferro:
+        material: IRON_CHESTPLATE
+        slot: 20
+        name: "&fCorazza di Ferro"
+        name-en: "&fIron Chestplate"
+        lore:
+          - "&7Riduce sensibilmente il danno."
+        lore-en:
+          - "&7Greatly reduces damage."
+        currency: GOLD
+        price: 12
+      stivali_diamante:
+        material: DIAMOND_BOOTS
+        slot: 21
+        name: "&bStivali di Diamante"
+        name-en: "&bDiamond Boots"
+        lore:
+          - "&7Il massimo della difesa."
+        lore-en:
+          - "&7Top tier defense."
+        currency: EMERALD
+        price: 3
+
+  strumenti:
+    name: "Strumenti"
+    name-en: "Tools"
+    icon: IRON_PICKAXE
+    slot: 4
+    items:
+      piccone_pietra:
+        material: STONE_PICKAXE
+        slot: 19
+        name: "&7Piccone di Pietra"
+        name-en: "&7Stone Pickaxe"
+        lore:
+          - "&7Per aprirsi un varco."
+        lore-en:
+          - "&7To break through."
+        currency: IRON
+        price: 10
+      forbici:
+        material: SHEARS
+        slot: 20
+        name: "&fForbici"
+        name-en: "&fShears"
+        lore:
+          - "&7Rimuovono la lana in un istante."
+        lore-en:
+          - "&7Remove wool instantly."
+        currency: IRON
+        price: 20
+
+  gallina:
+    name: "Difesa Gallina"
+    name-en: "Chicken Defense"
+    icon: SEEDS
+    slot: 5
+    items:
+      semi_curativi:
+        material: SEEDS
+        amount: 8
+        slot: 19
+        name: "&aSemi Curativi"
+        name-en: "&aHealing Seeds"
+        lore:
+          - "&7Clic destro sulla tua Gallina Reale"
+          - "&7per curarla e ricaricarne lo scudo."
+        lore-en:
+          - "&7Right click your Royal Chicken"
+          - "&7to heal it and refill its shield."
+        currency: IRON
+        price: 12
+      blocco_nido:
+        material: OBSIDIAN
+        amount: 4
+        slot: 20
+        name: "&5Blocchi del Nido"
+        name-en: "&5Nest Blocks"
+        lore:
+          - "&7La difesa piu' resistente"
+          - "&7per la tua gallina."
+        lore-en:
+          - "&7The toughest protection"
+          - "&7for your chicken."
+        currency: EMERALD
+        price: 4
+
+  utility:
+    name: "Utility"
+    name-en: "Utility"
+    icon: TNT
+    slot: 6
+    items:
+      tnt:
+        material: TNT
+        slot: 19
+        name: "&cTNT"
+        lore:
+          - "&7Distrugge solo i blocchi"
+          - "&7piazzati durante la partita."
+        lore-en:
+          - "&7Only destroys blocks"
+          - "&7placed during the match."
+        currency: GOLD
+        price: 8
+      velocita:
+        material: SUGAR
+        slot: 20
+        name: "&fScatto Rapido"
+        name-en: "&fQuick Dash"
+        lore:
+          - "&7Velocita' II per 20 secondi."
+        lore-en:
+          - "&7Speed II for 20 seconds."
+        currency: EMERALD
+        price: 1
+        effects:
+          - "SPEED:20:1"
+      scala:
+        material: LADDER
+        amount: 8
+        slot: 21
+        name: "&6Scale"
+        name-en: "&6Ladders"
+        lore:
+          - "&7Per risalire in fretta."
+        lore-en:
+          - "&7To climb back up quickly."
+        currency: IRON
+        price: 4

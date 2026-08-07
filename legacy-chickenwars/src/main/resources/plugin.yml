@@ -1,0 +1,24 @@
+name: LegacyChickenWars
+main: it.legacynetwork.chickenwars.LegacyChickenWarsPlugin
+version: "${version}"
+author: LegacyNetwork
+description: Minigame Chicken Wars con Gallina Reale
+softdepend:
+  - LegacyLobby
+  - LegacyRegions
+  - PlaceholderAPI
+commands:
+  chickenwars:
+    description: Comando principale di Chicken Wars
+    usage: /chickenwars help|join|quickjoin|leave|team|shop|list|admin
+    aliases: [cw, chicken, chickens]
+permissions:
+  chickenwars.command:
+    description: Accesso al comando principale
+    default: true
+  chickenwars.command.join:
+    description: Ingresso nelle arene
+    default: true
+  chickenwars.admin:
+    description: Accesso ai comandi amministrativi
+    default: op

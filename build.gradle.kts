@@ -75,6 +75,8 @@ tasks.register("buildPlugins") {
         ":legacy-lobby:build",
         ":legacy-items:build",
         ":legacy-menu:build",
-        ":legacy-combat:build"
+        ":legacy-combat:build",
+        ":legacy-regions:build",
+        ":legacy-chickenwars:build"
     )
 }

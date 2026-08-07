@@ -1,0 +1,126 @@
+# Configurazione generale di ChickenWars.
+# Le impostazioni della Gallina Reale sono in chickens.yml,
+# gli articoli acquistabili in shop.yml.
+
+language:
+  fallback: "it"
+  italian-file: "messages_it.yml"
+  english-file: "messages_en.yml"
+
+game:
+  # Secondi di conto alla rovescia una volta raggiunto il minimo giocatori.
+  starting-countdown: 30
+  reduced-countdown: 10
+  # Durata massima di una partita, in secondi.
+  maximum-duration: 1800
+  # Secondi di riepilogo prima del ripristino della mappa.
+  ending-duration: 10
+  allow-rejoin: true
+  # Destinazione all'uscita dalla partita.
+  # Formato: mondo,x,y,z,yaw,pitch. Lasciare vuoto per non teletrasportare.
+  return-lobby: ""
+
+respawn:
+  enabled: true
+  # Secondi di attesa prima di rinascere.
+  base-time: 5
+  # Invulnerabilita' concessa dopo il respawn.
+  spawn-protection-seconds: 3
+
+combat:
+  friendly-fire: false
+  # Finestra entro cui una caduta nel vuoto viene attribuita all'ultimo colpo.
+  void-kill-credit-seconds: 10
+
+world:
+  # Prefisso del mondo creato da /cw admin create <arena>.
+  # Con prefisso "cw_" l'arena "farm_kingdom" usa il mondo "cw_farm_kingdom".
+  name-prefix: "cw_"
+  # Generazione predefinita: VOID (vuoto), FLAT (superpiatto), NORMAL.
+  # VOID e' la scelta corretta per le mappe incollate da schematic.
+  default-template: "VOID"
+  # true = all'avvio vengono caricati i mondi richiesti dalle arene.
+  auto-load: true
+  # true = animali e mostri gia' presenti nel mondo vengono rimossi
+  # quando l'arena viene adottata, all'avvio e all'ingresso nell'editor.
+  # Disattivare lo spawn non basta: le creature salvate nei chunk restano.
+  # Gli armor stand non vengono mai toccati.
+  clear-entities: true
+
+  block-place: true
+  # true = si possono rompere solo i blocchi piazzati durante la partita.
+  break-placed-only: true
+  # true = le esplosioni distruggono solo i blocchi piazzati.
+  explosions-placed-only: true
+  fire-spread: false
+  weather-cycle: false
+  daylight-cycle: false
+  mob-spawning: false
+
+scoreboard:
+  # Ogni quanti tick aggiornare la scoreboard laterale.
+  update-ticks: 20
+
+generators:
+  # Numero massimo di risorse dello stesso tipo lasciate a terra su un generatore.
+  maximum-ground-items: 32
+  # true = le risorse vicine vengono raggruppate invece di moltiplicare le entita'.
+  item-stacking: true
+  # Raggio entro cui cercare risorse da raggruppare.
+  merge-radius: 2.0
+  types:
+    IRON:
+      levels:
+        1:
+          interval-seconds: 1.5
+          amount: 1
+        2:
+          interval-seconds: 1.0
+          amount: 1
+        3:
+          interval-seconds: 0.7
+          amount: 1
+    GOLD:
+      levels:
+        1:
+          interval-seconds: 7.0
+          amount: 1
+        2:
+          interval-seconds: 5.0
+          amount: 1
+        3:
+          interval-seconds: 3.5
+          amount: 1
+    DIAMOND:
+      levels:
+        1:
+          interval-seconds: 30.0
+          amount: 1
+        2:
+          interval-seconds: 23.0
+          amount: 1
+        3:
+          interval-seconds: 17.0
+          amount: 1
+    EMERALD:
+      levels:
+        1:
+          interval-seconds: 65.0
+          amount: 1
+        2:
+          interval-seconds: 50.0
+          amount: 1
+        3:
+          interval-seconds: 38.0
+          amount: 1
+    FEATHER:
+      levels:
+        1:
+          interval-seconds: 10.0
+          amount: 1
+        2:
+          interval-seconds: 7.5
+          amount: 1
+        3:
+          interval-seconds: 5.5
+          amount: 1

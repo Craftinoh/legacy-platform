@@ -1,0 +1,487 @@
+prefix: "&6&lCW &8» &r"
+
+help:
+  main:
+    - ""
+    - "&6&l  CHICKEN WARS &8- &7guide"
+    - "&8  &m                                        "
+    - ""
+    - "  &7Every team defends a &e&lRoyal Chicken&7."
+    - "  &7While it lives, your team respawns."
+    - "  &7Once it dies, every death is final."
+    - ""
+    - "  &e/cw quickjoin &8» &7jump straight into a match"
+    - "  &e/cw leave &8» &7leave the match"
+    - "  &e/cw shop &8» &7open the shop"
+    - ""
+  topics-hint: "  &7More: &f/cw help <topic>&7 — {topics}"
+  unknown-topic: "&cUnknown topic &f{topic}&c. Available: &f{topics}"
+
+  game:
+    - ""
+    - "&6&l  GAME COMMANDS"
+    - "&8  &m                                        "
+    - ""
+    - "  &e/cw quickjoin"
+    - "    &7Join the arena closest to starting."
+    - ""
+    - "  &e/cw join <arena>"
+    - "    &7Join a specific arena."
+    - "    &8See the list with /cw list"
+    - ""
+    - "  &e/cw team <team>"
+    - "    &7Pick your team before the match starts."
+    - "    &8You cannot switch once it begins."
+    - ""
+    - "  &e/cw shop"
+    - "    &7Opens the shop, like the base NPC."
+    - ""
+    - "  &e/cw leave &8| &e/cw stats &8| &e/cw list"
+    - "    &7Leaving, statistics and available arenas."
+    - ""
+
+  chicken:
+    - ""
+    - "&6&l  HOW TO PLAY"
+    - "&8  &m                                        "
+    - ""
+    - "  &e&lTHE ROYAL CHICKEN"
+    - "  &7It is alive and has two separate bars:"
+    - "  &b&lShield &7always absorbs damage first,"
+    - "  &c&lHealth &7is only touched afterwards."
+    - "  &7Both regenerate on their own, but only"
+    - "  &7after a few seconds without being hit."
+    - ""
+    - "  &a&lFEEDING IT"
+    - "  &7Buy &aHealing Seeds &7from the shop and"
+    - "  &7right click &7your own &7chicken: it"
+    - "  &7restores health and shield, with a cooldown."
+    - ""
+    - "  &c&lWHEN IT DIES"
+    - "  &7Your team loses respawn: from that moment"
+    - "  &7every death is &cfinal&7."
+    - "  &7Survivors receive the &e&lLast Feather&7,"
+    - "  &7a temporary speed and strength bonus."
+    - ""
+    - "  &6&lVICTORY"
+    - "  &7The last team with a living player wins."
+    - ""
+
+  admin:
+    - ""
+    - "&6&l  ADMINISTRATION"
+    - "&8  &m                                        "
+    - ""
+    - "  &e&lCreate"
+    - "  &e/cw admin create <arena> [void|flat|normal]"
+    - "    &7Creates arena and world, teleports you"
+    - "    &7inside and opens the editor right away."
+    - "  &e/cw admin create <arena> here"
+    - "    &7Uses the world you are already in."
+    - ""
+    - "  &e&lConfigure"
+    - "  &e/cw admin edit <arena> &8» &7reopen the editor"
+    - "  &e/cw admin exit &8» &7close the editor, saving"
+    - "  &e/cw admin validate <arena> &8» &7what is missing"
+    - "  &e/cw admin save <arena> &8» &7save to file"
+    - ""
+    - "  &e&lActivate"
+    - "  &e/cw admin enable|disable <arena>"
+    - "  &e/cw admin start|stop <arena>"
+    - ""
+    - "  &e&lOther"
+    - "  &e/cw admin list|info <arena> &8» &7arena status"
+    - "  &e/cw admin tp <arena> &8» &7go to the arena"
+    - "  &e/cw admin delete <arena> &8» &7delete it"
+    - "  &e/cw admin reload &8» &7reload everything"
+    - ""
+    - "  &7Details: &f/cw help setup &7and &f/cw help worlds"
+    - ""
+
+  setup:
+    - ""
+    - "&6&l  ARENA EDITOR"
+    - "&8  &m                                        "
+    - ""
+    - "  &7With &f/cw admin edit <arena> &7you get 9"
+    - "  &7tools. &e&lEvery action uses the spot you"
+    - "  &e&lare standing on&7."
+    - ""
+    - "  &b1 Compass &8» &7lobby, spectators, corners"
+    - "  &d2 Wool &8» &7create and select teams"
+    - "  &a3 Bed &8» &7spawn of the selected team"
+    - "  &64 Hay &8» &7nest of the selected team"
+    - "  &e5 Egg &8» &7where the Royal Chicken spawns"
+    - "  &26 Emerald &8» &7where the shopkeeper appears"
+    - "  &f7 Iron &8» &7central and team generators"
+    - "  &b8 Book &8» &7check what is still missing"
+    - "  &a9 Emerald block &8» &7save and exit"
+    - ""
+    - "  &7Suggested order: compass, then wool to"
+    - "  &7create a team, then tools 3-6 inside the"
+    - "  &7base, finally iron and book."
+    - ""
+    - "  &8In the team menu: left click selects,"
+    - "  &8right click deletes. Everything saves at once."
+    - ""
+
+  worlds:
+    - ""
+    - "&6&l  WORLD MANAGEMENT"
+    - "&8  &m                                        "
+    - ""
+    - "  &7Each arena has its own world. Arena worlds"
+    - "  &7are activated automatically on startup."
+    - ""
+    - "  &e&lUSING AN EXISTING MAP"
+    - "  &e/cw admin create <arena> here"
+    - "    &7Uses the world you are standing in,"
+    - "    &7without creating any."
+    - ""
+    - "  &e/cw admin create <arena> <world>"
+    - "    &7Uses an existing world by name."
+    - ""
+    - "  &e/cw admin setworld <arena> [world]"
+    - "    &7Changes the world of an existing arena."
+    - "    &8Without an argument uses your world."
+    - ""
+    - "  &8Adopted worlds are never regenerated:"
+    - "  &8the plugin loads them exactly as they are."
+    - ""
+    - "  &e&lWORLD COMMANDS"
+    - "  &e/cw admin world list"
+    - "    &7Managed worlds, type and state."
+    - ""
+    - "  &e/cw admin world load <world>"
+    - "    &7Activates a world present on disk."
+    - ""
+    - "  &e/cw admin world unload <world>"
+    - "    &7Saves and deactivates the world."
+    - ""
+    - "  &e/cw admin world tp <world>"
+    - "    &7Takes you to the world spawn."
+    - ""
+    - "  &e&lGENERATION TYPES"
+    - "  &fVOID &8» &7empty, for schematic maps"
+    - "  &fFLAT &8» &7superflat, for prototypes"
+    - "  &fNORMAL &8» &7normal generation"
+    - "  &fEXISTING &8» &7adopted world, left untouched"
+    - ""
+    - "  &8The type is stored in worlds.yml and"
+    - "  &8reapplied on every load."
+    - ""
+
+command:
+  no-permission: "&cYou do not have permission for this command."
+  unknown-subcommand: "&cUnknown command &f{subcommand}&c. Try &f/cw help&c."
+  players-only: "&cOnly a player can use this command."
+  usage: "&cCorrect usage: &f{usage}"
+  invalid-number: "&cInvalid number: &f{value}"
+  already-in-game: "&cYou are already in a match."
+  not-in-game: "&cYou are not in a match."
+  left: "&7You left the match."
+
+arena:
+  not-found: "&cArena &f{arena} &cnot found."
+  not-joinable: "&cArena &f{arena} &cis not accepting players right now."
+  none-available: "&cNo arena available right now."
+  none-configured: "&cNo arena configured."
+  world-not-loaded: "&cThe arena world is not loaded."
+  list-header: "&6Available arenas:"
+  list-entry: "&7- &f{arena} &8[&7{state}&8] &7{online}/{max}"
+
+game:
+  player-joined: "&a{player} &7joined the match &8({online}/{max})"
+  player-left: "&c{player} &7left the match &8({online}/{max})"
+  countdown: "&eThe match starts in &f{seconds} &eseconds."
+  countdown-cancelled: "&cCountdown cancelled: not enough players."
+  not-enough-teams: "&cNot enough teams to start."
+  started:
+    - "&8&m--------------------------------"
+    - "&6&lCHICKEN WARS"
+    - "&7Protect your &e&lRoyal Chicken&7."
+    - "&7If it dies, your team cannot respawn."
+    - "&8&m--------------------------------"
+  victory:
+    - "&8&m--------------------------------"
+    - "&6&lVICTORY"
+    - "&7Team {team} &7wins!"
+    - "&8&m--------------------------------"
+  draw: "&7The match ended with no winner."
+  summary: "&7Kills: &f{kills} &8| &7Final: &f{final_kills} &8| &7Chickens: &f{chickens} &8| &7Deaths: &f{deaths}"
+
+chicken:
+  under-attack: "&c&lYOUR CHICKEN IS UNDER ATTACK! &7({health}/{max_health})"
+  damaged: "&7{team} &7chicken - &c{health}/{max_health}"
+  own-team: "&cYou cannot hit your own team's chicken."
+  destroyed:
+    - ""
+    - "&c&lCHICKEN ELIMINATED"
+    - "&7The Royal Chicken of {team} &7was killed by &f{killer}&7."
+    - ""
+  last-feather: "&e&lLAST FEATHER! &7Bonus active for &f{seconds} &7seconds."
+  fed: "&aYou fed the chicken: &f+{health} &ahealth, &f+{shield} &ashield &8({current}/{max})"
+  feed-full: "&7Your chicken is already at full strength."
+  feed-other-team: "&cYou can only feed your own team's chicken."
+
+death:
+  normal: "&7{player} &7was killed by &f{killer}&7."
+  final: "&7{player} &7was eliminated for good by &f{killer}&7."
+  unknown-killer: "natural causes"
+
+respawn:
+  countdown: "&7Respawning in &f{seconds} &7seconds."
+  done: "&aYou are back in the game!"
+
+team:
+  selected: "&7Team selected: {team}"
+  not-found: "&cTeam &f{team} &cnot found."
+  full: "&cTeam {team} &cis full."
+  already-started: "&cYou cannot switch team after the match started."
+  eliminated: "&7Team {team} &7has been eliminated."
+
+shop:
+  title: "&8Chicken Wars Shop"
+  npc-name: "&e&lSHOPKEEPER"
+  purchased: "&aPurchased: &f{item}"
+  not-enough: "&cYou need &f{amount} &cmore {currency}&c."
+  inventory-full: "&cYour inventory is full."
+  unavailable: "&cThe shop is not available."
+
+generator:
+  countdown: "&7Next resource: &f{seconds}s"
+
+world:
+  protected-block: "&cYou can only break blocks placed during the match."
+  outside-arena: "&cYou cannot build outside the arena."
+  build-limit: "&cYou cannot build above y={limit}."
+
+scoreboard:
+  title: "&6&lCHICKEN WARS"
+  waiting: "&7Waiting: &f{online}/{min}"
+  starting: "&7Starting in &f{seconds}s"
+  kills: "&7Kills: &f{kills} &8(&f{final_kills}&8)"
+  time: "&7Time: &f{time}"
+
+world:
+  created: "&aWorld &f{world} &acreated &8({template})"
+  loaded: "&aWorld &f{world} &aactivated &8({template})"
+  adopted: "&aArena linked to the existing world &f{world}&a."
+  arena-bound: "&aArena &f{arena} &anow uses world &f{world}&a."
+  positions-outdated: "&e&lWARNING &7The positions of &f{arena} &7belong to the previous world: reset them with &f/cw admin edit {arena}&7."
+  unknown-target: "&cInvalid value &f{value}&c: use &fvoid&c, &fflat&c, &fnormal&c, &fhere &cor the name of an existing world."
+  created-console: "&7Join the server and use &f/cw admin edit {arena}&7."
+  create-failed: "&cCould not create or load world &f{world}&c."
+  not-found: "&cWorld &f{world} &cis not present on disk."
+  not-loaded: "&cWorld &f{world} &cis not active."
+  unloaded: "&7World &f{world} &7saved and deactivated."
+  unloaded-kept: "&7World &f{world} &7deactivated. The folder stays on disk."
+  unload-failed: "&cCould not deactivate &f{world}&c."
+  teleported: "&aTeleported to world &f{world}&a."
+  invalid-template: "&cInvalid type &f{template}&c. Use void, flat or normal."
+  none: "&cNo world managed by ChickenWars."
+  list-header: "&6Managed worlds:"
+  list-entry: "&7- &f{world} &8[&7{template}&8] {state} &8{players} players"
+  state-loaded: "&aactive"
+  state-unloaded: "&7off"
+
+admin:
+  created: "&aArena &f{arena} &acreated."
+  already-exists: "&cArena &f{arena} &calready exists."
+  deleted: "&aArena &f{arena} &adeleted."
+  delete-failed: "&cCould not delete arena &f{arena}&c."
+  saved: "&aArena &f{arena} &asaved."
+  save-failed: "&cCould not save arena &f{arena}&c."
+  enabled: "&aArena &f{arena} &aenabled."
+  disabled: "&7Arena &f{arena} &7disabled."
+  cannot-enable: "&cThe arena is incomplete. Missing:"
+  validate-ok: "&aArena &f{arena} &ais complete and can be enabled."
+  validate-failed: "&cArena &f{arena} &cis incomplete:"
+  lobby-set: "&aLobby of arena &f{arena} &aset."
+  spectator-set: "&aSpectator spawn of arena &f{arena} &aset."
+  pos1-set: "&aFirst corner of arena &f{arena} &aset."
+  pos2-set: "&aSecond corner of arena &f{arena} &aset."
+  build-limit-set: "&aBuild limit of arena &f{arena} &aupdated."
+  min-players-set: "&aMinimum players of arena &f{arena} &aupdated."
+  team-added: "&aTeam added to arena &f{arena}&a."
+  team-removed: "&aTeam removed from arena &f{arena}&a."
+  team-exists: "&cTeam &f{team} &calready exists."
+  team-not-found: "&cTeam &f{team} &cnot found."
+  team-location-set: "&aTeam location updated &8({arena})"
+  invalid-color: "&cInvalid color &f{color}&c."
+  invalid-resource: "&cInvalid resource &f{type}&c."
+  generator-added: "&aGenerator &f{id} &aadded to arena &f{arena}&a."
+  generator-removed: "&aGenerator &f{id} &aremoved."
+  generator-not-found: "&cGenerator &f{id} &cnot found."
+  generator-level-set: "&aGenerator &f{id} &aset to level &f{level}&a."
+  started: "&aMatch started on arena &f{arena}&a."
+  start-failed: "&cCould not start arena &f{arena}&c."
+  stopped: "&7Match stopped on arena &f{arena}&7."
+  teleported: "&aTeleported to arena &f{arena}&a."
+  no-teleport-target: "&cThe arena has no destination set."
+  reloaded: "&aChickenWars reloaded: &f{arenas} &aarenas."
+  reload-failed: "&cReload cancelled: invalid configuration."
+
+setup:
+  entered:
+    - "&8&m--------------------------------"
+    - "&6&lARENA EDITOR &7- {arena}"
+    - "&7Use the tools in your hotbar."
+    - "&7Every action uses your current position."
+    - "&eRight click the emerald block to save and exit."
+    - "&8&m--------------------------------"
+  exited: "&7Editor closed, inventory restored."
+  entities-cleared: "&7Removed &f{amount} &7pre-existing creatures from the world."
+  already-editing: "&cYou are already in editor mode."
+  not-editing: "&cYou are not in editor mode."
+  leave-game-first: "&cLeave the match before opening the editor."
+  arena-busy: "&cArena &f{arena} &chas players inside."
+  no-team-selected: "&cSelect a team first using the wool."
+  team-selected: "&aActive team: {team}"
+  team-created: "&aTeam {team} &acreated and selected."
+  team-spawn-set: "&aSpawn of {team} &aset here."
+  team-nest-set: "&aNest of {team} &aset here."
+  team-chicken-set: "&aRoyal Chicken of {team} &aset here."
+  team-shop-set: "&aShopkeeper of {team} &aset here."
+  generator-added: "&aGenerator &f{type} &aadded &8({id})"
+  ready-to-enable: "&7Enable it with &f/cw admin enable <arena>&7."
+
+  tool:
+    positions:
+      name: "&b&lArena Positions"
+      lore:
+        - "&7Lobby, spectators and the"
+        - "&7corners of the play region."
+        - ""
+        - "&eRight click to open."
+    teams:
+      name: "&d&lTeams"
+      lore:
+        - "&7Create, select and delete"
+        - "&7the arena teams."
+        - ""
+        - "&eRight click to open."
+    team-spawn:
+      name: "&a&lTeam Spawn"
+      lore:
+        - "&7Set the spawn point of the"
+        - "&7selected team."
+        - ""
+        - "&eRight click where you stand."
+    team-nest:
+      name: "&6&lRoyal Nest"
+      lore:
+        - "&7Set the nest of the"
+        - "&7selected team."
+        - ""
+        - "&eRight click where you stand."
+    team-chicken:
+      name: "&e&lRoyal Chicken"
+      lore:
+        - "&7Set where the team's Royal"
+        - "&7Chicken will spawn."
+        - ""
+        - "&eRight click where you stand."
+    team-shop:
+      name: "&2&lShopkeeper"
+      lore:
+        - "&7Set where the shop NPC"
+        - "&7will appear."
+        - ""
+        - "&eRight click where you stand."
+    generators:
+      name: "&f&lGenerators"
+      lore:
+        - "&7Add a central or a team"
+        - "&7resource generator."
+        - ""
+        - "&eRight click to open."
+    validate:
+      name: "&b&lValidate Arena"
+      lore:
+        - "&7Shows what is still missing"
+        - "&7before enabling the arena."
+        - ""
+        - "&eRight click to check."
+    save-exit:
+      name: "&a&lSave and Exit"
+      lore:
+        - "&7Saves the arena and closes"
+        - "&7the editor."
+        - ""
+        - "&eRight click to confirm."
+
+  menu:
+    positions:
+      title: "&8Arena positions"
+    teams:
+      title: "&8Arena teams"
+    team_colors:
+      title: "&8Pick a color"
+    generators:
+      title: "&8Add generator"
+
+  position:
+    not-set: "&cNot set"
+    set: "&aSet &8({value})"
+    lobby:
+      name: "&b&lPre-game lobby"
+      lore:
+        - "&7Where players wait before"
+        - "&7the match starts."
+    spectator:
+      name: "&d&lSpectator spawn"
+      lore:
+        - "&7Where eliminated players and"
+        - "&7spectators are sent."
+    pos1:
+      name: "&6&lFirst corner"
+      lore:
+        - "&7One corner of the region"
+        - "&7bounding the arena."
+    pos2:
+      name: "&f&lSecond corner"
+      lore:
+        - "&7The opposite corner of the"
+        - "&7arena region."
+    build-limit:
+      name: "&e&lBuild limit"
+      lore:
+        - "&7Sets the maximum height"
+        - "&7using your current altitude."
+
+  team:
+    complete: "&aFully configured"
+    incomplete: "&cIncomplete configuration"
+    selected: "&aCurrently selected team"
+    actions:
+      - "&eLeft click &7to select it"
+      - "&cRight click &7to delete it"
+    add:
+      name: "&a&lAdd team"
+      lore:
+        - "&7Pick a color to create"
+        - "&7a new team."
+
+  color:
+    available:
+      - "&eClick to create the team."
+    used:
+      - "&cColor already in use."
+
+  generator:
+    no-team: "&cno team selected"
+    central:
+      name: "&f&lCentral generator &7- {type}"
+      lore:
+        - "&7Available to every team."
+        - "&7Created with a hologram."
+        - ""
+        - "&eClick to place it here."
+    team:
+      name: "&a&lTeam generator &7- {type}"
+      lore:
+        - "&7Assigned to: {team}"
+        - "&7Active only if the team plays."
+        - ""
+        - "&eClick to place it here."

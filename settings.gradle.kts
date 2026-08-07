@@ -15,5 +15,6 @@ include(
     "legacy-menu",
     "legacy-combat",
     "legacy-regions",
+    "legacy-chickenwars",
     "language-backend"
 )

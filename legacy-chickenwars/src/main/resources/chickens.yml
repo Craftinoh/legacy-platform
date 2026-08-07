@@ -1,0 +1,68 @@
+# Impostazioni della Gallina Reale.
+# La sezione "default" viene applicata a tutte le squadre.
+
+default:
+  display-name: "&e&lGallina Reale"
+
+  # Punti vita e scudo. Lo scudo viene sempre consumato prima della vita.
+  health: 100
+  shield: 25
+
+  # Movimento: la gallina resta entro questo raggio dalla propria posizione.
+  can-move: true
+  movement-radius: 4.0
+  return-to-nest: true
+
+  health-regeneration:
+    enabled: true
+    # Secondi senza danni prima che la rigenerazione riparta.
+    delay-after-damage: 15
+    # Vita recuperata ogni secondo.
+    amount: 1.0
+
+  shield-regeneration:
+    enabled: true
+    delay-after-damage: 10
+    amount: 1.0
+
+  # Sorgenti di danno accettate.
+  damage:
+    player-melee: true
+    projectiles: true
+    explosions: true
+    environment: false
+
+  # Alimentazione: clic destro sulla gallina della propria squadra.
+  feeding:
+    enabled: true
+    material: SEEDS
+    heal-amount: 5.0
+    shield-amount: 2.0
+    cooldown-seconds: 2
+
+  hologram:
+    enabled: true
+    height: 1.8
+    # Segnaposto: {team_color} {team_name} {health} {max_health}
+    #             {shield} {max_shield} {state}
+    lines:
+      - "{team_color}&lGallina di {team_name}"
+      - "&c{health}/{max_health}  &b{shield}/{max_shield}"
+
+  alerts:
+    enabled: true
+    # Secondi minimi tra due avvisi di attacco alla stessa gallina.
+    cooldown-seconds: 3
+
+  death:
+    lightning-effect: true
+    feather-particles: 80
+
+  # Bonus temporaneo ai superstiti quando la gallina viene eliminata.
+  last-feather:
+    enabled: true
+    duration-seconds: 10
+    # Formato: EFFETTO:livello
+    effects:
+      - "SPEED:1"
+      - "INCREASE_DAMAGE:0"
