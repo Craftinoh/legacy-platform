@@ -1,0 +1,99 @@
+# Layout della scoreboard ChickenWars.
+# Le etichette localizzate vengono fornite dal MessageService; questo file
+# definisce soltanto ordine, colori e placeholder.
+enabled: true
+update-ticks: 10
+footer: ""
+
+layouts:
+  waiting:
+    title: "&6&lCHICKEN WARS"
+    lines:
+      - "&7{date}"
+      - ""
+      - "&f{label_map}: &a{map}"
+      - "&f{label_mode}: &a{mode}"
+      - "&f{label_players}: &a{players}/{max_players}"
+      - ""
+      - "{waiting_status}"
+      - ""
+      - "&e{footer}"
+
+  playing-eight-teams:
+    title: "&6&lCHICKEN WARS"
+    lines:
+      - "&7{date}"
+      - ""
+      - "{next_event_name}: &a{next_event_time}"
+      - ""
+      - "{team_red}"
+      - "{team_blue}"
+      - "{team_green}"
+      - "{team_yellow}"
+      - "{team_aqua}"
+      - "{team_white}"
+      - "{team_pink}"
+      - "{team_gray}"
+      - ""
+      - "&fK: &a{kills} &fF: &a{final_kills} &fC: &a{chicken_kills}"
+      - "&e{footer}"
+
+  playing-compact:
+    title: "&6&lCHICKEN WARS"
+    lines:
+      - "&7{date}"
+      - ""
+      - "{next_event_name}: &a{next_event_time}"
+      - ""
+      - "&f{label_chicken}: &c{chicken_health}/{chicken_max_health}"
+      - "&f{label_shield}: &b{chicken_shield}/{chicken_max_shield}"
+      - ""
+      - "{team_lines}"
+      - ""
+      - "&f{label_kills}: &a{kills}"
+      - "&f{label_final_kills}: &a{final_kills}"
+      - "&f{label_chickens}: &a{chicken_kills}"
+      - "&e{footer}"
+
+  duel:
+    title: "&6&lCHICKEN WARS &7DUEL"
+    lines:
+      - "&7{date}"
+      - ""
+      - "{next_event_name}: &a{next_event_time}"
+      - ""
+      - "{own_team_line}"
+      - "{enemy_team_line}"
+      - ""
+      - "&f{label_kills}: &a{kills}"
+      - "&f{label_chickens}: &a{chicken_kills}"
+      - ""
+      - "&7{training_notice}"
+      - "&e{footer}"
+
+  spectator:
+    title: "&6&lCHICKEN WARS"
+    lines:
+      - "&7{date}"
+      - ""
+      - "&c&l{label_spectator}"
+      - ""
+      - "{next_event_name}: &a{next_event_time}"
+      - ""
+      - "{team_lines}"
+      - ""
+      - "&e{footer}"
+
+  ending:
+    title: "&6&lCHICKEN WARS"
+    lines:
+      - "&7{date}"
+      - ""
+      - "&6{label_winner}:"
+      - "{winner_team}"
+      - ""
+      - "&f{label_kills}: &a{kills}"
+      - "&f{label_final_kills}: &a{final_kills}"
+      - "&f{label_chickens}: &a{chicken_kills}"
+      - ""
+      - "&e{footer}"
