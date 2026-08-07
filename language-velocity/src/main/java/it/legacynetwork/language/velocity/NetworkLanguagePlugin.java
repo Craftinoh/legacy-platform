@@ -19,6 +19,7 @@ import com.velocitypowered.api.proxy.messages.LegacyChannelIdentifier;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import it.legacynetwork.language.Language;
+import it.legacynetwork.language.LanguageChangeResult;
 import it.legacynetwork.language.LanguageProtocol;
 import it.legacynetwork.language.LanguageProtocolAction;
 import it.legacynetwork.language.LanguageProtocolException;
@@ -102,7 +103,8 @@ public final class NetworkLanguagePlugin {
             languageService = new ProxyLanguageService(
                     playerRepository, new LocaleLanguageResolver(), proxyId);
 
-            languageChannel = new LegacyChannelIdentifier(LanguageProtocol.CHANNEL);
+            languageChannel = new LegacyChannelIdentifier(
+                    LanguageProtocol.CHANNEL);
             synchronizationService = new LanguageSynchronizationService(
                     languageChannel, protocol, languageService, logger);
 
@@ -111,9 +113,11 @@ public final class NetworkLanguagePlugin {
             proxy.getEventManager().register(this,
                     new PlayerConnectedListener(languageService));
             proxy.getEventManager().register(this,
-                    new PlayerSettingsListener(languageService, synchronizationService));
+                    new PlayerSettingsListener(
+                            languageService, synchronizationService));
             proxy.getEventManager().register(this,
-                    new ServerPostConnectListener(synchronizationService));
+                    new ServerPostConnectListener(
+                            synchronizationService));
 
             tabScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
                 Thread t = new Thread(r, "networklang-tab");
@@ -132,9 +136,12 @@ public final class NetworkLanguagePlugin {
             logger.info("NetworkLanguage inizializzato sul canale {}.",
                     LanguageProtocol.CHANNEL);
         } catch (IOException | RuntimeException exception) {
-            logger.error("Impossibile inizializzare NetworkLanguage", exception);
+            logger.error(
+                    "Impossibile inizializzare NetworkLanguage",
+                    exception);
             throw new IllegalStateException(
-                    "NetworkLanguage initialization failed", exception);
+                    "NetworkLanguage initialization failed",
+                    exception);
         }
     }
 
@@ -144,7 +151,8 @@ public final class NetworkLanguagePlugin {
                 || !languageChannel.equals(event.getIdentifier())) {
             return;
         }
-        event.setResult(PluginMessageEvent.ForwardResult.handled());
+        event.setResult(
+                PluginMessageEvent.ForwardResult.handled());
 
         if (!(event.getSource() instanceof ServerConnection)
                 || !(event.getTarget() instanceof Player)) {
@@ -153,13 +161,16 @@ public final class NetworkLanguagePlugin {
 
         Player player = (Player) event.getTarget();
         try {
-            LanguageProtocolMessage message = protocol.deserialize(event.getData());
+            LanguageProtocolMessage message =
+                    protocol.deserialize(event.getData());
             if (message.getAction()
                     != LanguageProtocolAction.LANGUAGE_CHANGE_REQUEST) {
                 return;
             }
-            if (!player.getUniqueId().equals(message.getPlayerUuid())) {
-                logger.warn("Richiesta lingua con UUID non corrispondente da backend.");
+            if (!player.getUniqueId().equals(
+                    message.getPlayerUuid())) {
+                logger.warn(
+                        "Richiesta lingua con UUID non corrispondente da backend.");
                 return;
             }
 
@@ -169,57 +180,110 @@ public final class NetworkLanguagePlugin {
                 return;
             }
 
-            languageService.requestManualChange(player, selected.get())
+            final Language requestedLanguage = selected.get();
+            languageService.requestManualChange(
+                            player, requestedLanguage)
                     .whenComplete((result, throwable) -> {
                         if (throwable != null) {
-                            logger.error("Cambio lingua fallito per {}",
-                                    player.getUsername(), throwable);
+                            logger.error(
+                                    "Cambio lingua fallito per {}",
+                                    player.getUsername(),
+                                    throwable);
                             synchronizationService.synchronize(player);
+                            synchronizationService.sendChangeResult(
+                                    player,
+                                    requestedLanguage,
+                                    LanguageChangeResult.ERROR);
                             return;
                         }
+
+                        LanguageChangeResult publicResult =
+                                mapChangeResult(result.status);
+
+                        synchronizationService.synchronize(player);
+                        synchronizationService.sendChangeResult(
+                                player,
+                                requestedLanguage,
+                                publicResult);
+
                         if (result.status
                                 == PlayerLanguageRepository.ChangeStatus.SUCCESS
                                 || result.status
                                 == PlayerLanguageRepository.ChangeStatus.ALREADY_SELECTED) {
-                            synchronizationService.synchronize(player);
                             if (tabListService != null) {
-                                tabListService.sendImmediately(player, true);
+                                tabListService.sendImmediately(
+                                        player, true);
                             }
-                        } else {
-                            logger.info("Cambio lingua rifiutato per {}: {}",
-                                    player.getUsername(), result.messageCode);
-                            synchronizationService.synchronize(player);
+                            return;
                         }
+
+                        logger.info(
+                                "Cambio lingua rifiutato per {}: {}",
+                                player.getUsername(),
+                                result.messageCode);
                     });
         } catch (LanguageProtocolException exception) {
-            logger.warn("Payload lingua non valido dal backend: {}",
+            logger.warn(
+                    "Payload lingua non valido dal backend: {}",
                     exception.getMessage());
+        }
+    }
+
+    private LanguageChangeResult mapChangeResult(
+            PlayerLanguageRepository.ChangeStatus status) {
+        if (status == null) {
+            return LanguageChangeResult.ERROR;
+        }
+        switch (status) {
+            case SUCCESS:
+                return LanguageChangeResult.SUCCESS;
+            case ALREADY_SELECTED:
+                return LanguageChangeResult.ALREADY_SELECTED;
+            case OPEN_COOLDOWN:
+            case CHANGE_COOLDOWN:
+                return LanguageChangeResult.COOLDOWN;
+            case HOURLY_LIMIT:
+                return LanguageChangeResult.RATE_LIMITED;
+            case UNSUPPORTED_LANGUAGE:
+            case DATABASE_ERROR:
+            default:
+                return LanguageChangeResult.ERROR;
         }
     }
 
     private void registerLuckPerms() {
         try {
-            Class<?> lpClass = Class.forName("net.luckperms.api.LuckPermsProvider");
+            Class<?> lpClass = Class.forName(
+                    "net.luckperms.api.LuckPermsProvider");
             Object lp = lpClass.getMethod("get").invoke(null);
             luckPermsInstance = lp;
 
-            lpContextCalculator = new LanguageContextCalculator(languageService);
-            Object contextManager = lpClass.getMethod("getContextManager").invoke(lp);
+            lpContextCalculator =
+                    new LanguageContextCalculator(languageService);
+            Object contextManager = lpClass
+                    .getMethod("getContextManager")
+                    .invoke(lp);
             contextManager.getClass()
-                    .getMethod("registerCalculator",
-                            Class.forName("net.luckperms.api.context.ContextCalculator"))
+                    .getMethod(
+                            "registerCalculator",
+                            Class.forName(
+                                    "net.luckperms.api.context.ContextCalculator"))
                     .invoke(contextManager, lpContextCalculator);
 
             localizedPrefixProvider = new LocalizedPrefixProvider(
                     (net.luckperms.api.LuckPerms) lp,
-                    java.util.logging.Logger.getLogger("NetworkLanguage-LP"));
+                    java.util.logging.Logger.getLogger(
+                            "NetworkLanguage-LP"));
             if (tabListService != null) {
-                tabListService.setLocalizedPrefixProvider(localizedPrefixProvider);
+                tabListService.setLocalizedPrefixProvider(
+                        localizedPrefixProvider);
             }
 
-            logger.info("LuckPerms ContextCalculator registrato.");
+            logger.info(
+                    "LuckPerms ContextCalculator registrato.");
         } catch (Exception exception) {
-            logger.warn("LuckPerms non disponibile, context lingua non attivi.");
+            logger.warn(
+                    "LuckPerms non disponibile, context lingua non attivi.");
             luckPermsInstance = null;
             lpContextCalculator = null;
         }
@@ -233,7 +297,8 @@ public final class NetworkLanguagePlugin {
         if (tabScheduler != null) {
             tabScheduler.shutdown();
             try {
-                tabScheduler.awaitTermination(5, TimeUnit.SECONDS);
+                tabScheduler.awaitTermination(
+                        5, TimeUnit.SECONDS);
             } catch (InterruptedException ignored) {
                 Thread.currentThread().interrupt();
             }
@@ -244,14 +309,18 @@ public final class NetworkLanguagePlugin {
         if (localizedPrefixProvider != null) {
             localizedPrefixProvider.close();
         }
-        if (luckPermsInstance != null && lpContextCalculator != null) {
+        if (luckPermsInstance != null
+                && lpContextCalculator != null) {
             try {
-                Object contextManager = luckPermsInstance.getClass()
+                Object contextManager = luckPermsInstance
+                        .getClass()
                         .getMethod("getContextManager")
                         .invoke(luckPermsInstance);
                 contextManager.getClass()
-                        .getMethod("unregisterCalculator",
-                                Class.forName("net.luckperms.api.context.ContextCalculator"))
+                        .getMethod(
+                                "unregisterCalculator",
+                                Class.forName(
+                                        "net.luckperms.api.context.ContextCalculator"))
                         .invoke(contextManager, lpContextCalculator);
             } catch (Exception ignored) {
                 // LuckPerms may already be shutting down.
@@ -261,7 +330,8 @@ public final class NetworkLanguagePlugin {
             try {
                 ((AutoCloseable) playerRepository).close();
             } catch (Exception exception) {
-                logger.warn("Errore chiusura repository lingua: {}",
+                logger.warn(
+                        "Errore chiusura repository lingua: {}",
                         exception.getMessage());
             }
         }
@@ -275,14 +345,17 @@ public final class NetworkLanguagePlugin {
             @Subscribe
             public void onLogin(PostLoginEvent event) {
                 if (tabListService != null) {
-                    tabListService.sendScheduled(event.getPlayer(), true);
+                    tabListService.sendScheduled(
+                            event.getPlayer(), true);
                 }
             }
 
             @Subscribe
-            public void onServerConnect(ServerPostConnectEvent event) {
+            public void onServerConnect(
+                    ServerPostConnectEvent event) {
                 if (tabListService != null) {
-                    tabListService.sendScheduled(event.getPlayer(), true);
+                    tabListService.sendScheduled(
+                            event.getPlayer(), true);
                 }
             }
 
@@ -294,29 +367,38 @@ public final class NetworkLanguagePlugin {
             }
 
             @Subscribe
-            public void onSettingsChanged(PlayerSettingsChangedEvent event) {
+            public void onSettingsChanged(
+                    PlayerSettingsChangedEvent event) {
                 if (tabListService != null) {
-                    tabListService.sendScheduled(event.getPlayer(), true);
+                    tabListService.sendScheduled(
+                            event.getPlayer(), true);
                 }
             }
         });
     }
 
-    private void registerCommand(TranslationService translations) {
+    private void registerCommand(
+            TranslationService translations) {
         CommandMeta langMeta = proxy.getCommandManager()
                 .metaBuilder("networklang")
                 .plugin(this)
                 .aliases("langproxy", "nlang")
                 .build();
-        proxy.getCommandManager().register(langMeta,
-                new LanguageCommand(languageService, synchronizationService,
-                        translations, logger, tabListService));
+        proxy.getCommandManager().register(
+                langMeta,
+                new LanguageCommand(
+                        languageService,
+                        synchronizationService,
+                        translations,
+                        logger,
+                        tabListService));
 
         CommandMeta reloadMeta = proxy.getCommandManager()
                 .metaBuilder("networklangreload")
                 .plugin(this)
                 .build();
-        proxy.getCommandManager().register(reloadMeta,
+        proxy.getCommandManager().register(
+                reloadMeta,
                 new NetworkLangReloadCommand(this));
     }
 
@@ -324,7 +406,8 @@ public final class NetworkLanguagePlugin {
         if (tabListService != null) {
             tabListService.reload();
         }
-        logger.info("NetworkLanguage reload completato.");
+        logger.info(
+                "NetworkLanguage reload completato.");
     }
 
     public VelocityTabListService getTabListService() {
@@ -339,12 +422,18 @@ public final class NetworkLanguagePlugin {
         if (target.getParent() != null) {
             Files.createDirectories(target.getParent());
         }
-        try (InputStream in = getClass().getClassLoader()
+        try (InputStream in = getClass()
+                .getClassLoader()
                 .getResourceAsStream(resource)) {
             if (in == null) {
-                throw new IOException("Risorsa incorporata mancante: " + resource);
+                throw new IOException(
+                        "Risorsa incorporata mancante: "
+                                + resource);
             }
-            Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(
+                    in,
+                    target,
+                    StandardCopyOption.REPLACE_EXISTING);
         }
     }
 
@@ -358,62 +447,90 @@ public final class NetworkLanguagePlugin {
         }
 
         @SuppressWarnings("unchecked")
-        Map<String, Object> storage = (Map<String, Object>) config.get("storage");
+        Map<String, Object> storage =
+                (Map<String, Object>) config.get("storage");
         String storageType = storage != null
-                ? getString(storage, "type", "sqlite") : "sqlite";
+                ? getString(storage, "type", "sqlite")
+                : "sqlite";
 
         if ("postgresql".equalsIgnoreCase(storageType)) {
             @SuppressWarnings("unchecked")
-            Map<String, Object> pg = (Map<String, Object>) config.get("postgresql");
+            Map<String, Object> pg =
+                    (Map<String, Object>) config.get("postgresql");
             if (pg == null) {
                 throw new IllegalStateException(
                         "PostgreSQL selezionato ma sezione postgresql mancante");
             }
             String host = getString(pg, "host", "localhost");
             int port = getInt(pg, "port", 5432);
-            String database = getString(pg, "database", "networklanguage");
-            String username = getString(pg, "username", "postgres");
+            String database = getString(
+                    pg, "database", "networklanguage");
+            String username = getString(
+                    pg, "username", "postgres");
             String password = getString(pg, "password", "");
             proxyId = getString(pg, "proxy-id", "velocity-1");
 
             HikariConfig hikariConfig = new HikariConfig();
-            hikariConfig.setJdbcUrl("jdbc:postgresql://" + host + ":" + port
-                    + "/" + database);
+            hikariConfig.setJdbcUrl(
+                    "jdbc:postgresql://"
+                            + host + ":" + port
+                            + "/" + database);
             hikariConfig.setUsername(username);
             hikariConfig.setPassword(password);
-            hikariConfig.setMaximumPoolSize(getInt(pg, "pool-size", 10));
+            hikariConfig.setMaximumPoolSize(
+                    getInt(pg, "pool-size", 10));
             hikariConfig.setMinimumIdle(2);
             hikariConfig.setConnectionTimeout(
                     getInt(pg, "connection-timeout-ms", 5000));
 
-            hikariDataSource = new HikariDataSource(hikariConfig);
-            postgresRepository = new PostgresPlayerLanguageRepository(
-                    hikariDataSource, proxyId);
+            hikariDataSource =
+                    new HikariDataSource(hikariConfig);
+            postgresRepository =
+                    new PostgresPlayerLanguageRepository(
+                            hikariDataSource, proxyId);
             playerRepository = postgresRepository;
 
-            notificationService = new PostgresLanguageNotificationService(
-                    host, port, database, username, password, proxyId,
-                    java.util.logging.Logger.getLogger("NetworkLanguage-PG"));
+            notificationService =
+                    new PostgresLanguageNotificationService(
+                            host,
+                            port,
+                            database,
+                            username,
+                            password,
+                            proxyId,
+                            java.util.logging.Logger.getLogger(
+                                    "NetworkLanguage-PG"));
             notificationService.start();
 
-            postgresRepository.setNotificationCallback(commitEvent -> {
-                try (java.sql.Connection conn = hikariDataSource.getConnection()) {
-                    PostgresLanguageNotificationService.notifyChange(conn,
-                            commitEvent.playerUuid, commitEvent.revision,
-                            commitEvent.languageCode, commitEvent.locale, proxyId);
-                } catch (java.sql.SQLException exception) {
-                    logger.warn("NOTIFY failed after commit: {}",
-                            exception.getMessage());
-                }
-            });
+            postgresRepository.setNotificationCallback(
+                    commitEvent -> {
+                        try (java.sql.Connection conn =
+                                     hikariDataSource.getConnection()) {
+                            PostgresLanguageNotificationService
+                                    .notifyChange(
+                                            conn,
+                                            commitEvent.playerUuid,
+                                            commitEvent.revision,
+                                            commitEvent.languageCode,
+                                            commitEvent.locale,
+                                            proxyId);
+                        } catch (java.sql.SQLException exception) {
+                            logger.warn(
+                                    "NOTIFY failed after commit: {}",
+                                    exception.getMessage());
+                        }
+                    });
 
-            logger.info("PostgreSQL storage attivo per il proxy {}.", proxyId);
+            logger.info(
+                    "PostgreSQL storage attivo per il proxy {}.",
+                    proxyId);
             return;
         }
 
         if (!"sqlite".equalsIgnoreCase(storageType)) {
             throw new IllegalArgumentException(
-                    "storage.type non supportato: " + storageType);
+                    "storage.type non supportato: "
+                            + storageType);
         }
         initSqlite(dataDirectory);
     }
@@ -422,8 +539,11 @@ public final class NetworkLanguagePlugin {
         proxyId = "velocity-1";
         PlayerLanguageRepositoryFactory.RepositoryResult result =
                 PlayerLanguageRepositoryFactory.create(
-                        "sqlite", dataDir, proxyId,
-                        java.util.logging.Logger.getLogger("NetworkLanguage-SQLite"));
+                        "sqlite",
+                        dataDir,
+                        proxyId,
+                        java.util.logging.Logger.getLogger(
+                                "NetworkLanguage-SQLite"));
         playerRepository = result.repository;
         postgresRepository = null;
         hikariDataSource = null;
@@ -435,21 +555,26 @@ public final class NetworkLanguagePlugin {
     private Map<String, Object> loadYaml(Path file) {
         try {
             Yaml yaml = new Yaml();
-            try (InputStreamReader reader = new InputStreamReader(
-                    Files.newInputStream(file), StandardCharsets.UTF_8)) {
+            try (InputStreamReader reader =
+                         new InputStreamReader(
+                                 Files.newInputStream(file),
+                                 StandardCharsets.UTF_8)) {
                 Object loaded = yaml.load(reader);
                 if (loaded instanceof Map) {
                     return (Map<String, Object>) loaded;
                 }
             }
         } catch (IOException exception) {
-            logger.warn("Impossibile leggere config.yml: {}",
+            logger.warn(
+                    "Impossibile leggere config.yml: {}",
                     exception.getMessage());
         }
         return null;
     }
 
-    private static int getInt(Map<String, Object> map, String key, int def) {
+    private static int getInt(Map<String, Object> map,
+                              String key,
+                              int def) {
         Object value = map.get(key);
         if (value instanceof Number) {
             return ((Number) value).intValue();
@@ -457,7 +582,9 @@ public final class NetworkLanguagePlugin {
         return def;
     }
 
-    private static String getString(Map<String, Object> map, String key, String def) {
+    private static String getString(Map<String, Object> map,
+                                    String key,
+                                    String def) {
         Object value = map.get(key);
         if (value instanceof String) {
             return (String) value;
