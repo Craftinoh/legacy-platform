@@ -1,5 +1,7 @@
 package it.legacynetwork.chickenwars.player;
 
+import it.legacynetwork.chickenwars.player.equipment.PlayerEquipmentState;
+
 import java.util.UUID;
 
 /**
@@ -14,6 +16,8 @@ public final class PlayerSession {
     private final String playerName;
     private final String arenaId;
     private final InventorySnapshot snapshot;
+    private final PlayerEquipmentState equipmentState =
+            new PlayerEquipmentState();
 
     private PlayerState state = PlayerState.LOBBY;
     private String teamId;
@@ -99,6 +103,10 @@ public final class PlayerSession {
 
     public InventorySnapshot getSnapshot() {
         return snapshot;
+    }
+
+    public PlayerEquipmentState getEquipmentState() {
+        return equipmentState;
     }
 
     public PlayerState getState() {
