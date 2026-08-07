@@ -14,19 +14,23 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LanguageProtocolTest {
     private final LanguageProtocol protocol = new LanguageProtocol();
-    private final UUID uuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+    private final UUID uuid = UUID.fromString(
+            "123e4567-e89b-12d3-a456-426614174000");
 
     @Test
     void serializesAndDeserializes() throws Exception {
         LanguageProtocolMessage source =
-                LanguageProtocolMessage.languageSync(uuid, Language.ITALIAN, true);
+                LanguageProtocolMessage.languageSync(
+                        uuid, Language.ITALIAN, true);
         byte[] first = protocol.serialize(source);
         byte[] second = protocol.serialize(source);
         assertArrayEquals(first, second);
 
         LanguageProtocolMessage decoded = protocol.deserialize(first);
-        assertEquals(LanguageProtocol.VERSION, decoded.getProtocolVersion());
-        assertEquals(LanguageProtocolAction.LANGUAGE_SYNC, decoded.getAction());
+        assertEquals(LanguageProtocol.VERSION,
+                decoded.getProtocolVersion());
+        assertEquals(LanguageProtocolAction.LANGUAGE_SYNC,
+                decoded.getAction());
         assertEquals(uuid, decoded.getPlayerUuid());
         assertEquals("it", decoded.getLanguageCode());
         assertTrue(decoded.isManualPreference());
@@ -49,30 +53,72 @@ class LanguageProtocolTest {
     }
 
     @Test
+    void serializesRejectedChangeResult() throws Exception {
+        LanguageProtocolMessage source =
+                LanguageProtocolMessage.languageChangeResult(
+                        uuid,
+                        Language.FRENCH,
+                        LanguageChangeResult.RATE_LIMITED);
+
+        LanguageProtocolMessage decoded = protocol.deserialize(
+                protocol.serialize(source));
+
+        assertEquals(
+                LanguageProtocolAction.LANGUAGE_CHANGE_RATE_LIMITED,
+                decoded.getAction());
+        assertEquals(LanguageChangeResult.RATE_LIMITED,
+                decoded.getLanguageChangeResult());
+        assertEquals("fr", decoded.getLanguageCode());
+    }
+
+    @Test
+    void serializesSuccessfulChangeResult() throws Exception {
+        LanguageProtocolMessage source =
+                LanguageProtocolMessage.languageChangeResult(
+                        uuid,
+                        Language.GERMAN,
+                        LanguageChangeResult.SUCCESS);
+
+        LanguageProtocolMessage decoded = protocol.deserialize(
+                protocol.serialize(source));
+
+        assertEquals(LanguageChangeResult.SUCCESS,
+                decoded.getLanguageChangeResult());
+        assertEquals("de", decoded.getLanguageCode());
+        assertTrue(decoded.isManualPreference());
+    }
+
+    @Test
     void rejectsWrongVersion() throws Exception {
         assertThrows(LanguageProtocolException.class,
-                () -> protocol.deserialize(rawPayload(2, uuid.toString(), "en")));
+                () -> protocol.deserialize(rawPayload(
+                        2, uuid.toString(), "en")));
     }
 
     @Test
     void rejectsInvalidUuid() throws Exception {
         assertThrows(LanguageProtocolException.class,
-                () -> protocol.deserialize(rawPayload(1, "not-a-uuid", "en")));
+                () -> protocol.deserialize(rawPayload(
+                        1, "not-a-uuid", "en")));
     }
 
     @Test
     void rejectsInvalidLanguage() throws Exception {
         assertThrows(LanguageProtocolException.class,
-                () -> protocol.deserialize(rawPayload(1, uuid.toString(), "zz")));
+                () -> protocol.deserialize(rawPayload(
+                        1, uuid.toString(), "zz")));
     }
 
     @Test
     void rejectsOversizedPayload() {
         assertThrows(LanguageProtocolException.class,
-                () -> protocol.deserialize(new byte[LanguageProtocol.MAX_PAYLOAD_BYTES + 1]));
+                () -> protocol.deserialize(
+                        new byte[LanguageProtocol.MAX_PAYLOAD_BYTES + 1]));
     }
 
-    private byte[] rawPayload(int version, String uuidText, String language) throws Exception {
+    private byte[] rawPayload(int version,
+                              String uuidText,
+                              String language) throws Exception {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         DataOutputStream output = new DataOutputStream(bytes);
         output.writeInt(version);
