@@ -1,5 +1,6 @@
 package it.legacynetwork.chickenwars.arena;
 
+import it.legacynetwork.chickenwars.mode.MatchMode;
 import it.legacynetwork.chickenwars.model.ResourceType;
 import it.legacynetwork.chickenwars.model.SimpleLocation;
 import it.legacynetwork.chickenwars.model.TeamColor;
@@ -14,23 +15,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.logging.Logger;
 
-/**
- * Lettura e scrittura dei file arena in {@code arenas/}.
- *
- * <p>Ogni metodo segnala i problemi tramite il logger e restituisce {@code null}
- * o {@code false} senza sollevare eccezioni verso il chiamante, cosi' che una
- * singola arena corrotta non impedisca l'avvio del plugin.</p>
- */
+/** Lettura e scrittura dei file arena in {@code arenas/}. */
 public final class ArenaConfigLoader {
 
     private ArenaConfigLoader() {
     }
 
-    /**
-     * Carica una singola arena da file.
-     *
-     * @return la definizione, oppure {@code null} se il file non e' leggibile
-     */
     public static ArenaDefinition load(File file, Logger logger) {
         if (file == null || !file.isFile()) {
             return null;
@@ -38,30 +28,20 @@ public final class ArenaConfigLoader {
         YamlConfiguration configuration = new YamlConfiguration();
         try {
             configuration.load(file);
+            return read(configuration, stripExtension(file.getName()), logger);
         } catch (IOException exception) {
             logger.warning("Impossibile leggere " + file.getName()
                     + ": " + exception.getMessage());
-            return null;
         } catch (InvalidConfigurationException exception) {
             logger.warning("File arena non valido " + file.getName()
                     + ": " + exception.getMessage());
-            return null;
-        }
-
-        try {
-            return read(configuration, stripExtension(file.getName()), logger);
         } catch (RuntimeException exception) {
             logger.warning("Arena " + file.getName() + " ignorata: "
                     + exception.getMessage());
-            return null;
         }
+        return null;
     }
 
-    /**
-     * Carica tutte le arene presenti nella cartella indicata.
-     *
-     * @return l'elenco delle arene leggibili, mai nullo
-     */
     public static List<ArenaDefinition> loadAll(File folder, Logger logger) {
         List<ArenaDefinition> result = new ArrayList<ArenaDefinition>();
         if (folder == null || !folder.isDirectory()) {
@@ -92,22 +72,32 @@ public final class ArenaConfigLoader {
             throw new IllegalArgumentException("sezione arena mancante");
         }
 
-        ArenaDefinition arena =
-                new ArenaDefinition(arenaSection.getString("id", fallbackId));
+        ArenaDefinition arena = new ArenaDefinition(
+                arenaSection.getString("id", fallbackId));
         arena.setDisplayName(arenaSection.getString("display-name"));
         arena.setEnabled(arenaSection.getBoolean("enabled", false));
         arena.setWorld(arenaSection.getString("world"));
         arena.setMinimumPlayers(arenaSection.getInt("minimum-players", 2));
         arena.setPlayersPerTeam(arenaSection.getInt("players-per-team", 1));
 
+        String rawMode = arenaSection.getString("mode");
+        MatchMode mode = MatchMode.fromString(rawMode);
+        if (rawMode != null && mode == null) {
+            logger.warning("Arena " + arena.getId() + ": modalita' non valida '"
+                    + rawMode + "'; verra' dedotta automaticamente.");
+        }
+        arena.setMode(mode);
+
         ConfigurationSection locations =
                 configuration.getConfigurationSection("locations");
         if (locations != null) {
             arena.setLobby(SimpleLocation.parse(locations.getString("lobby")));
-            arena.setSpectator(SimpleLocation.parse(locations.getString("spectator")));
+            arena.setSpectator(SimpleLocation.parse(
+                    locations.getString("spectator")));
         }
 
-        ConfigurationSection region = configuration.getConfigurationSection("region");
+        ConfigurationSection region =
+                configuration.getConfigurationSection("region");
         if (region != null) {
             arena.setPos1(SimpleLocation.parse(region.getString("pos1")));
             arena.setPos2(SimpleLocation.parse(region.getString("pos2")));
@@ -132,20 +122,24 @@ public final class ArenaConfigLoader {
             if (teamSection == null) {
                 continue;
             }
-            TeamColor color = TeamColor.fromString(teamSection.getString("color"));
+            TeamColor color = TeamColor.fromString(
+                    teamSection.getString("color"));
             if (color == null) {
-                logger.warning("Squadra " + teamId + " dell'arena " + arena.getId()
-                        + " ignorata: colore non valido.");
+                logger.warning("Squadra " + teamId + " dell'arena "
+                        + arena.getId() + " ignorata: colore non valido.");
                 continue;
             }
             TeamDefinition team = new TeamDefinition(teamId,
                     teamSection.getString("display-name"), color,
-                    teamSection.getInt("maximum-players", arena.getPlayersPerTeam()));
+                    teamSection.getInt("maximum-players",
+                            arena.getPlayersPerTeam()));
             team.setSpawn(SimpleLocation.parse(teamSection.getString("spawn")));
             team.setNest(SimpleLocation.parse(teamSection.getString("nest")));
-            team.setChicken(SimpleLocation.parse(teamSection.getString("chicken")));
+            team.setChicken(SimpleLocation.parse(
+                    teamSection.getString("chicken")));
             team.setShop(SimpleLocation.parse(teamSection.getString("shop")));
-            team.setUpgrades(SimpleLocation.parse(teamSection.getString("upgrades")));
+            team.setUpgrades(SimpleLocation.parse(
+                    teamSection.getString("upgrades")));
             arena.addTeam(team);
         }
     }
@@ -161,27 +155,23 @@ public final class ArenaConfigLoader {
             if (generatorSection == null) {
                 continue;
             }
-            ResourceType type =
-                    ResourceType.fromString(generatorSection.getString("type"));
-            SimpleLocation location =
-                    SimpleLocation.parse(generatorSection.getString("location"));
+            ResourceType type = ResourceType.fromString(
+                    generatorSection.getString("type"));
+            SimpleLocation location = SimpleLocation.parse(
+                    generatorSection.getString("location"));
             if (type == null || location == null) {
                 logger.warning("Generatore " + generatorId + " dell'arena "
-                        + arena.getId() + " ignorato: tipo o posizione non validi.");
+                        + arena.getId()
+                        + " ignorato: tipo o posizione non validi.");
                 continue;
             }
-            arena.addGenerator(new GeneratorDefinition(generatorId, type, location,
-                    generatorSection.getString("team"),
+            arena.addGenerator(new GeneratorDefinition(generatorId, type,
+                    location, generatorSection.getString("team"),
                     generatorSection.getInt("level", 1),
                     generatorSection.getBoolean("hologram", true)));
         }
     }
 
-    /**
-     * Scrive l'arena su file, sovrascrivendo il contenuto precedente.
-     *
-     * @return {@code true} se il salvataggio e' riuscito
-     */
     public static boolean save(File file, ArenaDefinition arena, Logger logger) {
         if (file == null || arena == null) {
             return false;
@@ -197,12 +187,11 @@ public final class ArenaConfigLoader {
         configuration.set("arena.display-name", arena.getDisplayName());
         configuration.set("arena.enabled", arena.isEnabled());
         configuration.set("arena.world", arena.getWorld());
+        configuration.set("arena.mode", arena.getMode().getKey());
         configuration.set("arena.minimum-players", arena.getMinimumPlayers());
         configuration.set("arena.players-per-team", arena.getPlayersPerTeam());
-
         configuration.set("locations.lobby", serialize(arena.getLobby()));
         configuration.set("locations.spectator", serialize(arena.getSpectator()));
-
         configuration.set("region.pos1", serialize(arena.getPos1()));
         configuration.set("region.pos2", serialize(arena.getPos2()));
         configuration.set("region.void-y", arena.getVoidY());
@@ -223,7 +212,8 @@ public final class ArenaConfigLoader {
         for (GeneratorDefinition generator : arena.getGenerators()) {
             String path = "generators." + generator.getId() + ".";
             configuration.set(path + "type", generator.getType().name());
-            configuration.set(path + "location", serialize(generator.getLocation()));
+            configuration.set(path + "location",
+                    serialize(generator.getLocation()));
             configuration.set(path + "team", generator.getTeamId());
             configuration.set(path + "level", generator.getLevel());
             configuration.set(path + "hologram", generator.hasHologram());
