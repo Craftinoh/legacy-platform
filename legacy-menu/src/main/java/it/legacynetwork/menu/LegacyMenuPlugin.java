@@ -37,6 +37,7 @@ public final class LegacyMenuPlugin extends JavaPlugin
         saveDefaultConfig();
         saveResource("menus/server-selector.yml", false);
         saveResource("flag-textures.yml", false);
+        saveResource("language-menu.yml", false);
         int installed = TranslationInstaller.install(
                 getDataFolder(),
                 "translations",
