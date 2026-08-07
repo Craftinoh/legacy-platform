@@ -3,6 +3,8 @@ main: it.legacynetwork.chickenwars.LegacyChickenWarsPlugin
 version: "${version}"
 author: LegacyNetwork
 description: Minigame Chicken Wars con Gallina Reale
+depend:
+  - LanguageBackend
 softdepend:
   - LegacyLobby
   - LegacyRegions
