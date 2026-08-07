@@ -1,94 +1,96 @@
+# Bundled defaults. Values in plugins/LegacyMenu/flag-textures.yml override these
+# only when the external Base64 texture is valid.
 languages:
   en:
     country: "United States"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDZjOTkyMzZjNTk4MWM3ZWY2NjM0MTU3YmVkMmNjMTY3YTg4ZjEzYTdkMWZkY2VlMTE4ZTA2Mzc2MTk1YjBjYyJ9fX0="
   it:
     country: "Italy"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODVjZTg5MjIzZmE0MmZlMDZhZDY1ZDhkNDRjYTQxMmFlODk5YzgzMTMwOWQ2ODkyNGRmZTBkMTQyZmRiZWVhNCJ9fX0="
   es:
     country: "Spain"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzJiZDQ1MmEyZjFkYzZhY2VmMGExMDY2M2QyOGQ2MTJjM2NkYjNjYjE0MDY1ZWMwMzYyMmM4MTUxYzA2In19fQ=="
   fr:
     country: "France"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTEyNjllMzI5M2FmNzAyMjAyNDkzMDIwMmI2ZjRmMzNjZGFhYjYzMWQ2YTkyNWFkYzI4Y2VmZmM1YzY4MiJ9fX0="
   de:
     country: "Germany"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjFjMjMwOTdlZjE3NjJkNTFkZjI5N2Y5YzQ0NTcwOGQ5NDM5ZmY5MTc0NmQyZjY3N2IyOGRkZGZhMjczMTYifX19"
   pt:
     country: "Portugal"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvN2ExMDE1Yzk2NDNiNzI3ZGRmM2I3OTU2MmUwYjJjYzNjYzdmMWFhNGM5YmFkN2M1NzM0N2ZlOTU5MTkyIn19fQ=="
   pt_br:
     country: "Brazil"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWE0NjQ3NWQ1ZGNjODE1ZjZjNWYyODU5ZWRiYjEwNjExZjNlODYxYzBlYjE0ZjA4ODE2MWIzYzBjY2IyYjBkOSJ9fX0="
   nl:
     country: "Netherlands"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZGUzNTM1NTM4ZTQ3MTNlYjVjYTZhNzdkMWU4NmRiMmUwZmE2YzU0YTIwNzYxZmUxYjlhYmQxMGQ3YzM3MWZlNSJ9fX0="
   pl:
     country: "Poland"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTIxYjJhZjhkMjMyMjI4MmZjZTRhMWFhNGYyNTdhNTJiNjhlMjdlYjMzNGY0YTE4MWZkOTc2YmFlNmQ4ZWIifX19"
   ro:
     country: "Romania"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZGNlYjE3MDhkNTQwNGVmMzI2MTAzZTdiNjA1NTljOTE3OGYzZGNlNzI5MDA3YWM5YTBiNDk4YmRlYmU0NjEwNyJ9fX0="
   hu:
     country: "Hungary"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGE5YzNjNGI2YzUwMzEzMzJkZDJiZmVjZTVlMzFlOTk5ZjhkZWZmNTU0NzQwNjVjYzg2OTkzZDdiZGNkYmQwIn19fQ=="
   cs:
     country: "Czech Republic"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDgxNTJiNzMzNGQ3ZWNmMzM1ZTQ3YTRmMzVkZWZiZDJlYjY5NTdmYzdiZmU5NDIxMjY0MmQ2MmY0NmU2MWUifX19"
   sk:
     country: "Slovakia"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNmM3MmE4YzExNWExZmI2NjlhMjU3MTVjNGQxNWYyMjEzNmFjNGMyNDUyNzg0ZTQ4OTRiM2Q1NmJjNWIwYjkifX19"
   sl:
     country: "Slovenia"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZGMwZTIwODhhNTZjZGMyYzVmYjcxZjc1MDBhM2FkNjFmMTA1MWJlN2Q0YTQzOGYzM2U2ZDA0YWU5NmEwODZhYSJ9fX0="
   hr:
     country: "Croatia"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjA1MGMwNGVjOGNhYmNlNzFkNzEwM2YzZTllZjRiYjg4MTlmOWYzNjVlYjMzNWE5MTM5OTEyYmMwN2VkNDQ1In19fQ=="
   bg:
     country: "Bulgaria"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTY2YTg5MTdkN2MzM2NiOGJjODQ2NGViNjg5YTFhODUxOTczNzZmNTU1ZDBkMjRjZDM3ZmFiNjIwZTcyM2Y5MyJ9fX0="
   el:
     country: "Greece"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMTUxNGRlNmRkMmI3NjgyYjFkM2ViY2QxMDI5MWFlMWYwMjFlMzAxMmI1YzhiZWZmZWI3NWIxODE5ZWI0MjU5ZCJ9fX0="
   da:
     country: "Denmark"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMTBjMjMwNTVjMzkyNjA2ZjdlNTMxZGFhMjY3NmViZTJlMzQ4OTg4ODEwYzE1ZjE1ZGM1YjM3MzM5OTgyMzIifX19"
   sv:
     country: "Sweden"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvN2Q4NjI0MmIwZDk3ZWNlOTk5NDY2MGYzOTc0ZDcyZGY3Yjg4N2Y2MzBhNDUzMGRhZGM1YjFhYjdjMjEzNGFlYyJ9fX0="
   no:
     country: "Norway"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZThkOTc2YzQxZjVlOTE2NWUwYTk5MzQzYWY3NWQxNTU2MzRlZTM4YTUxZmQ0YzllZTAyM2ExMWM5OTIxMzVmNCJ9fX0="
   fi:
     country: "Finland"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTlmMjM0OTcyOWE3ZWM4ZDRiMTQ3OGFkZmU1Y2E4YWY5NjQ3OWU5ODNmYmFkMjM4Y2NiZDgxNDA5YjRlZCJ9fX0="
   is:
     country: "Iceland"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjIwNTc3MWJlZDI1ODZjNGYwNWZkYzU5MzgzMzlhNzExZjRlYjNmNzc3OGQ5Mzc3MTc5NGMxYWQ0YmYwMDkxZSJ9fX0"
   et:
     country: "Estonia"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDhjY2U2NjI3ZTRkYmE5NjY0MGRhN2JiY2E4Y2Q0M2E3ODM0OTUxNjdiYWYyODM0YWE5OTExNzAxOGFkZiJ9fX0"
   lv:
     country: "Latvia"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjYyYTQ5MzhiNTk0NDdmOTk2YjVlZDk0MTAxZGYwNzQyOWQxYWQzNDc3NmQ1OTFmZmM2ZmQ3NWI3OTQ3M2MifX19"
   lt:
     country: "Lithuania"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZGUzZDgyOTc0MTk3NmQ4MzMwZDY5NDdkNmVlYTY0ZWU1N2FlZDJmMjYyODZmZjYzODQ0ZTkwODkzNjdjMTEifX19"
   ga:
     country: "Ireland"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWNhN2Q4ZDczZTlkNGE4YzAyMWZmOTE4NDVkNjFlMDQxOTg3NjkxOWUwZDdhMTMzOGQ4YzdkZTBlZjk1ZDIifX19"
   mt:
     country: "Malta"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvY2NlYzVlMjJmZDkwMTNkNmNiNGZiMDlmYjdmMzRiNWU2NGE1MzEwYWQzOWJjNDAwYzRiZjIzZDJhYjE2YzllZiJ9fX0"
   ru:
     country: "Russia"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMTZlYWZlZjk4MGQ2MTE3ZGFiZTg5ODJhYzRiNDUwOTg4N2UyYzQ2MjFmNmE4ZmU1YzliNzM1YTgzZDc3NWFkIn19fQ=="
   uk:
     country: "Ukraine"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjhiOWY1MmUzNmFhNWM3Y2FhYTFlN2YyNmVhOTdlMjhmNjM1ZThlYWM5YWVmNzRjZWM5N2Y0NjVmNWE2YjUxIn19fQ=="
   tr:
     country: "Turkey"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTg1MmI5YWJhMzQ4MjM0ODUxNGMxMDM0ZDBhZmZlNzM1NDVjOWRlNjc5YWU0NjQ3Zjk5NTYyYjVlNWY0N2QwOSJ9fX0="
   sr:
     country: "Serbia"
-    texture: ""
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzY0NjExNjVlNDhiODZjNTZiYjk4ZjQ4YjIwMWFlZjA1YTMwYzkxNGU5MGY0NTE1ZjA1MjE5YzY4MjdlN2UxZCJ9fX0="

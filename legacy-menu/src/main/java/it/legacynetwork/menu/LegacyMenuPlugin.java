@@ -1,6 +1,7 @@
 package it.legacynetwork.menu;
 
 import it.legacynetwork.language.Language;
+import it.legacynetwork.language.PlayerLanguageChangeRequestService;
 import it.legacynetwork.language.PlayerLanguageEventService;
 import it.legacynetwork.language.PlayerLanguageProvider;
 import it.legacynetwork.language.TranslationInstaller;
@@ -21,10 +22,13 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class LegacyMenuPlugin extends JavaPlugin implements MenuService {
-    private Map<String, MenuDefinition> menus = new HashMap<>();
+public final class LegacyMenuPlugin extends JavaPlugin
+        implements MenuService {
+    private Map<String, MenuDefinition> menus =
+            new HashMap<String, MenuDefinition>();
     private PlayerLanguageProvider languageProvider;
     private PlayerLanguageEventService languageEventService;
+    private PlayerLanguageChangeRequestService languageChangeRequestService;
     private FlagTextureService flagTextureService;
     private LanguageMenuService languageMenuService;
 
@@ -33,15 +37,24 @@ public final class LegacyMenuPlugin extends JavaPlugin implements MenuService {
         saveDefaultConfig();
         saveResource("menus/server-selector.yml", false);
         saveResource("flag-textures.yml", false);
-        int installed = TranslationInstaller.install(getDataFolder(),
-                "translations", getLogger(), getClassLoader());
-        getLogger().info("Traduzioni installate: " + installed + " file.");
-        loadLanguageProvider();
+        saveResource("language-menu.yml", false);
+        int installed = TranslationInstaller.install(
+                getDataFolder(),
+                "translations",
+                getLogger(),
+                getClassLoader());
+        getLogger().info(
+                "Traduzioni installate: " + installed + " file.");
+
+        getServer().getMessenger().registerOutgoingPluginChannel(
+                this, "BungeeCord");
+        loadLanguageServices();
         loadMenus();
 
         flagTextureService = new FlagTextureService(getDataFolder());
-        languageMenuService = new LanguageMenuService(this,
-                resolveLanguageProvider(), flagTextureService);
+        languageMenuService = new LanguageMenuService(
+                this, flagTextureService);
+        registerLanguageMenuListeners();
 
         getServer().getPluginManager().registerEvents(
                 new MenuProtectionListener(this), this);
@@ -52,40 +65,89 @@ public final class LegacyMenuPlugin extends JavaPlugin implements MenuService {
         getCommand("language").setExecutor(
                 new LanguageCommand(this));
 
-        getLogger().info("LegacyMenu inizializzato. " + menus.size()
-                + " menu caricati.");
+        getLogger().info(
+                "LegacyMenu inizializzato. "
+                        + menus.size()
+                        + " menu caricati.");
     }
 
-    void loadLanguageProvider() {
+    void loadLanguageServices() {
         languageProvider = Bukkit.getServicesManager()
                 .load(PlayerLanguageProvider.class);
         languageEventService = Bukkit.getServicesManager()
                 .load(PlayerLanguageEventService.class);
+        languageChangeRequestService = Bukkit.getServicesManager()
+                .load(PlayerLanguageChangeRequestService.class);
     }
 
-    private PlayerLanguageProvider resolveLanguageProvider() {
+    private void registerLanguageMenuListeners() {
+        if (languageEventService == null
+                || languageMenuService == null) {
+            return;
+        }
+        languageEventService.registerListener(languageMenuService);
+        languageEventService.registerResultListener(
+                languageMenuService);
+    }
+
+    private void unregisterLanguageMenuListeners() {
+        if (languageEventService == null
+                || languageMenuService == null) {
+            return;
+        }
+        languageEventService.unregisterListener(languageMenuService);
+        languageEventService.unregisterResultListener(
+                languageMenuService);
+    }
+
+    public PlayerLanguageProvider getLanguageProvider() {
         if (languageProvider == null) {
-            loadLanguageProvider();
+            loadLanguageServices();
         }
         return languageProvider;
     }
 
+    public PlayerLanguageEventService getLanguageEventService() {
+        if (languageEventService == null) {
+            loadLanguageServices();
+        }
+        return languageEventService;
+    }
+
+    public PlayerLanguageChangeRequestService
+    getLanguageChangeRequestService() {
+        if (languageChangeRequestService == null) {
+            loadLanguageServices();
+        }
+        return languageChangeRequestService;
+    }
+
     void loadMenus() {
         File menuDir = new File(getDataFolder(), "menus");
-        if (!menuDir.exists()) {
-            menuDir.mkdirs();
+        if (!menuDir.exists() && !menuDir.mkdirs()) {
+            getLogger().warning(
+                    "Impossibile creare la cartella menus.");
         }
-        Map<String, MenuDefinition> loaded = new HashMap<>();
-        File[] files = menuDir.listFiles((d, n) -> n.endsWith(".yml"));
+        Map<String, MenuDefinition> loaded =
+                new HashMap<String, MenuDefinition>();
+        File[] files = menuDir.listFiles(
+                (directory, name) -> name.endsWith(".yml"));
         if (files != null) {
             for (File file : files) {
                 try {
-                    MenuDefinition def = MenuFileLoader.load(file);
-                    if (def != null && def.isEnabled()) {
-                        loaded.put(def.getId(), def);
+                    MenuDefinition definition =
+                            MenuFileLoader.load(file);
+                    if (definition != null
+                            && definition.isEnabled()) {
+                        loaded.put(
+                                definition.getId(), definition);
                     }
-                } catch (Exception e) {
-                    getLogger().warning("Errore caricamento menu: " + file.getName());
+                } catch (RuntimeException exception) {
+                    getLogger().warning(
+                            "Errore caricamento menu "
+                                    + file.getName()
+                                    + ": "
+                                    + exception.getMessage());
                 }
             }
         }
@@ -93,14 +155,20 @@ public final class LegacyMenuPlugin extends JavaPlugin implements MenuService {
     }
 
     public void reload() {
+        unregisterLanguageMenuListeners();
         reloadConfig();
         languageProvider = null;
         languageEventService = null;
-        loadLanguageProvider();
+        languageChangeRequestService = null;
+        loadLanguageServices();
         loadMenus();
         if (flagTextureService != null) {
             flagTextureService.reload();
         }
+        if (languageMenuService != null) {
+            languageMenuService.reload();
+        }
+        registerLanguageMenuListeners();
     }
 
     public void openLanguageMenu(Player player) {
@@ -113,22 +181,20 @@ public final class LegacyMenuPlugin extends JavaPlugin implements MenuService {
         return languageMenuService;
     }
 
-    public PlayerLanguageEventService getLanguageEventService() {
-        return languageEventService;
-    }
-
     public FlagTextureService getFlagTextureService() {
         return flagTextureService;
     }
 
     public String getLanguage(Player player) {
         String fallback = getFallbackLanguage();
-        PlayerLanguageProvider provider = resolveLanguageProvider();
+        PlayerLanguageProvider provider = getLanguageProvider();
         if (provider == null) {
             return fallback;
         }
-        Language language = provider.getLanguage(player.getUniqueId());
-        if (language == null || language.getCode() == null
+        Language language = provider.getLanguage(
+                player.getUniqueId());
+        if (language == null
+                || language.getCode() == null
                 || language.getCode().trim().isEmpty()) {
             return fallback;
         }
@@ -136,11 +202,13 @@ public final class LegacyMenuPlugin extends JavaPlugin implements MenuService {
     }
 
     public String getFallbackLanguage() {
-        return getConfig().getString("language.fallback", "en");
+        return getConfig().getString(
+                "language.fallback", "en");
     }
 
     public boolean isDebug() {
-        return getConfig().getBoolean("debug.enabled", false);
+        return getConfig().getBoolean(
+                "debug.enabled", false);
     }
 
     public MenuDefinition getMenu(String id) {
@@ -155,22 +223,28 @@ public final class LegacyMenuPlugin extends JavaPlugin implements MenuService {
     public boolean openMenu(Player player, String menuId) {
         MenuDefinition menu = menus.get(menuId);
         if (menu == null) {
-            player.sendMessage(LegacyColorTranslator.translate(
-                    "&cMenu non trovato: " + menuId));
+            player.sendMessage(
+                    LegacyColorTranslator.translate(
+                            "&cMenu non trovato: " + menuId));
             return false;
         }
-        String lang = getLanguage(player);
+        String language = getLanguage(player);
         if (isDebug()) {
-            getLogger().info("LegacyMenu player=" + player.getName()
-                    + " providerAvailable=" + (languageProvider != null)
-                    + " language=" + lang);
+            getLogger().info(
+                    "LegacyMenu player=" + player.getName()
+                            + " providerAvailable="
+                            + (languageProvider != null)
+                            + " language=" + language);
         }
-        menu.open(player, lang);
+        menu.open(player, language);
         return true;
     }
 
     @Override
     public void onDisable() {
+        unregisterLanguageMenuListeners();
         languageProvider = null;
+        languageEventService = null;
+        languageChangeRequestService = null;
     }
 }

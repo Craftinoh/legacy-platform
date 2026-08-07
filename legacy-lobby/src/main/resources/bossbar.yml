@@ -1,18 +1,13 @@
 enabled: true
 
-# Frequenza di aggiornamento del testo e del progresso.
 update:
   ticks: 10
 
-# Rotazione automatica tra le bossbar abilitate.
 rotation:
   enabled: true
   mode: "SEQUENTIAL"
   interval-ticks: 120
 
-# Permette anche i placeholder di PlaceholderAPI quando il plugin è installato.
-# Placeholder interni sempre disponibili:
-# {player}, {server}, {online}, {language}, {language_code}
 placeholderapi:
   enabled: true
 
@@ -31,13 +26,38 @@ bars:
     enabled: true
     priority: 1
     display-ticks: 120
-
     languages:
-      it:
-        text: "&6&lAPTERIS &8» &fBenvenuto, &e{player}&f!"
-      en:
-        text: "&6&lAPTERIS &8» &fWelcome, &e{player}&f!"
-
+      en: { text: "&6&lAPTERIS &8» &fWelcome, &e{player}&f!" }
+      it: { text: "&6&lAPTERIS &8» &fBenvenuto, &e{player}&f!" }
+      es: { text: "&6&lAPTERIS &8» &f¡Bienvenido, &e{player}&f!" }
+      fr: { text: "&6&lAPTERIS &8» &fBienvenue, &e{player}&f !" }
+      de: { text: "&6&lAPTERIS &8» &fWillkommen, &e{player}&f!" }
+      pt: { text: "&6&lAPTERIS &8» &fBem-vindo, &e{player}&f!" }
+      pt_br: { text: "&6&lAPTERIS &8» &fBem-vindo, &e{player}&f!" }
+      nl: { text: "&6&lAPTERIS &8» &fWelkom, &e{player}&f!" }
+      pl: { text: "&6&lAPTERIS &8» &fWitaj, &e{player}&f!" }
+      ro: { text: "&6&lAPTERIS &8» &fBun venit, &e{player}&f!" }
+      hu: { text: "&6&lAPTERIS &8» &fÜdvözlünk, &e{player}&f!" }
+      cs: { text: "&6&lAPTERIS &8» &fVítej, &e{player}&f!" }
+      sk: { text: "&6&lAPTERIS &8» &fVitaj, &e{player}&f!" }
+      sl: { text: "&6&lAPTERIS &8» &fDobrodošel, &e{player}&f!" }
+      hr: { text: "&6&lAPTERIS &8» &fDobrodošli, &e{player}&f!" }
+      bg: { text: "&6&lAPTERIS &8» &fДобре дошъл, &e{player}&f!" }
+      el: { text: "&6&lAPTERIS &8» &fΚαλώς ήρθες, &e{player}&f!" }
+      da: { text: "&6&lAPTERIS &8» &fVelkommen, &e{player}&f!" }
+      sv: { text: "&6&lAPTERIS &8» &fVälkommen, &e{player}&f!" }
+      "no": { text: "&6&lAPTERIS &8» &fVelkommen, &e{player}&f!" }
+      fi: { text: "&6&lAPTERIS &8» &fTervetuloa, &e{player}&f!" }
+      is: { text: "&6&lAPTERIS &8» &fVelkomin, &e{player}&f!" }
+      et: { text: "&6&lAPTERIS &8» &fTere tulemast, &e{player}&f!" }
+      lv: { text: "&6&lAPTERIS &8» &fLaipni lūdzam, &e{player}&f!" }
+      lt: { text: "&6&lAPTERIS &8» &fSveiki atvykę, &e{player}&f!" }
+      ga: { text: "&6&lAPTERIS &8» &fFáilte, &e{player}&f!" }
+      mt: { text: "&6&lAPTERIS &8» &fMerħba, &e{player}&f!" }
+      ru: { text: "&6&lAPTERIS &8» &fДобро пожаловать, &e{player}&f!" }
+      uk: { text: "&6&lAPTERIS &8» &fЛаскаво просимо, &e{player}&f!" }
+      tr: { text: "&6&lAPTERIS &8» &fHoş geldin, &e{player}&f!" }
+      sr: { text: "&6&lAPTERIS &8» &fДобро дошли, &e{player}&f!" }
     progress:
       type: "STATIC"
       value: 1.0
@@ -47,13 +67,38 @@ bars:
     enabled: true
     priority: 2
     display-ticks: 120
-
     languages:
-      it:
-        text: "&b&lNETWORK &8» &fGiocatori online: &a{online}"
-      en:
-        text: "&b&lNETWORK &8» &fPlayers online: &a{online}"
-
+      en: { text: "&b&lNETWORK &8» &fPlayers online: &a{online}" }
+      it: { text: "&b&lNETWORK &8» &fGiocatori online: &a{online}" }
+      es: { text: "&b&lNETWORK &8» &fJugadores en línea: &a{online}" }
+      fr: { text: "&b&lNETWORK &8» &fJoueurs en ligne : &a{online}" }
+      de: { text: "&b&lNETWORK &8» &fSpieler online: &a{online}" }
+      pt: { text: "&b&lNETWORK &8» &fJogadores online: &a{online}" }
+      pt_br: { text: "&b&lNETWORK &8» &fJogadores online: &a{online}" }
+      nl: { text: "&b&lNETWORK &8» &fSpelers online: &a{online}" }
+      pl: { text: "&b&lNETWORK &8» &fGracze online: &a{online}" }
+      ro: { text: "&b&lNETWORK &8» &fJucători online: &a{online}" }
+      hu: { text: "&b&lNETWORK &8» &fOnline játékosok: &a{online}" }
+      cs: { text: "&b&lNETWORK &8» &fHráči online: &a{online}" }
+      sk: { text: "&b&lNETWORK &8» &fHráči online: &a{online}" }
+      sl: { text: "&b&lNETWORK &8» &fIgralci na spletu: &a{online}" }
+      hr: { text: "&b&lNETWORK &8» &fIgrači online: &a{online}" }
+      bg: { text: "&b&lNETWORK &8» &fИграчи онлайн: &a{online}" }
+      el: { text: "&b&lNETWORK &8» &fΠαίκτες online: &a{online}" }
+      da: { text: "&b&lNETWORK &8» &fSpillere online: &a{online}" }
+      sv: { text: "&b&lNETWORK &8» &fSpelare online: &a{online}" }
+      "no": { text: "&b&lNETWORK &8» &fSpillere pålogget: &a{online}" }
+      fi: { text: "&b&lNETWORK &8» &fPelaajia paikalla: &a{online}" }
+      is: { text: "&b&lNETWORK &8» &fTengdir leikmenn: &a{online}" }
+      et: { text: "&b&lNETWORK &8» &fMängijaid võrgus: &a{online}" }
+      lv: { text: "&b&lNETWORK &8» &fSpēlētāji tiešsaistē: &a{online}" }
+      lt: { text: "&b&lNETWORK &8» &fPrisijungę žaidėjai: &a{online}" }
+      ga: { text: "&b&lNETWORK &8» &fImreoirí ar líne: &a{online}" }
+      mt: { text: "&b&lNETWORK &8» &fParteċipanti online: &a{online}" }
+      ru: { text: "&b&lNETWORK &8» &fИгроков онлайн: &a{online}" }
+      uk: { text: "&b&lNETWORK &8» &fГравців онлайн: &a{online}" }
+      tr: { text: "&b&lNETWORK &8» &fÇevrimiçi oyuncular: &a{online}" }
+      sr: { text: "&b&lNETWORK &8» &fИграчи онлајн: &a{online}" }
     progress:
       type: "STATIC"
       value: 0.85
@@ -63,13 +108,38 @@ bars:
     enabled: true
     priority: 3
     display-ticks: 120
-
     languages:
-      it:
-        text: "&d&lAPTERIS &8» &fStai giocando su &d{server}"
-      en:
-        text: "&d&lAPTERIS &8» &fYou are playing on &d{server}"
-
+      en: { text: "&d&lAPTERIS &8» &fYou are playing on &d{server}" }
+      it: { text: "&d&lAPTERIS &8» &fStai giocando su &d{server}" }
+      es: { text: "&d&lAPTERIS &8» &fEstás jugando en &d{server}" }
+      fr: { text: "&d&lAPTERIS &8» &fVous jouez sur &d{server}" }
+      de: { text: "&d&lAPTERIS &8» &fDu spielst auf &d{server}" }
+      pt: { text: "&d&lAPTERIS &8» &fEstás a jogar em &d{server}" }
+      pt_br: { text: "&d&lAPTERIS &8» &fVocê está jogando em &d{server}" }
+      nl: { text: "&d&lAPTERIS &8» &fJe speelt op &d{server}" }
+      pl: { text: "&d&lAPTERIS &8» &fGrasz na &d{server}" }
+      ro: { text: "&d&lAPTERIS &8» &fJoci pe &d{server}" }
+      hu: { text: "&d&lAPTERIS &8» &fEzen játszol: &d{server}" }
+      cs: { text: "&d&lAPTERIS &8» &fHraješ na &d{server}" }
+      sk: { text: "&d&lAPTERIS &8» &fHráš na &d{server}" }
+      sl: { text: "&d&lAPTERIS &8» &fIgraš na &d{server}" }
+      hr: { text: "&d&lAPTERIS &8» &fIgrate na &d{server}" }
+      bg: { text: "&d&lAPTERIS &8» &fИграеш на &d{server}" }
+      el: { text: "&d&lAPTERIS &8» &fΠαίζεις στο &d{server}" }
+      da: { text: "&d&lAPTERIS &8» &fDu spiller på &d{server}" }
+      sv: { text: "&d&lAPTERIS &8» &fDu spelar på &d{server}" }
+      "no": { text: "&d&lAPTERIS &8» &fDu spiller på &d{server}" }
+      fi: { text: "&d&lAPTERIS &8» &fPelaat palvelimella &d{server}" }
+      is: { text: "&d&lAPTERIS &8» &fÞú spilar á &d{server}" }
+      et: { text: "&d&lAPTERIS &8» &fMängid serveris &d{server}" }
+      lv: { text: "&d&lAPTERIS &8» &fTu spēlē serverī &d{server}" }
+      lt: { text: "&d&lAPTERIS &8» &fŽaidi serveryje &d{server}" }
+      ga: { text: "&d&lAPTERIS &8» &fTá tú ag imirt ar &d{server}" }
+      mt: { text: "&d&lAPTERIS &8» &fQed tilgħab fuq &d{server}" }
+      ru: { text: "&d&lAPTERIS &8» &fВы играете на &d{server}" }
+      uk: { text: "&d&lAPTERIS &8» &fВи граєте на &d{server}" }
+      tr: { text: "&d&lAPTERIS &8» &f{server} sunucusunda oynuyorsun" }
+      sr: { text: "&d&lAPTERIS &8» &fИграте на &d{server}" }
     progress:
       type: "STATIC"
       value: 0.70
@@ -79,13 +149,38 @@ bars:
     enabled: true
     priority: 4
     display-ticks: 120
-
     languages:
-      it:
-        text: "&e&lCOMMUNITY &8» &fDivertiti e rispetta gli altri giocatori!"
-      en:
-        text: "&e&lCOMMUNITY &8» &fHave fun and respect the other players!"
-
+      en: { text: "&e&lCOMMUNITY &8» &fHave fun and respect the other players!" }
+      it: { text: "&e&lCOMMUNITY &8» &fDivertiti e rispetta gli altri giocatori!" }
+      es: { text: "&e&lCOMMUNITY &8» &f¡Diviértete y respeta a los demás jugadores!" }
+      fr: { text: "&e&lCOMMUNITY &8» &fAmusez-vous et respectez les autres joueurs !" }
+      de: { text: "&e&lCOMMUNITY &8» &fHab Spaß und respektiere die anderen Spieler!" }
+      pt: { text: "&e&lCOMMUNITY &8» &fDiverte-te e respeita os outros jogadores!" }
+      pt_br: { text: "&e&lCOMMUNITY &8» &fDivirta-se e respeite os outros jogadores!" }
+      nl: { text: "&e&lCOMMUNITY &8» &fVeel plezier en respecteer de andere spelers!" }
+      pl: { text: "&e&lCOMMUNITY &8» &fBaw się dobrze i szanuj innych graczy!" }
+      ro: { text: "&e&lCOMMUNITY &8» &fDistrează-te și respectă-i pe ceilalți jucători!" }
+      hu: { text: "&e&lCOMMUNITY &8» &fJó szórakozást, és tiszteld a többi játékost!" }
+      cs: { text: "&e&lCOMMUNITY &8» &fBav se a respektuj ostatní hráče!" }
+      sk: { text: "&e&lCOMMUNITY &8» &fZabav sa a rešpektuj ostatných hráčov!" }
+      sl: { text: "&e&lCOMMUNITY &8» &fUživaj in spoštuj druge igralce!" }
+      hr: { text: "&e&lCOMMUNITY &8» &fZabavite se i poštujte ostale igrače!" }
+      bg: { text: "&e&lCOMMUNITY &8» &fЗабавлявай се и уважавай останалите играчи!" }
+      el: { text: "&e&lCOMMUNITY &8» &fΔιασκέδασε και σεβάσου τους άλλους παίκτες!" }
+      da: { text: "&e&lCOMMUNITY &8» &fHav det sjovt og respekter de andre spillere!" }
+      sv: { text: "&e&lCOMMUNITY &8» &fHa kul och respektera de andra spelarna!" }
+      "no": { text: "&e&lCOMMUNITY &8» &fHa det gøy og respekter de andre spillerne!" }
+      fi: { text: "&e&lCOMMUNITY &8» &fPidä hauskaa ja kunnioita muita pelaajia!" }
+      is: { text: "&e&lCOMMUNITY &8» &fSkemmtu þér og sýndu öðrum leikmönnum virðingu!" }
+      et: { text: "&e&lCOMMUNITY &8» &fLõbutse ja austa teisi mängijaid!" }
+      lv: { text: "&e&lCOMMUNITY &8» &fIzklaidējies un cieni citus spēlētājus!" }
+      lt: { text: "&e&lCOMMUNITY &8» &fSmagiai žaisk ir gerbk kitus žaidėjus!" }
+      ga: { text: "&e&lCOMMUNITY &8» &fBain sult as agus bíodh meas agat ar imreoirí eile!" }
+      mt: { text: "&e&lCOMMUNITY &8» &fĦu gost u rrispetta lill-plejers l-oħra!" }
+      ru: { text: "&e&lCOMMUNITY &8» &fВеселитесь и уважайте других игроков!" }
+      uk: { text: "&e&lCOMMUNITY &8» &fРозважайтеся та поважайте інших гравців!" }
+      tr: { text: "&e&lCOMMUNITY &8» &fİyi eğlenceler ve diğer oyunculara saygı göster!" }
+      sr: { text: "&e&lCOMMUNITY &8» &fЗабавите се и поштујте остале играче!" }
     progress:
       type: "STATIC"
       value: 0.55

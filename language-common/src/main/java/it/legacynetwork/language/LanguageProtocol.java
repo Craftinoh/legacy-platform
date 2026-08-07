@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public final class LanguageProtocol {
+    public static final String CHANNEL = "NetworkLang";
     public static final int VERSION = 1;
     public static final int MAX_PAYLOAD_BYTES = 1024;
     public static final int MAX_LANGUAGE_CODE_LENGTH = 8;

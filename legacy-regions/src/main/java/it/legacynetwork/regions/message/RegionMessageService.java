@@ -2,6 +2,7 @@ package it.legacynetwork.regions.message;
 
 import it.legacynetwork.language.Language;
 import it.legacynetwork.language.PlayerLanguageProvider;
+import it.legacynetwork.language.TranslationInstaller;
 import it.legacynetwork.regions.model.RegionDecision;
 import it.legacynetwork.regions.model.RegionFlag;
 import org.bukkit.Bukkit;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -32,10 +34,8 @@ public final class RegionMessageService {
     private volatile String fallbackLanguage = "en";
     private volatile Map<RegionFlag, Boolean> enabledActions =
             Collections.emptyMap();
-    private volatile YamlConfiguration italianMessages =
-            new YamlConfiguration();
-    private volatile YamlConfiguration englishMessages =
-            new YamlConfiguration();
+    private volatile Map<String, YamlConfiguration> catalogs =
+            Collections.emptyMap();
     private volatile PlayerLanguageProvider languageProvider;
 
     public RegionMessageService(JavaPlugin plugin) {
@@ -43,16 +43,34 @@ public final class RegionMessageService {
     }
 
     public boolean reload() {
-        String italianFileName = plugin.getConfig().getString(
-                "language.italian-file", "messages_it.yml");
-        String englishFileName = plugin.getConfig().getString(
-                "language.english-file", "messages_en.yml");
-
         try {
-            YamlConfiguration newItalian = loadStrict(
-                    new File(plugin.getDataFolder(), italianFileName));
-            YamlConfiguration newEnglish = loadStrict(
-                    new File(plugin.getDataFolder(), englishFileName));
+            String translationsDirectory = plugin.getConfig().getString(
+                    "language.translations-directory", "translations");
+            File directory = new File(plugin.getDataFolder(),
+                    translationsDirectory);
+            Map<String, YamlConfiguration> loadedCatalogs =
+                    new LinkedHashMap<String, YamlConfiguration>();
+
+            for (String language : TranslationInstaller.ALL_LANGUAGES) {
+                File file = new File(directory,
+                        "messages_" + language + ".yml");
+                if (file.isFile()) {
+                    loadedCatalogs.put(language, loadStrict(file));
+                }
+            }
+
+            // Backward compatibility with the original two root files.
+            loadLegacyIfMissing(loadedCatalogs, "en",
+                    plugin.getConfig().getString(
+                            "language.english-file", "messages_en.yml"));
+            loadLegacyIfMissing(loadedCatalogs, "it",
+                    plugin.getConfig().getString(
+                            "language.italian-file", "messages_it.yml"));
+
+            if (!loadedCatalogs.containsKey("en")) {
+                throw new IOException(
+                        "Catalogo inglese translations/messages_en.yml mancante");
+            }
 
             EnumMap<RegionFlag, Boolean> newEnabledActions =
                     new EnumMap<RegionFlag, Boolean>(RegionFlag.class);
@@ -71,8 +89,7 @@ public final class RegionMessageService {
             this.fallbackLanguage = normalizeLanguage(
                     plugin.getConfig().getString("language.fallback", "en"));
             this.enabledActions = Collections.unmodifiableMap(newEnabledActions);
-            this.italianMessages = newItalian;
-            this.englishMessages = newEnglish;
+            this.catalogs = Collections.unmodifiableMap(loadedCatalogs);
             this.languageProvider = null;
             this.cooldowns.clear();
             return true;
@@ -94,10 +111,26 @@ public final class RegionMessageService {
         }
     }
 
+    private void loadLegacyIfMissing(
+            Map<String, YamlConfiguration> loadedCatalogs,
+            String language,
+            String configuredPath)
+            throws IOException, InvalidConfigurationException {
+        if (loadedCatalogs.containsKey(language)
+                || configuredPath == null
+                || configuredPath.trim().isEmpty()) {
+            return;
+        }
+        File legacy = new File(plugin.getDataFolder(), configuredPath);
+        if (legacy.isFile()) {
+            loadedCatalogs.put(language, loadStrict(legacy));
+        }
+    }
+
     private YamlConfiguration loadStrict(File file)
             throws IOException, InvalidConfigurationException {
         if (!file.isFile()) {
-            throw new IOException("File non trovato: " + file.getName());
+            throw new IOException("File non trovato: " + file.getPath());
         }
         YamlConfiguration configuration = new YamlConfiguration();
         configuration.load(file);
@@ -131,26 +164,40 @@ public final class RegionMessageService {
     }
 
     private String findMessage(String language, RegionFlag flag) {
-        YamlConfiguration selected = messagesFor(language);
-        YamlConfiguration fallback = messagesFor(fallbackLanguage);
         String path = "denied." + flag.getPermissionKey();
-
+        YamlConfiguration selected = messagesFor(language);
         String message = selected.getString(path);
         if (isBlank(message)) {
             message = selected.getString("denied.generic");
         }
-        if (isBlank(message) && selected != fallback) {
+
+        if (isBlank(message)) {
+            YamlConfiguration fallback = messagesFor(fallbackLanguage);
             message = fallback.getString(path);
+            if (isBlank(message)) {
+                message = fallback.getString("denied.generic");
+            }
         }
-        if (isBlank(message) && selected != fallback) {
-            message = fallback.getString("denied.generic");
+
+        if (isBlank(message)) {
+            YamlConfiguration english = messagesFor("en");
+            message = english.getString(path);
+            if (isBlank(message)) {
+                message = english.getString("denied.generic");
+            }
         }
         return message;
     }
 
     private YamlConfiguration messagesFor(String language) {
-        return "it".equalsIgnoreCase(language)
-                ? italianMessages : englishMessages;
+        YamlConfiguration catalog = catalogs.get(normalizeLanguage(language));
+        if (catalog == null) {
+            catalog = catalogs.get(fallbackLanguage);
+        }
+        if (catalog == null) {
+            catalog = catalogs.get("en");
+        }
+        return catalog != null ? catalog : new YamlConfiguration();
     }
 
     private String resolveLanguage(Player player) {
@@ -212,14 +259,18 @@ public final class RegionMessageService {
         cooldowns.clear();
         languageProvider = null;
         enabledActions = Collections.emptyMap();
+        catalogs = Collections.emptyMap();
     }
 
     private String normalizeLanguage(String language) {
-        if (language == null) {
+        if (language == null || language.trim().isEmpty()) {
             return "en";
         }
-        String normalized = language.trim().toLowerCase(Locale.ROOT);
-        return "it".equals(normalized) ? "it" : "en";
+        String normalized = language.trim().toLowerCase(Locale.ROOT)
+                .replace('-', '_');
+        return Language.findByInput(normalized)
+                .map(Language::getCode)
+                .orElse("en");
     }
 
     private boolean isBlank(String value) {

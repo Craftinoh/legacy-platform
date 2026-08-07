@@ -1,36 +1,66 @@
 package it.legacynetwork.language.backend;
 
 import it.legacynetwork.language.Language;
-import org.bukkit.Bukkit;
+import it.legacynetwork.language.LanguageChangeResult;
+import it.legacynetwork.language.LanguageProtocol;
+import it.legacynetwork.language.LanguageProtocolAction;
+import it.legacynetwork.language.LanguageProtocolException;
+import it.legacynetwork.language.LanguageProtocolMessage;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
-public final class LanguageMessageListener implements PluginMessageListener {
+public final class LanguageMessageListener
+        implements PluginMessageListener {
     private final LanguageBackendPlugin plugin;
+    private final LanguageProtocol protocol;
 
-    public LanguageMessageListener(LanguageBackendPlugin plugin) {
+    public LanguageMessageListener(LanguageBackendPlugin plugin,
+                                   LanguageProtocol protocol) {
         this.plugin = plugin;
+        this.protocol = protocol;
     }
 
     @Override
-    public void onPluginMessageReceived(String channel, Player carrier,
+    public void onPluginMessageReceived(String channel,
+                                         Player carrier,
                                          byte[] message) {
-        if (!"legacy:language".equals(channel)) {
+        if (!LanguageProtocol.CHANNEL.equals(channel)) {
             return;
         }
         try {
-            String payload = new String(message, "UTF-8");
-            String[] parts = payload.split("\\|");
-            if (parts.length < 3) return;
-            String type = parts[0];
-            if ("SYNC".equals(type)) {
-                java.util.UUID uuid = java.util.UUID.fromString(parts[1]);
-                String code = parts[2];
-                String locale = parts.length > 3 ? parts[3] : code;
-                Language lang = Language.findByInput(code).orElse(Language.ENGLISH);
-                plugin.updateState(uuid, lang, locale);
+            LanguageProtocolMessage decoded =
+                    protocol.deserialize(message);
+            if (!carrier.getUniqueId().equals(decoded.getPlayerUuid())) {
+                plugin.getLogger().warning(
+                        "Payload lingua ignorato: UUID del carrier non corrispondente.");
+                return;
             }
-        } catch (Exception ignored) {
+
+            Language language = Language.findByInput(
+                            decoded.getLanguageCode())
+                    .orElse(Language.ENGLISH);
+
+            if (decoded.getAction()
+                    == LanguageProtocolAction.LANGUAGE_SYNC) {
+                plugin.applySynchronizedState(
+                        decoded.getPlayerUuid(),
+                        language,
+                        decoded.getLanguageCode());
+                return;
+            }
+
+            LanguageChangeResult result =
+                    decoded.getLanguageChangeResult();
+            if (result != null) {
+                plugin.fireLanguageChangeResult(
+                        decoded.getPlayerUuid(),
+                        language,
+                        result);
+            }
+        } catch (LanguageProtocolException exception) {
+            plugin.getLogger().warning(
+                    "Payload lingua non valido ricevuto da Velocity: "
+                            + exception.getMessage());
         }
     }
 }

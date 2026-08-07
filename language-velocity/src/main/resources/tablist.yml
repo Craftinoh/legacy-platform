@@ -13,13 +13,12 @@ fallback:
   server-name: "proxy"
 
 languages:
-  it:
+  en:
     header:
       - "&7&m------------------------------"
       - "&6&lAPTERIS NETWORK"
-      - "&fBenvenuto, &e{player}"
+      - "&fWelcome, &e{player}"
       - ""
-
     footer:
       - ""
       - "&fServer: &a{server}"
@@ -28,17 +27,422 @@ languages:
       - "&eplay.apteris.net"
       - "&7&m------------------------------"
 
-  en:
+  it:
     header:
       - "&7&m------------------------------"
       - "&6&lAPTERIS NETWORK"
-      - "&fWelcome, &e{player}"
+      - "&fBenvenuto, &e{player}"
       - ""
-
     footer:
       - ""
       - "&fServer: &a{server}"
       - "&fOnline: &a{online}"
       - "&fPing: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  es:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fBienvenido, &e{player}"
+      - ""
+    footer:
+      - ""
+      - "&fServidor: &a{server}"
+      - "&fEn línea: &a{online}"
+      - "&fPing: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  fr:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fBienvenue, &e{player}"
+      - ""
+    footer:
+      - ""
+      - "&fServeur : &a{server}"
+      - "&fEn ligne : &a{online}"
+      - "&fPing : &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  de:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fWillkommen, &e{player}"
+      - ""
+    footer:
+      - ""
+      - "&fServer: &a{server}"
+      - "&fOnline: &a{online}"
+      - "&fPing: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  pt:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fBem-vindo, &e{player}"
+      - ""
+    footer:
+      - ""
+      - "&fServidor: &a{server}"
+      - "&fOnline: &a{online}"
+      - "&fPing: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  pt_br:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fBem-vindo, &e{player}"
+      - ""
+    footer:
+      - ""
+      - "&fServidor: &a{server}"
+      - "&fOnline: &a{online}"
+      - "&fPing: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  nl:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fWelkom, &e{player}"
+      - ""
+    footer:
+      - ""
+      - "&fServer: &a{server}"
+      - "&fOnline: &a{online}"
+      - "&fPing: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  pl:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fWitaj, &e{player}"
+      - ""
+    footer:
+      - ""
+      - "&fSerwer: &a{server}"
+      - "&fOnline: &a{online}"
+      - "&fPing: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  ro:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fBun venit, &e{player}"
+      - ""
+    footer:
+      - ""
+      - "&fServer: &a{server}"
+      - "&fOnline: &a{online}"
+      - "&fPing: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  hu:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fÜdvözlünk, &e{player}"
+      - ""
+    footer:
+      - ""
+      - "&fSzerver: &a{server}"
+      - "&fOnline: &a{online}"
+      - "&fPing: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  cs:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fVítej, &e{player}"
+      - ""
+    footer:
+      - ""
+      - "&fServer: &a{server}"
+      - "&fOnline: &a{online}"
+      - "&fPing: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  sk:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fVitaj, &e{player}"
+      - ""
+    footer:
+      - ""
+      - "&fServer: &a{server}"
+      - "&fOnline: &a{online}"
+      - "&fPing: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  sl:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fDobrodošel, &e{player}"
+      - ""
+    footer:
+      - ""
+      - "&fStrežnik: &a{server}"
+      - "&fNa spletu: &a{online}"
+      - "&fPing: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  hr:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fDobrodošli, &e{player}"
+      - ""
+    footer:
+      - ""
+      - "&fPoslužitelj: &a{server}"
+      - "&fOnline: &a{online}"
+      - "&fPing: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  bg:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fДобре дошъл, &e{player}"
+      - ""
+    footer:
+      - ""
+      - "&fСървър: &a{server}"
+      - "&fОнлайн: &a{online}"
+      - "&fПинг: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  el:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fΚαλώς ήρθες, &e{player}"
+      - ""
+    footer:
+      - ""
+      - "&fΔιακομιστής: &a{server}"
+      - "&fΣυνδεδεμένοι: &a{online}"
+      - "&fPing: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  da:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fVelkommen, &e{player}"
+      - ""
+    footer:
+      - ""
+      - "&fServer: &a{server}"
+      - "&fOnline: &a{online}"
+      - "&fPing: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  sv:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fVälkommen, &e{player}"
+      - ""
+    footer:
+      - ""
+      - "&fServer: &a{server}"
+      - "&fOnline: &a{online}"
+      - "&fPing: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  "no":
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fVelkommen, &e{player}"
+      - ""
+    footer:
+      - ""
+      - "&fServer: &a{server}"
+      - "&fPålogget: &a{online}"
+      - "&fPing: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  fi:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fTervetuloa, &e{player}"
+      - ""
+    footer:
+      - ""
+      - "&fPalvelin: &a{server}"
+      - "&fPaikalla: &a{online}"
+      - "&fViive: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  is:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fVelkomin, &e{player}"
+      - ""
+    footer:
+      - ""
+      - "&fÞjónn: &a{server}"
+      - "&fTengdir: &a{online}"
+      - "&fTöf: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  et:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fTere tulemast, &e{player}"
+      - ""
+    footer:
+      - ""
+      - "&fServer: &a{server}"
+      - "&fVõrgus: &a{online}"
+      - "&fPing: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  lv:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fLaipni lūdzam, &e{player}"
+      - ""
+    footer:
+      - ""
+      - "&fServeris: &a{server}"
+      - "&fTiešsaistē: &a{online}"
+      - "&fPing: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  lt:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fSveiki atvykę, &e{player}"
+      - ""
+    footer:
+      - ""
+      - "&fServeris: &a{server}"
+      - "&fPrisijungę: &a{online}"
+      - "&fPing: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  ga:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fFáilte, &e{player}"
+      - ""
+    footer:
+      - ""
+      - "&fFreastalaí: &a{server}"
+      - "&fAr líne: &a{online}"
+      - "&fPing: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  mt:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fMerħba, &e{player}"
+      - ""
+    footer:
+      - ""
+      - "&fServer: &a{server}"
+      - "&fOnline: &a{online}"
+      - "&fPing: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  ru:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fДобро пожаловать, &e{player}"
+      - ""
+    footer:
+      - ""
+      - "&fСервер: &a{server}"
+      - "&fОнлайн: &a{online}"
+      - "&fПинг: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  uk:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fЛаскаво просимо, &e{player}"
+      - ""
+    footer:
+      - ""
+      - "&fСервер: &a{server}"
+      - "&fОнлайн: &a{online}"
+      - "&fПінг: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  tr:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fHoş geldin, &e{player}"
+      - ""
+    footer:
+      - ""
+      - "&fSunucu: &a{server}"
+      - "&fÇevrimiçi: &a{online}"
+      - "&fGecikme: &a{ping}ms"
+      - "&eplay.apteris.net"
+      - "&7&m------------------------------"
+
+  sr:
+    header:
+      - "&7&m------------------------------"
+      - "&6&lAPTERIS NETWORK"
+      - "&fДобро дошли, &e{player}"
+      - ""
+    footer:
+      - ""
+      - "&fСервер: &a{server}"
+      - "&fОнлајн: &a{online}"
+      - "&fПинг: &a{ping}ms"
       - "&eplay.apteris.net"
       - "&7&m------------------------------"

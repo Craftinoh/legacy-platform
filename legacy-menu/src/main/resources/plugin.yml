@@ -3,6 +3,8 @@ main: it.legacynetwork.menu.LegacyMenuPlugin
 version: "${version}"
 author: LegacyNetwork
 description: Sistema GUI configurabile per backend legacy
+depend:
+  - LanguageBackend
 softdepend:
   - PlaceholderAPI
   - LegacyLobby

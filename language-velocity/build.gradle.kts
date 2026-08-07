@@ -9,7 +9,7 @@ dependencies {
     implementation(project(":language-common"))
     compileOnly("com.velocitypowered:velocity-api:4.1.0-SNAPSHOT")
     annotationProcessor("com.velocitypowered:velocity-api:4.1.0-SNAPSHOT")
-    compileOnly("org.yaml:snakeyaml:2.0")
+    implementation("org.yaml:snakeyaml:2.0")
     compileOnly("net.luckperms:api:5.4")
 
     implementation("com.zaxxer:HikariCP:4.0.3")
@@ -53,6 +53,7 @@ tasks.shadowJar {
 
     relocate("com.zaxxer.hikari", "it.legacynetwork.shadow.hikari")
     relocate("org.postgresql", "it.legacynetwork.shadow.postgresql")
+    relocate("org.yaml.snakeyaml", "it.legacynetwork.shadow.snakeyaml")
 }
 
 tasks.assemble {

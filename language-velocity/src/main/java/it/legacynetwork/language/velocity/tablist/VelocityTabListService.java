@@ -8,7 +8,6 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.slf4j.Logger;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -26,8 +25,10 @@ public final class VelocityTabListService {
     private final ScheduledExecutorService scheduler;
     private final LegacyComponentSerializer serializer;
     private TabListConfiguration configuration;
-    private final Map<UUID, String> lastSentHeader = new ConcurrentHashMap<>();
-    private final Map<UUID, String> lastSentFooter = new ConcurrentHashMap<>();
+    private final Map<UUID, String> lastSentHeader =
+            new ConcurrentHashMap<UUID, String>();
+    private final Map<UUID, String> lastSentFooter =
+            new ConcurrentHashMap<UUID, String>();
     private Function<Player, Language> languageResolver;
     private Object localizedPrefixProvider;
 
@@ -52,8 +53,11 @@ public final class VelocityTabListService {
 
     public void load() {
         File tabFile = new File(dataDirectory.toFile(), "tablist.yml");
-        this.configuration = TabListConfigurationLoader.load(tabFile);
-        logDebug("Tab configuration-enabled=" + configuration.isEnabled());
+        this.configuration = TabListConfigurationLoader.load(
+                tabFile,
+                getClass().getClassLoader().getResourceAsStream("tablist.yml"));
+        logDebug("Tab configuration-enabled=" + configuration.isEnabled()
+                + " languages=" + configuration.getLanguages().size());
 
         if (!configuration.isEnabled()) {
             clearAll();
@@ -133,7 +137,8 @@ public final class VelocityTabListService {
         TabListLanguageSection langSection =
                 configuration.getLanguage(language.getCode());
         if (langSection == null) {
-            logDebug("missing-language-section player=" + player.getUsername());
+            logDebug("missing-language-section player=" + player.getUsername()
+                    + " language=" + language.getCode());
             return;
         }
 
@@ -168,7 +173,7 @@ public final class VelocityTabListService {
             lastSentHeader.put(player.getUniqueId(), renderedHeader);
             lastSentFooter.put(player.getUniqueId(), renderedFooter);
             logDebug("send-completed player=" + player.getUsername()
-                    + " header=" + renderedHeader);
+                    + " language=" + langCode);
         } catch (Exception e) {
             logDebug("send-failed player=" + player.getUsername()
                     + " error=" + e.getMessage());
@@ -176,9 +181,9 @@ public final class VelocityTabListService {
     }
 
     private String renderLines(List<String> lines, String playerName,
-                                 String serverName, String online,
-                                 String ping, String langCode, String langName,
-                                 UUID playerId, String prefix) {
+                               String serverName, String online,
+                               String ping, String langCode, String langName,
+                               UUID playerId, String prefix) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < lines.size(); i++) {
             if (i > 0) {
@@ -200,13 +205,16 @@ public final class VelocityTabListService {
     }
 
     private String resolvePrefixForPlayer(Player player, String langCode) {
-        if (localizedPrefixProvider == null) return "";
+        if (localizedPrefixProvider == null) {
+            return "";
+        }
         try {
             String locale = player.getPlayerSettings().getLocale()
                     .toString().toLowerCase().replace('-', '_');
             java.lang.reflect.Method getPrefix = localizedPrefixProvider.getClass()
                     .getMethod("getPrefix",
                             UUID.class, String.class, String.class);
+            @SuppressWarnings("unchecked")
             java.util.concurrent.CompletableFuture<String> future =
                     (java.util.concurrent.CompletableFuture<String>)
                             getPrefix.invoke(localizedPrefixProvider,

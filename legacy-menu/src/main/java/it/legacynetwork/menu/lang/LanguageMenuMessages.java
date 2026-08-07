@@ -1,88 +1,233 @@
 package it.legacynetwork.menu.lang;
 
+import it.legacynetwork.language.Language;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class LanguageMenuMessages {
     private final File dataFolder;
-    private final Map<String, YamlConfiguration> cache = new HashMap<String, YamlConfiguration>();
+    private volatile YamlConfiguration externalConfiguration =
+            new YamlConfiguration();
+    private volatile YamlConfiguration bundledConfiguration =
+            new YamlConfiguration();
+    private volatile Map<String, YamlConfiguration> legacyCatalogs =
+            Collections.emptyMap();
 
     public LanguageMenuMessages(File dataFolder) {
         this.dataFolder = dataFolder;
+        clearCache();
     }
 
-    public String get(String lang, String key) {
-        YamlConfiguration config = cache.get(lang);
-        if (config == null) {
-            config = loadMessages(lang);
-            cache.put(lang, config);
+    public String get(String languageCode, String key) {
+        String language = normalize(languageCode);
+        String value = resolveString(language, key);
+        if (isBlank(value) && !"en".equals(language)) {
+            value = resolveString("en", key);
         }
-        String value = config.getString(key);
-        if (value == null && !"en".equals(lang)) {
-            YamlConfiguration enConfig = cache.get("en");
-            if (enConfig == null) {
-                enConfig = loadMessages("en");
-                cache.put("en", enConfig);
+        if (isBlank(value)) {
+            value = defaultString(key);
+        }
+        return value == null ? "" : value;
+    }
+
+    public List<String> getList(String languageCode, String key) {
+        String language = normalize(languageCode);
+        List<String> value = resolveList(language, key);
+        if (value.isEmpty() && !"en".equals(language)) {
+            value = resolveList("en", key);
+        }
+        if (value.isEmpty()) {
+            value = defaultList(key);
+        }
+        return Collections.unmodifiableList(
+                new ArrayList<String>(value));
+    }
+
+    public synchronized void clearCache() {
+        File externalFile = new File(
+                dataFolder, "language-menu.yml");
+        externalConfiguration = externalFile.isFile()
+                ? YamlConfiguration.loadConfiguration(externalFile)
+                : new YamlConfiguration();
+        bundledConfiguration = loadBundledConfiguration();
+
+        Map<String, YamlConfiguration> catalogs =
+                new HashMap<String, YamlConfiguration>();
+        File translationsDirectory = new File(
+                dataFolder, "translations");
+        for (Language language : Language.values()) {
+            String code = language.getCode();
+            File file = new File(
+                    translationsDirectory,
+                    "messages_" + code + ".yml");
+            if (file.isFile()) {
+                catalogs.put(
+                        code,
+                        YamlConfiguration.loadConfiguration(file));
             }
-            value = enConfig.getString(key);
         }
-        return value != null ? value : "missing:" + key;
+        legacyCatalogs = Collections.unmodifiableMap(catalogs);
     }
 
-    public List<String> getList(String lang, String key) {
-        YamlConfiguration config = cache.get(lang);
-        if (config == null) {
-            config = loadMessages(lang);
-            cache.put(lang, config);
+    private String resolveString(String language, String key) {
+        String path = "languages." + language + "." + key;
+
+        String value = externalConfiguration.getString(path);
+        if (!isBlank(value)) {
+            return value;
         }
-        List<String> value = config.getStringList(key);
+
+        YamlConfiguration legacy = legacyCatalogs.get(language);
+        if (legacy != null) {
+            value = legacy.getString(key);
+            if (!isBlank(value)) {
+                return value;
+            }
+        }
+
+        value = bundledConfiguration.getString(path);
+        return isBlank(value) ? null : value;
+    }
+
+    private List<String> resolveList(String language, String key) {
+        String path = "languages." + language + "." + key;
+
+        List<String> value = externalConfiguration.getStringList(path);
         if (value != null && !value.isEmpty()) {
             return value;
         }
-        if (!"en".equals(lang)) {
-            YamlConfiguration enConfig = cache.get("en");
-            if (enConfig == null) {
-                enConfig = loadMessages("en");
-                cache.put("en", enConfig);
+
+        YamlConfiguration legacy = legacyCatalogs.get(language);
+        if (legacy != null) {
+            value = legacy.getStringList(key);
+            if (value != null && !value.isEmpty()) {
+                return value;
             }
-            value = enConfig.getStringList(key);
         }
-        return value;
+
+        value = bundledConfiguration.getStringList(path);
+        return value == null
+                ? Collections.<String>emptyList()
+                : value;
     }
 
-    public void clearCache() {
-        cache.clear();
+    private YamlConfiguration loadBundledConfiguration() {
+        InputStream input = LanguageMenuMessages.class
+                .getClassLoader()
+                .getResourceAsStream("language-menu.yml");
+        if (input == null) {
+            return new YamlConfiguration();
+        }
+        try (InputStreamReader reader = new InputStreamReader(
+                input, StandardCharsets.UTF_8)) {
+            return YamlConfiguration.loadConfiguration(reader);
+        } catch (Exception ignored) {
+            return new YamlConfiguration();
+        }
     }
 
-    private YamlConfiguration loadMessages(String lang) {
-        File file = new File(dataFolder, "translations/messages_" + lang + ".yml");
-        if (file.exists()) {
-            return YamlConfiguration.loadConfiguration(file);
+    private String defaultString(String key) {
+        if ("menu.title".equals(key)) {
+            return "&8Choose your language";
         }
-        if (!"en".equals(lang)) {
-            return loadMessages("en");
+        if ("menu.language-name".equals(key)) {
+            return "&f{language}";
         }
-        return createDefaultMessages();
+        if ("menu.language-name-selected".equals(key)) {
+            return "&a✔ &f{language}";
+        }
+        if ("menu.status.selected".equals(key)) {
+            return "Selected";
+        }
+        if ("menu.status.available".equals(key)) {
+            return "Available";
+        }
+        if ("menu.page".equals(key)) {
+            return "&ePage &f{current}&7/&f{total}";
+        }
+        if ("menu.close".equals(key)) {
+            return "&cClose";
+        }
+        if ("menu.back".equals(key)) {
+            return "&7Close";
+        }
+        if ("menu.next".equals(key)) {
+            return "&aNext page &7→";
+        }
+        if ("menu.prev".equals(key)) {
+            return "&7← &aPrevious page";
+        }
+        if ("change.success".equals(key)) {
+            return "&aLanguage changed to &f{language}&a.";
+        }
+        if ("change.already-selected".equals(key)) {
+            return "&e{language} is already your current language.";
+        }
+        if ("change.pending".equals(key)) {
+            return "&eYour previous language request is still being processed.";
+        }
+        if ("change.cooldown".equals(key)) {
+            return "&cPlease wait {seconds} seconds before changing language again.";
+        }
+        if ("change.rate-limited".equals(key)) {
+            return "&cYou can change language at most {limit} times every {minutes} minutes.";
+        }
+        if ("change.unavailable".equals(key)) {
+            return "&cThe language service is currently unavailable.";
+        }
+        if ("change.timeout".equals(key)) {
+            return "&cThe language service did not answer in time. Try again.";
+        }
+        if ("change.error".equals(key)) {
+            return "&cThe language could not be changed. Try again later.";
+        }
+        return "";
     }
 
-    private YamlConfiguration createDefaultMessages() {
-        YamlConfiguration config = new YamlConfiguration();
-        config.set("menu.title", "&8Select Language");
-        config.set("menu.selected", "&a\u2714 &f");
-        config.set("menu.click", "&aYou selected %language%");
-        config.set("menu.lore.selected", "&7This is your current language");
-        config.set("menu.lore.unselected", "&7Click to change language");
-        config.set("menu.lore.current", "&7Current language: %language%");
-        config.set("menu.lore.change", "&7Click to select this language");
-        config.set("menu.page", "&ePage &f{current}&7/&f{total}");
-        config.set("menu.close", "&cClose");
-        config.set("menu.back", "&7Close");
-        config.set("menu.next", "&aNext Page &7\u2192");
-        config.set("menu.prev", "&7\u2190 &aPrevious Page");
-        return config;
+    private List<String> defaultList(String key) {
+        List<String> lines = new ArrayList<String>();
+        if ("menu.lore.selected".equals(key)) {
+            lines.add("&8{country} • {code}");
+            lines.add("");
+            lines.add("&a✔ This is your current language");
+            lines.add("&7Menus, messages and interfaces");
+            lines.add("&7are shown in this language.");
+        } else if ("menu.lore.unselected".equals(key)) {
+            lines.add("&8{country} • {code}");
+            lines.add("");
+            lines.add("&7Use this language for menus,");
+            lines.add("&7messages and network interfaces.");
+            lines.add("");
+            lines.add("&eClick to select");
+        } else if ("menu.page-lore".equals(key)) {
+            lines.add("&7Choose the language used across");
+            lines.add("&7the whole Apteris network.");
+            lines.add("");
+            lines.add("&8Limit: {limit} changes / {minutes} min");
+        }
+        return lines;
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+
+    private String normalize(String language) {
+        if (language == null) {
+            return "en";
+        }
+        return language.trim()
+                .toLowerCase(Locale.ROOT)
+                .replace('-', '_');
     }
 }

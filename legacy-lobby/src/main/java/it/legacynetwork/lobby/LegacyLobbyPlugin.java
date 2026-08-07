@@ -1,8 +1,10 @@
 package it.legacynetwork.lobby;
 
-import it.legacynetwork.language.LanguageProtocol;
+import it.legacynetwork.language.Language;
+import it.legacynetwork.language.PlayerLanguageChangeListener;
 import it.legacynetwork.language.PlayerLanguageEventService;
 import it.legacynetwork.language.PlayerLanguageProvider;
+import it.legacynetwork.language.TranslationInstaller;
 import it.legacynetwork.lobby.bossbar.BossBarConfiguration;
 import it.legacynetwork.lobby.bossbar.BossBarTextRenderer;
 import it.legacynetwork.lobby.bossbar.LegacyBossBarService;
@@ -13,8 +15,6 @@ import it.legacynetwork.lobby.command.LegacyLobbyCommand;
 import it.legacynetwork.lobby.config.LobbyConfiguration;
 import it.legacynetwork.lobby.config.ScoreboardConfiguration;
 import it.legacynetwork.lobby.language.BackendLanguageService;
-import it.legacynetwork.lobby.language.BukkitPlayerLanguageEventService;
-import it.legacynetwork.lobby.language.LanguagePluginMessageListener;
 import it.legacynetwork.lobby.listener.LobbyJoinListener;
 import it.legacynetwork.lobby.listener.LobbyQuitListener;
 import it.legacynetwork.lobby.listener.VoidTeleportService;
@@ -25,16 +25,20 @@ import it.legacynetwork.lobby.placeholder.PlaceholderService;
 import it.legacynetwork.lobby.scoreboard.LobbyScoreboardRenderer;
 import it.legacynetwork.lobby.scoreboard.LobbyScoreboardService;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.util.UUID;
 import java.util.function.Supplier;
 
-public final class LegacyLobbyPlugin extends JavaPlugin {
+public final class LegacyLobbyPlugin extends JavaPlugin
+        implements PlayerLanguageChangeListener {
     private BackendLanguageService languageService;
+    private PlayerLanguageProvider languageProvider;
+    private PlayerLanguageEventService languageEventService;
     private LobbyScoreboardService scoreboardService;
     private LegacyBossBarService bossBarService;
-    private BukkitPlayerLanguageEventService eventService;
     private PlaceholderService placeholderService;
     private BossBarPacketAdapter packetAdapter;
     private MessageService messageService;
@@ -42,57 +46,51 @@ public final class LegacyLobbyPlugin extends JavaPlugin {
     private ScoreboardConfiguration scoreboardConfiguration;
     private BossBarConfiguration bossBarConfiguration;
     private VoidTeleportService voidTeleportService;
-    private String channel;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
         saveResource("scoreboard.yml", false);
-        saveResource("translations/messages_it.yml", false);
-        saveResource("translations/messages_en.yml", false);
         saveResource("bossbar.yml", false);
+        int installed = TranslationInstaller.install(getDataFolder(),
+                "translations", getLogger(), getClassLoader());
+        getLogger().info("Traduzioni installate: " + installed + " file.");
 
         try {
             configuration = LobbyConfiguration.from(getConfig());
             placeholderService = initPlaceholderAPI();
             packetAdapter = initBossBarAdapter();
             loadConfigurations();
-            messageService = new MessageService(
-                    new File(getDataFolder(), configuration.getMessagesItalianFile()),
-                    placeholderService);
-            messageService.load();
 
-            languageService = new BackendLanguageService();
-            getServer().getServicesManager().register(
-                    PlayerLanguageProvider.class, languageService, this,
-                    org.bukkit.plugin.ServicePriority.Normal);
+            languageProvider = Bukkit.getServicesManager()
+                    .load(PlayerLanguageProvider.class);
+            languageEventService = Bukkit.getServicesManager()
+                    .load(PlayerLanguageEventService.class);
+            if (languageProvider == null || languageEventService == null) {
+                throw new IllegalStateException(
+                        "LanguageBackend services non disponibili");
+            }
 
-            eventService = new BukkitPlayerLanguageEventService();
-            getServer().getServicesManager().register(
-                    PlayerLanguageEventService.class, eventService, this,
-                    org.bukkit.plugin.ServicePriority.Normal);
+            languageService = new BackendLanguageService(
+                    languageProvider, configuration.getLanguageFallback());
+            messageService = createMessageService();
 
-            LobbyScoreboardRenderer scoreboardRenderer = new LobbyScoreboardRenderer(
-                    scoreboardConfiguration, placeholderService,
-                    configuration.getServerId(), "play.apteris.net");
+            LobbyScoreboardRenderer scoreboardRenderer =
+                    new LobbyScoreboardRenderer(
+                            scoreboardConfiguration, placeholderService,
+                            configuration.getServerId(), "play.apteris.net");
             scoreboardService = new LobbyScoreboardService(
-                    this, languageService, scoreboardRenderer, scoreboardConfiguration);
+                    this, languageService, scoreboardRenderer,
+                    scoreboardConfiguration);
 
             BossBarTextRenderer bossBarTextRenderer = new BossBarTextRenderer(
-                    bossBarConfiguration, placeholderService, configuration.getServerId());
+                    bossBarConfiguration, placeholderService,
+                    configuration.getServerId());
             bossBarService = new LegacyBossBarService(
                     this, languageService, bossBarTextRenderer,
                     packetAdapter, bossBarConfiguration);
 
-            channel = configuration.getLanguageChannel();
-            LanguagePluginMessageListener messageListener =
-                    new LanguagePluginMessageListener(
-                            this, channel, new LanguageProtocol(),
-                            languageService, scoreboardService,
-                            bossBarService, eventService);
-            getServer().getMessenger().registerIncomingPluginChannel(
-                    this, channel, messageListener);
-            getServer().getMessenger().registerOutgoingPluginChannel(this, channel);
+            languageEventService.registerListener(this);
 
             getServer().getPluginManager().registerEvents(
                     new LobbyJoinListener(
@@ -114,11 +112,13 @@ public final class LegacyLobbyPlugin extends JavaPlugin {
                             bossBarService),
                     this);
             getServer().getPluginManager().registerEvents(
-                    new LobbyQuitListener(languageService, scoreboardService, bossBarService),
+                    new LobbyQuitListener(languageService,
+                            scoreboardService, bossBarService),
                     this);
 
             getCommand("legacylobby").setExecutor(
-                    new LegacyLobbyCommand(this, bossBarService, this::reloadAll));
+                    new LegacyLobbyCommand(this, bossBarService,
+                            this::reloadAll));
 
             scoreboardService.start();
             bossBarService.start();
@@ -126,49 +126,95 @@ public final class LegacyLobbyPlugin extends JavaPlugin {
             voidTeleportService = new VoidTeleportService(this);
             configureVoidTeleport();
 
-            getLogger().info("LegacyLobby inizializzato.");
+            getLogger().info("LegacyLobby inizializzato con LanguageBackend.");
             getLogger().info("PlaceholderAPI: "
-                    + (placeholderService.isAvailable() ? "integrata" : "non disponibile"));
+                    + (placeholderService.isAvailable()
+                    ? "integrata" : "non disponibile"));
             getLogger().info("Bossbar adapter: "
                     + (packetAdapter instanceof NmsV1_8R3BossBarPacketAdapter
                     ? "NMS v1_8_R3" : "non disponibile"));
         } catch (RuntimeException exception) {
             getLogger().severe(
-                    "Impossibile inizializzare LegacyLobby: " + exception.getMessage());
+                    "Impossibile inizializzare LegacyLobby: "
+                            + exception.getMessage());
             getServer().getPluginManager().disablePlugin(this);
         }
     }
 
+    private MessageService createMessageService() {
+        MessageService service = new MessageService(
+                new File(getDataFolder(), "translations"),
+                placeholderService,
+                languageProvider,
+                configuration.getLanguageFallback());
+        service.load();
+        return service;
+    }
+
     private void loadConfigurations() {
         File dataFolder = getDataFolder();
-        File scoreboardFile = new File(dataFolder, configuration.getScoreboardConfigFile());
-        scoreboardConfiguration = ScoreboardConfiguration.load(scoreboardFile);
-        File bossbarFile = new File(dataFolder, configuration.getBossbarConfigFile());
-        bossBarConfiguration = BossBarConfiguration.load(bossbarFile);
+        File scoreboardFile = new File(dataFolder,
+                configuration.getScoreboardConfigFile());
+        scoreboardConfiguration = ScoreboardConfiguration.load(
+                scoreboardFile, getResource("scoreboard.yml"));
+        File bossbarFile = new File(dataFolder,
+                configuration.getBossbarConfigFile());
+        bossBarConfiguration = BossBarConfiguration.load(
+                bossbarFile, getResource("bossbar.yml"));
     }
 
     private void reloadAll() {
         reloadConfig();
         configuration = LobbyConfiguration.from(getConfig());
         loadConfigurations();
+        languageService.setFallbackLanguage(
+                configuration.getLanguageFallback());
+        messageService = createMessageService();
 
-        MessageService newMessageService = new MessageService(
-                new File(getDataFolder(), configuration.getMessagesItalianFile()),
-                placeholderService);
-        newMessageService.load();
-        this.messageService = newMessageService;
-
-        LobbyScoreboardRenderer newScoreboardRenderer = new LobbyScoreboardRenderer(
-                scoreboardConfiguration, placeholderService,
-                configuration.getServerId(), "play.apteris.net");
-        scoreboardService.reload(newScoreboardRenderer, scoreboardConfiguration);
+        LobbyScoreboardRenderer newScoreboardRenderer =
+                new LobbyScoreboardRenderer(
+                        scoreboardConfiguration, placeholderService,
+                        configuration.getServerId(), "play.apteris.net");
+        scoreboardService.reload(newScoreboardRenderer,
+                scoreboardConfiguration);
 
         BossBarTextRenderer newBossBarTextRenderer = new BossBarTextRenderer(
-                bossBarConfiguration, placeholderService, configuration.getServerId());
-        bossBarService.reload(newBossBarTextRenderer, bossBarConfiguration);
+                bossBarConfiguration, placeholderService,
+                configuration.getServerId());
+        bossBarService.reload(newBossBarTextRenderer,
+                bossBarConfiguration);
 
         configureVoidTeleport();
         getLogger().info("LegacyLobby reload completato.");
+    }
+
+    @Override
+    public void onLanguageChanged(final UUID playerId,
+                                  Language previousLanguage,
+                                  Language newLanguage) {
+        Runnable refresh = new Runnable() {
+            @Override
+            public void run() {
+                Player player = Bukkit.getPlayer(playerId);
+                if (player == null || !player.isOnline()) {
+                    return;
+                }
+                if (scoreboardService != null) {
+                    scoreboardService.refresh(player);
+                }
+                if (bossBarService != null) {
+                    bossBarService.refresh(player);
+                }
+                if (messageService != null) {
+                    messageService.send(player, "language-change");
+                }
+            }
+        };
+        if (Bukkit.isPrimaryThread()) {
+            refresh.run();
+        } else {
+            Bukkit.getScheduler().runTask(this, refresh);
+        }
     }
 
     private void configureVoidTeleport() {
@@ -185,9 +231,11 @@ public final class LegacyLobbyPlugin extends JavaPlugin {
     }
 
     private PlaceholderService initPlaceholderAPI() {
-        org.bukkit.plugin.Plugin papi = Bukkit.getPluginManager().getPlugin("PlaceholderAPI");
+        org.bukkit.plugin.Plugin papi =
+                Bukkit.getPluginManager().getPlugin("PlaceholderAPI");
         if (papi != null && papi.isEnabled()) {
-            getLogger().info("PlaceholderAPI rilevata, integrazione attiva.");
+            getLogger().info(
+                    "PlaceholderAPI rilevata, integrazione attiva.");
             return new PlaceholderApiService();
         }
         getLogger().warning("PlaceholderAPI non trovata o disabilitata, "
@@ -197,11 +245,13 @@ public final class LegacyLobbyPlugin extends JavaPlugin {
 
     private BossBarPacketAdapter initBossBarAdapter() {
         if (!NmsV1_8R3BossBarPacketAdapter.validateServerVersion()) {
-            getLogger().warning("Server non v1_8_R3: bossbar legacy disabilitata.");
+            getLogger().warning(
+                    "Server non v1_8_R3: bossbar legacy disabilitata.");
             return new NoopBossBarPacketAdapter();
         }
         try {
-            getLogger().info("Server v1_8_R3 rilevato, bossbar NMS attiva.");
+            getLogger().info(
+                    "Server v1_8_R3 rilevato, bossbar NMS attiva.");
             return new NmsV1_8R3BossBarPacketAdapter();
         } catch (LinkageError | RuntimeException exception) {
             getLogger().warning("Impossibile inizializzare la bossbar NMS: "
@@ -212,6 +262,9 @@ public final class LegacyLobbyPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (languageEventService != null) {
+            languageEventService.unregisterListener(this);
+        }
         if (voidTeleportService != null) {
             voidTeleportService.stop();
         }
@@ -224,9 +277,7 @@ public final class LegacyLobbyPlugin extends JavaPlugin {
         if (languageService != null) {
             languageService.clear();
         }
-        if (channel != null) {
-            getServer().getMessenger().unregisterIncomingPluginChannel(this, channel);
-            getServer().getMessenger().unregisterOutgoingPluginChannel(this, channel);
-        }
+        languageProvider = null;
+        languageEventService = null;
     }
 }
