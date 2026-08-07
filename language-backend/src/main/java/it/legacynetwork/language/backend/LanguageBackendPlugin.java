@@ -1,11 +1,13 @@
 package it.legacynetwork.language.backend;
 
 import it.legacynetwork.language.Language;
+import it.legacynetwork.language.LanguageChangeResult;
 import it.legacynetwork.language.LanguageProtocol;
 import it.legacynetwork.language.LanguageProtocolException;
 import it.legacynetwork.language.LanguageProtocolMessage;
 import it.legacynetwork.language.PlayerLanguageChangeListener;
 import it.legacynetwork.language.PlayerLanguageChangeRequestService;
+import it.legacynetwork.language.PlayerLanguageChangeResultListener;
 import it.legacynetwork.language.PlayerLanguageEventService;
 import it.legacynetwork.language.PlayerLanguageProvider;
 import org.bukkit.Bukkit;
@@ -26,29 +28,42 @@ public final class LanguageBackendPlugin extends JavaPlugin
         implements PlayerLanguageProvider, PlayerLanguageEventService,
         PlayerLanguageChangeRequestService {
 
-    private final Map<UUID, LanguageState> cache = new ConcurrentHashMap<UUID, LanguageState>();
+    private final Map<UUID, LanguageState> cache =
+            new ConcurrentHashMap<UUID, LanguageState>();
     private final List<PlayerLanguageChangeListener> listeners =
             new CopyOnWriteArrayList<PlayerLanguageChangeListener>();
+    private final List<PlayerLanguageChangeResultListener> resultListeners =
+            new CopyOnWriteArrayList<PlayerLanguageChangeResultListener>();
     private final LanguageProtocol protocol = new LanguageProtocol();
     private String fallbackLanguage;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
-        fallbackLanguage = getConfig().getString("fallback-language", "en");
+        fallbackLanguage = getConfig().getString(
+                "fallback-language", "en");
 
         getServer().getServicesManager().register(
-                PlayerLanguageProvider.class, this, this, ServicePriority.Normal);
+                PlayerLanguageProvider.class,
+                this,
+                this,
+                ServicePriority.Normal);
         getServer().getServicesManager().register(
-                PlayerLanguageEventService.class, this, this, ServicePriority.Normal);
+                PlayerLanguageEventService.class,
+                this,
+                this,
+                ServicePriority.Normal);
         getServer().getServicesManager().register(
-                PlayerLanguageChangeRequestService.class, this, this,
+                PlayerLanguageChangeRequestService.class,
+                this,
+                this,
                 ServicePriority.Normal);
 
         getServer().getMessenger().registerOutgoingPluginChannel(
                 this, LanguageProtocol.CHANNEL);
         getServer().getMessenger().registerIncomingPluginChannel(
-                this, LanguageProtocol.CHANNEL,
+                this,
+                LanguageProtocol.CHANNEL,
                 new LanguageMessageListener(this, protocol));
 
         getServer().getPluginManager().registerEvents(new Listener() {
@@ -76,7 +91,9 @@ public final class LanguageBackendPlugin extends JavaPlugin
         return cache.get(playerId);
     }
 
-    void applySynchronizedState(UUID playerId, Language language, String locale) {
+    void applySynchronizedState(UUID playerId,
+                                Language language,
+                                String locale) {
         Language previous = getLanguage(playerId);
         cache.put(playerId, new LanguageState(language, locale));
         if (previous != language) {
@@ -89,7 +106,8 @@ public final class LanguageBackendPlugin extends JavaPlugin
     }
 
     @Override
-    public boolean requestLanguageChange(UUID playerId, Language language) {
+    public boolean requestLanguageChange(UUID playerId,
+                                         Language language) {
         if (playerId == null || language == null) {
             return false;
         }
@@ -99,12 +117,16 @@ public final class LanguageBackendPlugin extends JavaPlugin
         }
         try {
             byte[] payload = protocol.serialize(
-                    LanguageProtocolMessage.languageChangeRequest(playerId, language));
-            player.sendPluginMessage(this, LanguageProtocol.CHANNEL, payload);
+                    LanguageProtocolMessage.languageChangeRequest(
+                            playerId, language));
+            player.sendPluginMessage(
+                    this, LanguageProtocol.CHANNEL, payload);
             return true;
         } catch (LanguageProtocolException exception) {
-            getLogger().warning("Impossibile inviare il cambio lingua per "
-                    + player.getName() + ": " + exception.getMessage());
+            getLogger().warning(
+                    "Impossibile inviare il cambio lingua per "
+                            + player.getName() + ": "
+                            + exception.getMessage());
             return false;
         }
     }
@@ -114,6 +136,7 @@ public final class LanguageBackendPlugin extends JavaPlugin
         getServer().getServicesManager().unregisterAll(this);
         cache.clear();
         listeners.clear();
+        resultListeners.clear();
     }
 
     @Override
@@ -130,14 +153,46 @@ public final class LanguageBackendPlugin extends JavaPlugin
 
     @Override
     public void fireLanguageChanged(UUID playerId,
-                                     Language previous,
-                                     Language current) {
+                                    Language previous,
+                                    Language current) {
         for (PlayerLanguageChangeListener listener : listeners) {
             try {
-                listener.onLanguageChanged(playerId, previous, current);
+                listener.onLanguageChanged(
+                        playerId, previous, current);
             } catch (RuntimeException exception) {
-                getLogger().warning("Listener cambio lingua fallito: "
-                        + exception.getMessage());
+                getLogger().warning(
+                        "Listener cambio lingua fallito: "
+                                + exception.getMessage());
+            }
+        }
+    }
+
+    @Override
+    public void registerResultListener(
+            PlayerLanguageChangeResultListener listener) {
+        if (listener != null) {
+            resultListeners.add(listener);
+        }
+    }
+
+    @Override
+    public void unregisterResultListener(
+            PlayerLanguageChangeResultListener listener) {
+        resultListeners.remove(listener);
+    }
+
+    @Override
+    public void fireLanguageChangeResult(UUID playerId,
+                                         Language requestedLanguage,
+                                         LanguageChangeResult result) {
+        for (PlayerLanguageChangeResultListener listener : resultListeners) {
+            try {
+                listener.onLanguageChangeResult(
+                        playerId, requestedLanguage, result);
+            } catch (RuntimeException exception) {
+                getLogger().warning(
+                        "Listener risultato cambio lingua fallito: "
+                                + exception.getMessage());
             }
         }
     }
