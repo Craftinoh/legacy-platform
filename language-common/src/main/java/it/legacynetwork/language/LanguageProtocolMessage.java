@@ -43,6 +43,18 @@ public final class LanguageProtocolMessage {
                 true);
     }
 
+    public static LanguageProtocolMessage languageChangeResult(
+            UUID playerUuid,
+            Language requestedLanguage,
+            LanguageChangeResult result) {
+        return new LanguageProtocolMessage(
+                LanguageProtocol.VERSION,
+                Objects.requireNonNull(result, "result").toProtocolAction(),
+                playerUuid,
+                requestedLanguage.getCode(),
+                result == LanguageChangeResult.SUCCESS);
+    }
+
     public int getProtocolVersion() {
         return protocolVersion;
     }
@@ -61,5 +73,9 @@ public final class LanguageProtocolMessage {
 
     public boolean isManualPreference() {
         return manualPreference;
+    }
+
+    public LanguageChangeResult getLanguageChangeResult() {
+        return LanguageChangeResult.fromProtocolAction(action);
     }
 }
