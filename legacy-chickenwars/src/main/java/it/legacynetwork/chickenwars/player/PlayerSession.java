@@ -27,6 +27,10 @@ public final class PlayerSession {
     private UUID lastDamager;
     private long lastDamageMillis;
 
+    private long deathSequence;
+    private boolean deathInProgress;
+    private boolean deathFinalised;
+
     private int kills;
     private int finalKills;
     private int deaths;
@@ -69,6 +73,62 @@ public final class PlayerSession {
     public void clearDamager() {
         this.lastDamager = null;
         this.lastDamageMillis = 0L;
+    }
+
+    /**
+     * Apre una morte logica restituendone il numero progressivo.
+     *
+     * <p>Finche' la morte non viene chiusa con {@link #completeDeath()} il
+     * numero resta lo stesso: eventi Bukkit duplicati riferiti alla stessa
+     * morte riottengono la sequenza gia' usata, quindi
+     * {@link PlayerEquipmentState#applyDeath(long)} li ignora e nessun
+     * downgrade viene applicato due volte.</p>
+     *
+     * @return il numero progressivo della morte corrente
+     */
+    public synchronized long beginDeath() {
+        if (!deathInProgress) {
+            deathInProgress = true;
+            deathSequence++;
+        }
+        return deathSequence;
+    }
+
+    /**
+     * Chiude la morte corrente, tipicamente al respawn o all'eliminazione.
+     */
+    public synchronized void completeDeath() {
+        deathInProgress = false;
+    }
+
+    /**
+     * Segna che la sessione ha subito la sua morte definitiva.
+     *
+     * <p>Usato dall'abbandono in combattimento: la morte viene chiusa, ma la
+     * sessione non deve piu' poterne aprire un'altra. Senza questo marcatore un
+     * secondo evento di uscita otterrebbe una sequenza nuova e applicherebbe un
+     * secondo downgrade.</p>
+     */
+    public synchronized void finaliseDeath() {
+        deathFinalised = true;
+    }
+
+    /**
+     * Indica se la sessione ha gia' concluso la propria morte definitiva.
+     */
+    public synchronized boolean isDeathFinalised() {
+        return deathFinalised;
+    }
+
+    /**
+     * Indica se una morte e' stata aperta e non ancora conclusa.
+     */
+    public synchronized boolean isDeathInProgress() {
+        return deathInProgress;
+    }
+
+    public synchronized long getDeathSequence() {
+        return deathSequence;
     }
 
     /**

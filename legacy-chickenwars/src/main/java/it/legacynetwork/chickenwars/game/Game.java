@@ -12,9 +12,15 @@ import it.legacynetwork.chickenwars.chicken.ChickenSettings;
 import it.legacynetwork.chickenwars.chicken.DamageOutcome;
 import it.legacynetwork.chickenwars.chicken.RoyalChicken;
 import it.legacynetwork.chickenwars.config.ChickenWarsConfig;
+import it.legacynetwork.chickenwars.death.DeathCause;
+import it.legacynetwork.chickenwars.death.DeathContext;
+import it.legacynetwork.chickenwars.death.DeathOutcome;
+import it.legacynetwork.chickenwars.death.KillerEligibility;
+import it.legacynetwork.chickenwars.economy.ResourceTransfer;
 import it.legacynetwork.chickenwars.generator.RuntimeGenerator;
 import it.legacynetwork.chickenwars.hologram.Hologram;
 import it.legacynetwork.chickenwars.model.ArenaState;
+import it.legacynetwork.chickenwars.model.ResourceType;
 import it.legacynetwork.chickenwars.model.SimpleLocation;
 import it.legacynetwork.chickenwars.player.InventorySnapshot;
 import it.legacynetwork.chickenwars.player.PlayerSession;
@@ -25,14 +31,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -124,6 +127,11 @@ public final class Game {
                 InventorySnapshot.capture(player));
         sessions.put(player.getUniqueId(), session);
 
+        // Rientro nella stessa partita: torna solo lo stato permanente.
+        if (services.getReconnects().restore(session) != null) {
+            services.getMessages().send(player, "reconnect.restored");
+        }
+
         InventorySnapshot.clear(player);
         player.setGameMode(GameMode.SURVIVAL);
         player.teleport(lobby);
@@ -168,6 +176,11 @@ public final class Game {
 
         boards.remove(player.getUniqueId());
         GameScoreboard.clear(player);
+
+        // Il registro delle morte elaborate e' per giocatore e sopravviverebbe
+        // alla sessione: senza questa pulizia la prima morte dopo un rientro
+        // verrebbe scambiata per un duplicato e non trasferirebbe risorse.
+        services.getTransfers().clear(player.getUniqueId());
 
         if (restoreState && session.getSnapshot() != null) {
             session.getSnapshot().restore(player);
@@ -533,37 +546,38 @@ public final class Game {
         InventorySnapshot.clear(player);
         player.setGameMode(GameMode.SURVIVAL);
         player.teleport(spawn);
-        giveKit(player, team);
+
+        // Il loadout dipende solo dallo stato autorevole ed e' idempotente.
+        services.getEquipment().applyLoadout(player, session,
+                team.getColor());
 
         int protection = services.getConfig().getSpawnProtectionSeconds();
         session.grantInvulnerability(protection);
         session.clearDamager();
+        session.completeDeath();
+
+        deliverPendingRewards(player);
 
         if (!initial) {
             services.getMessages().send(player, "respawn.done");
         }
     }
 
-    private void giveKit(Player player, GameTeam team) {
-        player.getInventory().addItem(new ItemStack(Material.WOOD_SWORD));
-        player.getInventory().setHelmet(colorArmor(
-                new ItemStack(Material.LEATHER_HELMET), team));
-        player.getInventory().setChestplate(colorArmor(
-                new ItemStack(Material.LEATHER_CHESTPLATE), team));
-        player.getInventory().setLeggings(colorArmor(
-                new ItemStack(Material.LEATHER_LEGGINGS), team));
-        player.getInventory().setBoots(colorArmor(
-                new ItemStack(Material.LEATHER_BOOTS), team));
-        player.updateInventory();
-    }
-
-    private ItemStack colorArmor(ItemStack stack, GameTeam team) {
-        if (stack.getItemMeta() instanceof LeatherArmorMeta) {
-            LeatherArmorMeta meta = (LeatherArmorMeta) stack.getItemMeta();
-            meta.setColor(team.getColor().getArmorColor());
-            stack.setItemMeta(meta);
+    /**
+     * Consegna la coda premio accumulata quando l'inventario era pieno.
+     */
+    private void deliverPendingRewards(Player player) {
+        Map<ResourceType, Integer> delivered =
+                services.getTransfers().flushQueue(player);
+        if (delivered.isEmpty()) {
+            return;
         }
-        return stack;
+        int total = 0;
+        for (Integer amount : delivered.values()) {
+            total += amount.intValue();
+        }
+        services.getMessages().send(player, "resources.queue-delivered",
+                "{amount}", String.valueOf(total));
     }
 
     /**
@@ -577,12 +591,28 @@ public final class Game {
         if (session == null || state != ArenaState.IN_GAME) {
             return;
         }
+        // Un giocatore gia' morto non muore una seconda volta: e' la prima
+        // barriera contro gli eventi duplicati riferiti alla stessa morte.
+        if (!session.getState().isActive()) {
+            return;
+        }
         GameTeam team = getTeam(session.getTeamId());
         if (team == null) {
             return;
         }
 
-        session.addDeath();
+        // Unico orchestratore: sequenza, trasferimento risorse e downgrade
+        // passano di qui esattamente come per l'abbandono in combattimento.
+        DeathOutcome outcome = services.getDeaths().processPlayers(
+                DeathContext.of(player.getUniqueId(),
+                        killer == null ? null : killer.getUniqueId(),
+                        causeOf(killer)),
+                session, player, killer, killerEligibility());
+        if (!outcome.isProcessed()) {
+            return;
+        }
+        announceTransfer(player, killer, outcome);
+
         InventorySnapshot.clear(player);
 
         boolean finalDeath = !team.hasChicken()
@@ -628,6 +658,96 @@ public final class Game {
                 "{seconds}", String.valueOf(session.getRespawnSecondsLeft()));
     }
 
+    /**
+     * Elabora l'abbandono in combattimento come una morte a tutti gli effetti.
+     *
+     * <p>Percorre lo stesso orchestratore della morte normale, quindi risorse,
+     * downgrade e reset della spada avvengono una sola volta.</p>
+     *
+     * @param player giocatore che si sta disconnettendo
+     * @return {@code true} se il logout e' stato convertito in morte
+     */
+    public boolean handleCombatLogout(Player player) {
+        PlayerSession session = sessions.get(player.getUniqueId());
+        if (session == null || state != ArenaState.IN_GAME
+                || !session.getState().isActive()) {
+            return false;
+        }
+
+        UUID attackerId = session.getValidDamager(
+                services.getConfig().getVoidKillCreditSeconds());
+        if (attackerId == null) {
+            // Fuori dal combattimento l'uscita non produce alcuna morte.
+            return false;
+        }
+
+        Player killer = Bukkit.getPlayer(attackerId);
+        DeathOutcome outcome = services.getDeaths().processPlayers(
+                DeathContext.combatLogout(player.getUniqueId(), attackerId),
+                session, player, killer, killerEligibility());
+        if (!outcome.isProcessed()) {
+            return false;
+        }
+        announceTransfer(player, killer, outcome);
+
+        GameTeam team = getTeam(session.getTeamId());
+        if (team != null) {
+            team.eliminateMember(player.getUniqueId());
+            broadcast("death.combat-logout",
+                    "{player}", team.getColor().getChatColor() + player.getName(),
+                    "{killer}", killer == null
+                            ? services.getMessages().get(null,
+                            "death.unknown-killer") : killer.getName());
+            checkTeamElimination(team);
+        }
+        return true;
+    }
+
+    /**
+     * Deduce la causa da comunicare all'orchestratore.
+     */
+    private DeathCause causeOf(Player killer) {
+        return killer == null ? DeathCause.ENVIRONMENT : DeathCause.COMBAT;
+    }
+
+    /**
+     * Validita' dell'uccisore secondo lo stato reale della partita.
+     */
+    private KillerEligibility killerEligibility() {
+        return new KillerEligibility() {
+            @Override
+            public boolean isEligible(UUID killerId) {
+                if (killerId == null || state != ArenaState.IN_GAME) {
+                    return false;
+                }
+                Player killer = Bukkit.getPlayer(killerId);
+                if (killer == null || !killer.isOnline()) {
+                    return false;
+                }
+                PlayerSession killerSession = sessions.get(killerId);
+                return killerSession != null
+                        && killerSession.getState().isActive();
+            }
+        };
+    }
+
+    /**
+     * Comunica all'uccisore le risorse ottenute dalla vittima.
+     */
+    private void announceTransfer(Player victim, Player killer,
+                                  DeathOutcome outcome) {
+        ResourceTransfer transfer = outcome.getTransfer();
+        if (transfer.isEmpty() || killer == null || !killer.isOnline()) {
+            return;
+        }
+        services.getMessages().send(killer, "resources.stolen",
+                "{victim}", victim.getName(),
+                "{resources}", transfer.describe(ChatColor.GRAY + ", "));
+        if (transfer.hasQueued()) {
+            services.getMessages().send(killer, "resources.queued");
+        }
+    }
+
     private void respawn(Player player, PlayerSession session) {
         GameTeam team = getTeam(session.getTeamId());
         if (team == null || !team.hasChicken()) {
@@ -642,6 +762,7 @@ public final class Game {
     private void makeSpectator(Player player, PlayerSession session) {
         session.setState(PlayerState.SPECTATOR);
         session.clearInvulnerability();
+        session.completeDeath();
         InventorySnapshot.clear(player);
         player.setGameMode(GameMode.SPECTATOR);
         Location spectatorPoint = resolve(definition.getSpectator());

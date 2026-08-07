@@ -227,6 +227,7 @@ chicken:
 death:
   normal: "&7{player} &7e' stato ucciso da &f{killer}&7."
   final: "&7{player} &7e' stato eliminato definitivamente da &f{killer}&7."
+  combat-logout: "&7{player} &7si e' disconnesso in combattimento: uccisione assegnata a &f{killer}&7."
   unknown-killer: "cause naturali"
 
 respawn:
@@ -240,21 +241,239 @@ team:
   already-started: "&cNon puoi cambiare squadra a partita iniziata."
   eliminated: "&7La squadra {team} &7e' stata eliminata."
 
+resources:
+  stolen: "&aHai sottratto a &f{victim}&a: {resources}"
+  queued: "&7Inventario pieno: il resto ti verra' consegnato appena possibile."
+  queue-delivered: "&aRicevute &f{amount} &arisorse dalla coda premio."
+
+reconnect:
+  restored: "&aBentornato: equipaggiamento permanente ripristinato."
+
 shop:
   title: "&8Shop Chicken Wars"
   npc-name: "&e&lVENDITORE"
+  unavailable: "&cLo shop non e' disponibile."
+  category-selected:
+    - "&7Categoria aperta"
   purchased: "&aAcquistato: &f{item}"
+  already-owned: "&cPossiedi gia' &f{item}&c."
+  lower-tier: "&cHai gia' un livello superiore a &f{item}&c."
   not-enough: "&cTi mancano &f{amount} {currency}&c."
   inventory-full: "&cInventario pieno."
-  unavailable: "&cLo shop non e' disponibile."
+  unavailable-item: "&cQuesto articolo non e' disponibile in questa modalita'."
+  no-permission: "&cNon hai il permesso per acquistarlo."
+
+  currency:
+    iron: "Ferro"
+    gold: "Oro"
+    diamond: "Diamanti"
+    emerald: "Smeraldi"
+    feather: "Piume"
+
+  lore:
+    cost: "&7Costo: &f{amount} {currency}"
+    affordable: "&eClicca per acquistare"
+    not-affordable: "&cRisorse insufficienti"
+    owned: "&aGia' posseduto"
+    lower-tier: "&8Livello inferiore a quello posseduto"
+    no-permission: "&cPermesso mancante"
+    inventory-full: "&cInventario pieno"
+    unavailable: "&cNon disponibile in questa modalita'"
+
+  presets:
+    title: "&8Quick Buy &7- preset"
+    open: "&e&lGestione preset"
+    open-lore:
+      - "&7Crea, seleziona ed elimina"
+      - "&7i tuoi preset Quick Buy."
+      - ""
+      - "&eClicca per aprire."
+    create: "&a&lCrea preset"
+    create-lore:
+      - "&7Aggiunge un nuovo preset vuoto"
+      - "&7e lo rende attivo."
+      - ""
+      - "&7Limite: &f{limit}"
+      - "&eClicca per creare."
+    limit-reached: "&c&lLimite raggiunto"
+    limit-reached-lore:
+      - "&7Puoi avere al massimo &f{limit} &7preset."
+      - "&7Elimina un preset per crearne un altro."
+    entry-active: "&a&l{preset} &7(attivo)"
+    entry-inactive: "&e{preset}"
+    entry-slots: "&7Articoli assegnati: &f{amount}"
+    entry-select:
+      - "&eClic sinistro &7per attivarlo"
+    entry-delete:
+      - "&cShift + clic destro &7per eliminarlo"
+    entry-last:
+      - "&8E' l'unico preset: non eliminabile"
+
+  nav:
+    back-shop: "&e&lTorna allo shop"
+    back-shop-lore:
+      - "&7Riapre le categorie degli articoli."
+    back-quickbuy: "&e&lTorna al Quick Buy"
+    back-quickbuy-lore:
+      - "&7Riapre la griglia del preset attivo."
+
+  quickbuy:
+    empty: "&cSlot vuoto"
+    empty-lore:
+      - "&7Shift + clic sinistro su un articolo"
+      - "&7di un'altra categoria per assegnarlo."
+    target: "&a&lScegli questo slot"
+    target-lore:
+      - "&7Clicca per collocare qui"
+      - "&7l'articolo selezionato."
+    placing: "&6&lStai collocando: &f{item}"
+    placing-lore:
+      - "&7Clicca uno slot per confermare."
+      - "&7Uno slot occupato viene sostituito."
+    choose-slot: "&eScegli lo slot per &f{item}&e."
+    assigned: "&aAggiunto al Quick Buy: &f{item}"
+    replaced: "&aSostituito &f{previous} &acon &f{item}&a."
+    unchanged: "&7&f{item} &7era gia' in questo slot."
+    removed: "&7Articolo rimosso dal Quick Buy."
+    empty-slot: "&7Questo slot e' gia' vuoto."
+    item-missing: "&cQuesto articolo non e' piu' disponibile."
+    full: "&cIl Quick Buy e' pieno."
+    preset-selected: "&aPreset attivo: &f{preset}"
+    preset-created: "&aPreset &f{preset} &acreato."
+    preset-deleted: "&7Preset &f{preset} &7eliminato."
+    preset-last: "&cNon puoi eliminare l'unico preset rimasto."
+    preset-missing: "&cPreset &f{preset} &cinesistente."
+    preset-limit: "&cHai raggiunto il limite di &f{limit} &cpreset."
+
+  categories:
+    quick_buy: "Quick Buy"
+    blocks: "Blocchi"
+    melee: "Mischia"
+    armor: "Armature"
+    tools: "Strumenti"
+    ranged: "Distanza"
+    potions: "Pozioni"
+    utility: "Utility"
+    chicken: "Gallina"
+
+  items:
+    wool:
+      name: "&fLana"
+      lore: ["&7Il modo piu' rapido per costruire un ponte."]
+    clay:
+      name: "&6Argilla colorata"
+      lore: ["&7Piu' resistente della lana."]
+    glass:
+      name: "&bVetro colorato"
+      lore: ["&7Immune alle esplosioni."]
+    end_stone:
+      name: "&dPietra dell'End"
+      lore: ["&7Difesa solida per il nido."]
+    ladder:
+      name: "&6Scale"
+      lore: ["&7Per risalire in fretta."]
+    wood:
+      name: "&6Legno"
+      lore: ["&7Resistente e veloce da piazzare."]
+    obsidian:
+      name: "&5Ossidiana"
+      lore: ["&7La difesa piu' dura da rimuovere."]
+    sword_stone:
+      name: "&7Spada di Pietra"
+      lore: ["&7Un deciso passo avanti."]
+    sword_iron:
+      name: "&fSpada di Ferro"
+      lore: ["&7Per gli assalti decisivi."]
+    sword_diamond:
+      name: "&bSpada di Diamante"
+      lore: ["&7Il massimo in mischia."]
+    knockback_stick:
+      name: "&dBastone Respingente"
+      lore: ["&7Spinge via i nemici dal bordo."]
+    armor_chainmail:
+      name: "&7Armatura di Maglia"
+      lore: ["&7Leggings e stivali permanenti."]
+    armor_iron:
+      name: "&fArmatura di Ferro"
+      lore: ["&7Leggings e stivali permanenti."]
+    armor_diamond:
+      name: "&bArmatura di Diamante"
+      lore: ["&7Leggings e stivali permanenti."]
+    shears:
+      name: "&fForbici"
+      lore: ["&7Permanenti: rimuovono la lana in un istante."]
+    pickaxe_1:
+      name: "&7Piccone I"
+      lore: ["&7Scende di un livello a ogni morte."]
+    pickaxe_2:
+      name: "&7Piccone II"
+      lore: ["&7Scende di un livello a ogni morte."]
+    pickaxe_3:
+      name: "&fPiccone III"
+      lore: ["&7Scende di un livello a ogni morte."]
+    pickaxe_4:
+      name: "&bPiccone IV"
+      lore: ["&7Scende di un livello a ogni morte."]
+    axe_1:
+      name: "&7Ascia I"
+      lore: ["&7Scende di un livello a ogni morte."]
+    axe_2:
+      name: "&7Ascia II"
+      lore: ["&7Scende di un livello a ogni morte."]
+    axe_3:
+      name: "&fAscia III"
+      lore: ["&7Scende di un livello a ogni morte."]
+    axe_4:
+      name: "&bAscia IV"
+      lore: ["&7Scende di un livello a ogni morte."]
+    bow:
+      name: "&6Arco"
+      lore: ["&7Colpisci la gallina da lontano."]
+    bow_power:
+      name: "&6Arco Potenza I"
+      lore: ["&7Danno aumentato."]
+    bow_punch:
+      name: "&6Arco Potenza I Pugno I"
+      lore: ["&7Danno e spinta aumentati."]
+    arrow:
+      name: "&6Frecce"
+      lore: ["&7Munizioni per l'arco."]
+    potion_speed:
+      name: "&fScatto Rapido"
+      lore: ["&7Velocita' II per 45 secondi."]
+    potion_jump:
+      name: "&aSalto Leggero"
+      lore: ["&7Salto III per 45 secondi."]
+    potion_invisibility:
+      name: "&8Invisibilita'"
+      lore: ["&7Invisibile per 30 secondi."]
+    tnt:
+      name: "&cTNT"
+      lore: ["&7Distrugge solo i blocchi piazzati."]
+    golden_apple:
+      name: "&6Mela Dorata"
+      lore: ["&7Cura immediata in combattimento."]
+    ender_pearl:
+      name: "&5Perla dell'End"
+      lore: ["&7Raggiungi il nido nemico in un istante."]
+    fireball:
+      name: "&cPalla di Fuoco"
+      lore: ["&7Spezza i ponti avversari."]
+    water_bucket:
+      name: "&bSecchio d'Acqua"
+      lore: ["&7Rallenta chi attacca la base."]
+    healing_seeds:
+      name: "&aSemi Curativi"
+      lore: ["&7Clic destro sulla tua Gallina Reale."]
+    chicken_feed:
+      name: "&eMangime Reale"
+      lore: ["&7Nutre la gallina e ne ricarica lo scudo."]
+    nest_block:
+      name: "&5Blocchi del Nido"
+      lore: ["&7La difesa piu' resistente per la gallina."]
 
 generator:
   countdown: "&7Prossima risorsa: &f{seconds}s"
-
-world:
-  protected-block: "&cPuoi rompere solo i blocchi piazzati in partita."
-  outside-arena: "&cNon puoi costruire fuori dall'arena."
-  build-limit: "&cNon puoi costruire oltre y={limit}."
 
 scoreboard:
   title: "&6&lCHICKEN WARS"
@@ -264,6 +483,12 @@ scoreboard:
   time: "&7Tempo: &f{time}"
 
 world:
+  # Protezioni della mappa durante la partita.
+  protected-block: "&cPuoi rompere solo i blocchi piazzati in partita."
+  outside-arena: "&cNon puoi costruire fuori dall'arena."
+  build-limit: "&cNon puoi costruire oltre y={limit}."
+
+  # Gestione dei mondi arena.
   created: "&aMondo &f{world} &acreato &8({template})"
   loaded: "&aMondo &f{world} &aattivato &8({template})"
   adopted: "&aArena collegata al mondo esistente &f{world}&a."
@@ -321,6 +546,7 @@ admin:
   no-teleport-target: "&cL'arena non ha una destinazione impostata."
   reloaded: "&aChickenWars ricaricato: &f{arenas} &aarene."
   reload-failed: "&cRicaricamento annullato: configurazione non valida."
+  shop-reload-failed: "&cshop.yml non valido: mantenuto il catalogo precedente."
 
 setup:
   entered:

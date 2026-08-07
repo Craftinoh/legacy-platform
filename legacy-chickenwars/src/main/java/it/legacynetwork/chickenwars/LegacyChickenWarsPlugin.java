@@ -21,7 +21,17 @@ import it.legacynetwork.chickenwars.listener.WorldProtectionListener;
 import it.legacynetwork.chickenwars.message.MessageService;
 import it.legacynetwork.chickenwars.player.PendingRestoreService;
 import it.legacynetwork.chickenwars.setup.SetupService;
-import it.legacynetwork.chickenwars.shop.ShopCatalog;
+import it.legacynetwork.chickenwars.economy.ResourceTransferService;
+import it.legacynetwork.chickenwars.listener.VoidProtectionListener;
+import it.legacynetwork.chickenwars.persistence.InMemoryQuickBuyRepository;
+import it.legacynetwork.chickenwars.persistence.QuickBuyRepository;
+import it.legacynetwork.chickenwars.player.ReconnectService;
+import it.legacynetwork.chickenwars.player.equipment.EquipmentService;
+import it.legacynetwork.chickenwars.player.equipment.EquipmentSettings;
+import it.legacynetwork.chickenwars.protection.VoidFallGuard;
+import it.legacynetwork.chickenwars.shop.QuickBuyService;
+import it.legacynetwork.chickenwars.shop.ShopConfigLoader;
+import it.legacynetwork.chickenwars.shop.ShopConfiguration;
 import it.legacynetwork.chickenwars.shop.ShopService;
 import it.legacynetwork.chickenwars.world.WorldService;
 import org.bukkit.command.CommandSender;
@@ -51,12 +61,19 @@ public final class LegacyChickenWarsPlugin extends JavaPlugin {
     private SetupService setup;
     private WorldService worlds;
     private HelpService help;
+    private EquipmentService equipment;
+    private ResourceTransferService transfers;
+    private ReconnectService reconnects;
+    private VoidFallGuard voidGuard;
+    private QuickBuyService quickBuy;
+    private QuickBuyRepository quickBuyRepository;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
         saveResource("chickens.yml", false);
         saveResource("shop.yml", false);
+        saveResource("scoreboard.yml", false);
         saveResource("messages_it.yml", false);
         saveResource("messages_en.yml", false);
 
@@ -68,11 +85,19 @@ public final class LegacyChickenWarsPlugin extends JavaPlugin {
                         "config.yml, chickens.yml o file messaggi non validi");
             }
 
-            shop = new ShopService(messages);
-            shop.setCatalog(loadShopCatalog());
+            equipment = new EquipmentService(loadEquipmentSettings());
+            quickBuyRepository = new InMemoryQuickBuyRepository();
+            quickBuy = new QuickBuyService(quickBuyRepository, getLogger());
+            shop = new ShopService(messages, equipment, quickBuy);
+            shop.setConfiguration(loadShopConfiguration());
+
+            transfers = new ResourceTransferService();
+            reconnects = new ReconnectService();
+            voidGuard = new VoidFallGuard(config.getVoidDropTolerance());
 
             services = new GameServices(this, messages,
-                    new ChickenService(getLogger()), shop, config);
+                    new ChickenService(getLogger()), shop, equipment,
+                    transfers, reconnects, config);
             pendingRestores = new PendingRestoreService();
             help = new HelpService(messages);
 
@@ -135,6 +160,15 @@ public final class LegacyChickenWarsPlugin extends JavaPlugin {
         if (pendingRestores != null) {
             pendingRestores.clear();
         }
+        if (transfers != null) {
+            transfers.clearAll();
+        }
+        if (reconnects != null) {
+            reconnects.clear();
+        }
+        if (quickBuyRepository != null) {
+            quickBuyRepository.close();
+        }
         if (messages != null) {
             messages.close();
         }
@@ -144,6 +178,12 @@ public final class LegacyChickenWarsPlugin extends JavaPlugin {
         messages = null;
         worlds = null;
         help = null;
+        equipment = null;
+        transfers = null;
+        reconnects = null;
+        voidGuard = null;
+        quickBuy = null;
+        quickBuyRepository = null;
     }
 
     private void registerCommands() {
@@ -167,7 +207,10 @@ public final class LegacyChickenWarsPlugin extends JavaPlugin {
 
     private void registerListeners() {
         getServer().getPluginManager().registerEvents(
-                new ConnectionListener(arenas, pendingRestores), this);
+                new ConnectionListener(arenas, pendingRestores, reconnects,
+                        quickBuy), this);
+        getServer().getPluginManager().registerEvents(
+                new VoidProtectionListener(arenas, voidGuard), this);
         getServer().getPluginManager().registerEvents(
                 new CombatListener(arenas, services), this);
         getServer().getPluginManager().registerEvents(
@@ -197,10 +240,14 @@ public final class LegacyChickenWarsPlugin extends JavaPlugin {
         worlds.reload(config.getWorldNamePrefix(),
                 config.getDefaultWorldTemplate(),
                 config.isClearWorldEntities());
+        equipment.setSettings(loadEquipmentSettings());
+        voidGuard.setTolerance(config.getVoidDropTolerance());
 
-        ShopCatalog catalog = loadShopCatalog();
-        if (catalog != null) {
-            shop.setCatalog(catalog);
+        ShopConfiguration reloaded = loadShopConfiguration();
+        if (!reloaded.isEmpty()) {
+            shop.setConfiguration(reloaded);
+        } else {
+            messages.send(sender, "admin.shop-reload-failed");
         }
 
         int loaded = arenas.loadAll();
@@ -217,10 +264,7 @@ public final class LegacyChickenWarsPlugin extends JavaPlugin {
      * @return la configurazione, oppure {@code null} se un file non e' valido
      */
     private ChickenWarsConfig loadConfiguration() {
-        if (!messages.reload(getConfig().getString("language.italian-file",
-                        "messages_it.yml"),
-                getConfig().getString("language.english-file", "messages_en.yml"),
-                getConfig().getString("language.fallback", "it"))) {
+        if (!messages.reload(getConfig().getString("language.fallback", "it"))) {
             return null;
         }
 
@@ -261,8 +305,26 @@ public final class LegacyChickenWarsPlugin extends JavaPlugin {
         return worldNames;
     }
 
-    private ShopCatalog loadShopCatalog() {
-        return ShopCatalog.load(new File(getDataFolder(), "shop.yml"), getLogger());
+    /**
+     * Legge {@code shop.yml} e riporta in console le anomalie rilevate.
+     */
+    private ShopConfiguration loadShopConfiguration() {
+        File file = new File(getDataFolder(), "shop.yml");
+        if (!file.isFile()) {
+            getLogger().warning("shop.yml assente: shop disabilitato.");
+            return ShopConfiguration.empty();
+        }
+        ShopConfiguration loaded = ShopConfigLoader.load(
+                YamlConfiguration.loadConfiguration(file));
+        for (String warning : loaded.getWarnings()) {
+            getLogger().warning("shop.yml: " + warning);
+        }
+        return loaded;
+    }
+
+    private EquipmentSettings loadEquipmentSettings() {
+        return EquipmentSettings.fromSection(
+                getConfig().getConfigurationSection("equipment"));
     }
 
     public ArenaManager getArenas() {

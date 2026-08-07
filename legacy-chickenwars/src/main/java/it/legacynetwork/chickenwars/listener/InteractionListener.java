@@ -6,6 +6,7 @@ import it.legacynetwork.chickenwars.game.GameServices;
 import it.legacynetwork.chickenwars.game.GameTeam;
 import it.legacynetwork.chickenwars.model.ArenaState;
 import it.legacynetwork.chickenwars.player.PlayerSession;
+import it.legacynetwork.chickenwars.shop.ShopClickType;
 import it.legacynetwork.chickenwars.shop.ShopMenuHolder;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -53,7 +54,8 @@ public final class InteractionListener implements Listener {
             event.setCancelled(true);
             GameTeam team = game.getTeam(session.getTeamId());
             services.getShop().open(player, game.getDefinition().getId(), null,
-                    team == null ? null : team.getColor());
+                    session, team == null ? null : team.getColor(),
+                    game.getDefinition().getModeProfile());
             return;
         }
 
@@ -117,7 +119,9 @@ public final class InteractionListener implements Listener {
 
         GameTeam team = game.getTeam(session.getTeamId());
         services.getShop().handleClick(player, holder, event.getRawSlot(),
-                team == null ? null : team.getColor());
+                ShopClickType.of(event.isShiftClick(), event.isRightClick()),
+                session, team == null ? null : team.getColor(),
+                game.getDefinition().getModeProfile());
     }
 
     /**

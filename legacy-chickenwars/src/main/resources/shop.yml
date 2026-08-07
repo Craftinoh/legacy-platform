@@ -1,262 +1,424 @@
 # Shop di ChickenWars.
 #
-# categories: ogni categoria occupa uno slot della riga superiore (0-8).
-# items: gli slot partono da 18; con slot: -1 vengono assegnati in ordine.
+# Struttura:
+#   categories  riga superiore del menu (slot 0-8)
+#   items       definizione strutturale degli articoli, senza prezzi
+#   pricing     listini per profilo economico
+#
+# Profili economici:
+#   solo_duel   usato da DUEL e SOLO
+#   doubles     usato da DOUBLES
+#   trio        usato da TRIO
 #
 # Campi articolo:
-#   material     nome Bukkit 1.8 del materiale
-#   data         data value (colori lana, vetro, ecc.)
-#   amount       quantita' consegnata
-#   name         nome italiano; name-en nome inglese
-#   lore         descrizione italiana; lore-en descrizione inglese
-#   currency     IRON, GOLD, DIAMOND, EMERALD, FEATHER
-#   price        costo nella valuta indicata
-#   team-color   true = colorato con il colore della squadra
-#   enchantments incantesimi applicati
-#   effects      effetti pozione, formato TIPO:secondi:livello
+#   category    ID di una categoria dichiarata sopra
+#   material    materiale Bukkit 1.8.8
+#   data        data value (colori lana, vetro, ecc.)
+#   amount      quantita' consegnata
+#   team-color  true = colorato con il colore della squadra
+#   repeatable  true = acquistabile piu' volte
+#   slot        posizione nel menu (da 18 in poi); -1 = automatica
+#   tier        CONSUMABLE, ARMOR, SWORD, PICKAXE, AXE, SHEARS
+#   level       livello richiesto dal tier (obbligatorio salvo SHEARS)
+#   permission  permesso richiesto, facoltativo
+#
+# Nomi e descrizioni non stanno qui: vivono nei file lingua sotto
+# shop.items.<id>.name e shop.items.<id>.lore.
 
 categories:
-  blocchi:
-    name: "Blocchi"
-    name-en: "Blocks"
+  quick_buy:
+    icon: NETHER_STAR
+    slot: 0
+  blocks:
     icon: WOOL
     icon-data: 14
     slot: 1
-    items:
-      lana:
-        material: WOOL
-        amount: 16
-        slot: 19
-        name: "&fLana"
-        name-en: "&fWool"
-        lore:
-          - "&7Il modo piu' rapido per costruire un ponte."
-        lore-en:
-          - "&7The fastest way to bridge."
-        currency: IRON
-        price: 4
-        team-color: true
-      legno:
-        material: WOOD
-        amount: 16
-        slot: 20
-        name: "&6Legno"
-        name-en: "&6Wood"
-        lore:
-          - "&7Piu' resistente della lana."
-        lore-en:
-          - "&7Tougher than wool."
-        currency: GOLD
-        price: 4
-      pietra:
-        material: ENDER_STONE
-        amount: 12
-        slot: 21
-        name: "&dPietra dell'End"
-        name-en: "&dEnd Stone"
-        lore:
-          - "&7Difesa solida per il nido."
-        lore-en:
-          - "&7Solid protection for the nest."
-        currency: IRON
-        price: 24
-
-  armi:
-    name: "Armi"
-    name-en: "Weapons"
+  melee:
     icon: GOLD_SWORD
     slot: 2
-    items:
-      spada_pietra:
-        material: STONE_SWORD
-        slot: 19
-        name: "&7Spada di Pietra"
-        name-en: "&7Stone Sword"
-        lore:
-          - "&7Un deciso passo avanti."
-        lore-en:
-          - "&7A solid upgrade."
-        currency: IRON
-        price: 10
-      spada_ferro:
-        material: IRON_SWORD
-        slot: 20
-        name: "&fSpada di Ferro"
-        name-en: "&fIron Sword"
-        lore:
-          - "&7Per gli assalti decisivi."
-        lore-en:
-          - "&7For decisive assaults."
-        currency: GOLD
-        price: 7
-      arco:
-        material: BOW
-        slot: 21
-        name: "&6Arco"
-        name-en: "&6Bow"
-        lore:
-          - "&7Colpisci la gallina da lontano."
-        lore-en:
-          - "&7Hit the chicken from afar."
-        currency: GOLD
-        price: 12
-      frecce:
-        material: ARROW
-        amount: 8
-        slot: 22
-        name: "&6Frecce"
-        name-en: "&6Arrows"
-        lore:
-          - "&7Munizioni per l'arco."
-        lore-en:
-          - "&7Ammunition for the bow."
-        currency: GOLD
-        price: 2
-
-  armature:
-    name: "Armature"
-    name-en: "Armor"
+  armor:
     icon: IRON_CHESTPLATE
     slot: 3
-    items:
-      elmo_ferro:
-        material: IRON_HELMET
-        slot: 19
-        name: "&fElmo di Ferro"
-        name-en: "&fIron Helmet"
-        lore:
-          - "&7Protezione affidabile."
-        lore-en:
-          - "&7Reliable protection."
-        currency: GOLD
-        price: 6
-      corazza_ferro:
-        material: IRON_CHESTPLATE
-        slot: 20
-        name: "&fCorazza di Ferro"
-        name-en: "&fIron Chestplate"
-        lore:
-          - "&7Riduce sensibilmente il danno."
-        lore-en:
-          - "&7Greatly reduces damage."
-        currency: GOLD
-        price: 12
-      stivali_diamante:
-        material: DIAMOND_BOOTS
-        slot: 21
-        name: "&bStivali di Diamante"
-        name-en: "&bDiamond Boots"
-        lore:
-          - "&7Il massimo della difesa."
-        lore-en:
-          - "&7Top tier defense."
-        currency: EMERALD
-        price: 3
-
-  strumenti:
-    name: "Strumenti"
-    name-en: "Tools"
+  tools:
     icon: IRON_PICKAXE
     slot: 4
-    items:
-      piccone_pietra:
-        material: STONE_PICKAXE
-        slot: 19
-        name: "&7Piccone di Pietra"
-        name-en: "&7Stone Pickaxe"
-        lore:
-          - "&7Per aprirsi un varco."
-        lore-en:
-          - "&7To break through."
-        currency: IRON
-        price: 10
-      forbici:
-        material: SHEARS
-        slot: 20
-        name: "&fForbici"
-        name-en: "&fShears"
-        lore:
-          - "&7Rimuovono la lana in un istante."
-        lore-en:
-          - "&7Remove wool instantly."
-        currency: IRON
-        price: 20
-
-  gallina:
-    name: "Difesa Gallina"
-    name-en: "Chicken Defense"
-    icon: SEEDS
+  ranged:
+    icon: BOW
     slot: 5
-    items:
-      semi_curativi:
-        material: SEEDS
-        amount: 8
-        slot: 19
-        name: "&aSemi Curativi"
-        name-en: "&aHealing Seeds"
-        lore:
-          - "&7Clic destro sulla tua Gallina Reale"
-          - "&7per curarla e ricaricarne lo scudo."
-        lore-en:
-          - "&7Right click your Royal Chicken"
-          - "&7to heal it and refill its shield."
-        currency: IRON
-        price: 12
-      blocco_nido:
-        material: OBSIDIAN
-        amount: 4
-        slot: 20
-        name: "&5Blocchi del Nido"
-        name-en: "&5Nest Blocks"
-        lore:
-          - "&7La difesa piu' resistente"
-          - "&7per la tua gallina."
-        lore-en:
-          - "&7The toughest protection"
-          - "&7for your chicken."
-        currency: EMERALD
-        price: 4
-
-  utility:
-    name: "Utility"
-    name-en: "Utility"
-    icon: TNT
+  potions:
+    icon: BREWING_STAND_ITEM
     slot: 6
-    items:
-      tnt:
-        material: TNT
-        slot: 19
-        name: "&cTNT"
-        lore:
-          - "&7Distrugge solo i blocchi"
-          - "&7piazzati durante la partita."
-        lore-en:
-          - "&7Only destroys blocks"
-          - "&7placed during the match."
-        currency: GOLD
-        price: 8
-      velocita:
-        material: SUGAR
-        slot: 20
-        name: "&fScatto Rapido"
-        name-en: "&fQuick Dash"
-        lore:
-          - "&7Velocita' II per 20 secondi."
-        lore-en:
-          - "&7Speed II for 20 seconds."
-        currency: EMERALD
-        price: 1
-        effects:
-          - "SPEED:20:1"
-      scala:
-        material: LADDER
-        amount: 8
-        slot: 21
-        name: "&6Scale"
-        name-en: "&6Ladders"
-        lore:
-          - "&7Per risalire in fretta."
-        lore-en:
-          - "&7To climb back up quickly."
-        currency: IRON
-        price: 4
+  utility:
+    icon: TNT
+    slot: 7
+  chicken:
+    icon: SEEDS
+    slot: 8
+
+items:
+  # ---------------- Blocks ----------------
+  wool:
+    category: blocks
+    material: WOOL
+    amount: 16
+    team-color: true
+    slot: 19
+  clay:
+    category: blocks
+    material: STAINED_CLAY
+    amount: 16
+    team-color: true
+    slot: 20
+  glass:
+    category: blocks
+    material: STAINED_GLASS
+    amount: 4
+    team-color: true
+    slot: 21
+  end_stone:
+    category: blocks
+    material: ENDER_STONE
+    amount: 12
+    slot: 22
+  ladder:
+    category: blocks
+    material: LADDER
+    amount: 8
+    slot: 23
+  wood:
+    category: blocks
+    material: WOOD
+    amount: 16
+    slot: 24
+  obsidian:
+    category: blocks
+    material: OBSIDIAN
+    amount: 4
+    slot: 25
+
+  # ---------------- Melee ----------------
+  sword_stone:
+    category: melee
+    material: STONE_SWORD
+    tier: SWORD
+    level: STONE
+    slot: 19
+  sword_iron:
+    category: melee
+    material: IRON_SWORD
+    tier: SWORD
+    level: IRON
+    slot: 20
+  sword_diamond:
+    category: melee
+    material: DIAMOND_SWORD
+    tier: SWORD
+    level: DIAMOND
+    slot: 21
+  knockback_stick:
+    category: melee
+    material: STICK
+    slot: 23
+    enchantments:
+      KNOCKBACK: 1
+
+  # ---------------- Armor ----------------
+  armor_chainmail:
+    category: armor
+    material: CHAINMAIL_BOOTS
+    tier: ARMOR
+    level: CHAINMAIL
+    slot: 19
+  armor_iron:
+    category: armor
+    material: IRON_BOOTS
+    tier: ARMOR
+    level: IRON
+    slot: 20
+  armor_diamond:
+    category: armor
+    material: DIAMOND_BOOTS
+    tier: ARMOR
+    level: DIAMOND
+    slot: 21
+
+  # ---------------- Tools ----------------
+  shears:
+    category: tools
+    material: SHEARS
+    tier: SHEARS
+    slot: 19
+  pickaxe_1:
+    category: tools
+    material: WOOD_PICKAXE
+    tier: PICKAXE
+    level: TIER_1
+    slot: 20
+  pickaxe_2:
+    category: tools
+    material: STONE_PICKAXE
+    tier: PICKAXE
+    level: TIER_2
+    slot: 21
+  pickaxe_3:
+    category: tools
+    material: IRON_PICKAXE
+    tier: PICKAXE
+    level: TIER_3
+    slot: 22
+  pickaxe_4:
+    category: tools
+    material: DIAMOND_PICKAXE
+    tier: PICKAXE
+    level: TIER_4
+    slot: 23
+  axe_1:
+    category: tools
+    material: WOOD_AXE
+    tier: AXE
+    level: TIER_1
+    slot: 29
+  axe_2:
+    category: tools
+    material: STONE_AXE
+    tier: AXE
+    level: TIER_2
+    slot: 30
+  axe_3:
+    category: tools
+    material: IRON_AXE
+    tier: AXE
+    level: TIER_3
+    slot: 31
+  axe_4:
+    category: tools
+    material: DIAMOND_AXE
+    tier: AXE
+    level: TIER_4
+    slot: 32
+
+  # ---------------- Ranged ----------------
+  bow:
+    category: ranged
+    material: BOW
+    slot: 19
+  bow_power:
+    category: ranged
+    material: BOW
+    slot: 20
+    enchantments:
+      ARROW_DAMAGE: 1
+  bow_punch:
+    category: ranged
+    material: BOW
+    slot: 21
+    enchantments:
+      ARROW_DAMAGE: 1
+      ARROW_KNOCKBACK: 1
+  arrow:
+    category: ranged
+    material: ARROW
+    amount: 8
+    slot: 23
+
+  # ---------------- Potions ----------------
+  potion_speed:
+    category: potions
+    material: SUGAR
+    slot: 19
+    effects:
+      - "SPEED:45:1"
+  potion_jump:
+    category: potions
+    material: FEATHER
+    slot: 20
+    effects:
+      - "JUMP:45:2"
+  potion_invisibility:
+    category: potions
+    material: EYE_OF_ENDER
+    slot: 21
+    effects:
+      - "INVISIBILITY:30:0"
+
+  # ---------------- Utility ----------------
+  tnt:
+    category: utility
+    material: TNT
+    slot: 19
+  golden_apple:
+    category: utility
+    material: GOLDEN_APPLE
+    slot: 20
+  ender_pearl:
+    category: utility
+    material: ENDER_PEARL
+    slot: 21
+  fireball:
+    category: utility
+    material: FIREBALL
+    slot: 22
+  water_bucket:
+    category: utility
+    material: WATER_BUCKET
+    slot: 23
+
+  # ---------------- Chicken ----------------
+  healing_seeds:
+    category: chicken
+    material: SEEDS
+    amount: 8
+    slot: 19
+  chicken_feed:
+    category: chicken
+    material: WHEAT
+    amount: 16
+    slot: 20
+  nest_block:
+    category: chicken
+    material: OBSIDIAN
+    amount: 4
+    slot: 21
+
+pricing:
+  # DUEL e SOLO condividono questo listino.
+  solo_duel:
+    wool: {currency: IRON, amount: 4}
+    clay: {currency: IRON, amount: 12}
+    glass: {currency: IRON, amount: 12}
+    end_stone: {currency: IRON, amount: 24}
+    ladder: {currency: IRON, amount: 4}
+    wood: {currency: GOLD, amount: 4}
+    obsidian: {currency: EMERALD, amount: 4}
+
+    sword_stone: {currency: IRON, amount: 10}
+    sword_iron: {currency: GOLD, amount: 7}
+    sword_diamond: {currency: EMERALD, amount: 4}
+    knockback_stick: {currency: GOLD, amount: 5}
+
+    armor_chainmail: {currency: IRON, amount: 40}
+    armor_iron: {currency: GOLD, amount: 12}
+    armor_diamond: {currency: EMERALD, amount: 6}
+
+    shears: {currency: IRON, amount: 20}
+    pickaxe_1: {currency: IRON, amount: 10}
+    pickaxe_2: {currency: IRON, amount: 10}
+    pickaxe_3: {currency: GOLD, amount: 3}
+    pickaxe_4: {currency: GOLD, amount: 6}
+    axe_1: {currency: IRON, amount: 10}
+    axe_2: {currency: IRON, amount: 10}
+    axe_3: {currency: GOLD, amount: 3}
+    axe_4: {currency: GOLD, amount: 6}
+
+    bow: {currency: GOLD, amount: 12}
+    bow_power: {currency: GOLD, amount: 24}
+    bow_punch: {currency: EMERALD, amount: 6}
+    arrow: {currency: GOLD, amount: 2}
+
+    potion_speed: {currency: EMERALD, amount: 1}
+    potion_jump: {currency: EMERALD, amount: 1}
+    potion_invisibility: {currency: EMERALD, amount: 2}
+
+    tnt: {currency: GOLD, amount: 8}
+    golden_apple: {currency: GOLD, amount: 3}
+    ender_pearl: {currency: EMERALD, amount: 4}
+    fireball: {currency: IRON, amount: 40}
+    water_bucket: {currency: GOLD, amount: 3}
+
+    healing_seeds: {currency: IRON, amount: 12}
+    chicken_feed: {currency: IRON, amount: 8}
+    nest_block: {currency: EMERALD, amount: 4}
+
+  doubles:
+    wool: {currency: IRON, amount: 4}
+    clay: {currency: IRON, amount: 12}
+    glass: {currency: IRON, amount: 12}
+    end_stone: {currency: IRON, amount: 24}
+    ladder: {currency: IRON, amount: 4}
+    wood: {currency: GOLD, amount: 4}
+    obsidian: {currency: EMERALD, amount: 4}
+
+    sword_stone: {currency: IRON, amount: 10}
+    sword_iron: {currency: GOLD, amount: 7}
+    sword_diamond: {currency: EMERALD, amount: 4}
+    knockback_stick: {currency: GOLD, amount: 5}
+
+    armor_chainmail: {currency: IRON, amount: 40}
+    armor_iron: {currency: GOLD, amount: 12}
+    armor_diamond: {currency: EMERALD, amount: 6}
+
+    shears: {currency: IRON, amount: 20}
+    pickaxe_1: {currency: IRON, amount: 10}
+    pickaxe_2: {currency: IRON, amount: 10}
+    pickaxe_3: {currency: GOLD, amount: 3}
+    pickaxe_4: {currency: GOLD, amount: 6}
+    axe_1: {currency: IRON, amount: 10}
+    axe_2: {currency: IRON, amount: 10}
+    axe_3: {currency: GOLD, amount: 3}
+    axe_4: {currency: GOLD, amount: 6}
+
+    bow: {currency: GOLD, amount: 12}
+    bow_power: {currency: GOLD, amount: 24}
+    bow_punch: {currency: EMERALD, amount: 6}
+    arrow: {currency: GOLD, amount: 2}
+
+    potion_speed: {currency: EMERALD, amount: 1}
+    potion_jump: {currency: EMERALD, amount: 1}
+    potion_invisibility: {currency: EMERALD, amount: 2}
+
+    tnt: {currency: GOLD, amount: 8}
+    golden_apple: {currency: GOLD, amount: 3}
+    ender_pearl: {currency: EMERALD, amount: 4}
+    fireball: {currency: IRON, amount: 40}
+    water_bucket: {currency: GOLD, amount: 3}
+
+    healing_seeds: {currency: IRON, amount: 14}
+    chicken_feed: {currency: IRON, amount: 10}
+    nest_block: {currency: EMERALD, amount: 4}
+
+  trio:
+    wool: {currency: IRON, amount: 4}
+    clay: {currency: IRON, amount: 12}
+    glass: {currency: IRON, amount: 12}
+    end_stone: {currency: IRON, amount: 24}
+    ladder: {currency: IRON, amount: 4}
+    wood: {currency: GOLD, amount: 4}
+    obsidian: {currency: EMERALD, amount: 4}
+
+    sword_stone: {currency: IRON, amount: 10}
+    sword_iron: {currency: GOLD, amount: 7}
+    sword_diamond: {currency: EMERALD, amount: 4}
+    knockback_stick: {currency: GOLD, amount: 5}
+
+    armor_chainmail: {currency: IRON, amount: 40}
+    armor_iron: {currency: GOLD, amount: 12}
+    armor_diamond: {currency: EMERALD, amount: 6}
+
+    shears: {currency: IRON, amount: 20}
+    pickaxe_1: {currency: IRON, amount: 10}
+    pickaxe_2: {currency: IRON, amount: 10}
+    pickaxe_3: {currency: GOLD, amount: 3}
+    pickaxe_4: {currency: GOLD, amount: 6}
+    axe_1: {currency: IRON, amount: 10}
+    axe_2: {currency: IRON, amount: 10}
+    axe_3: {currency: GOLD, amount: 3}
+    axe_4: {currency: GOLD, amount: 6}
+
+    bow: {currency: GOLD, amount: 12}
+    bow_power: {currency: GOLD, amount: 24}
+    bow_punch: {currency: EMERALD, amount: 6}
+    arrow: {currency: GOLD, amount: 2}
+
+    potion_speed: {currency: EMERALD, amount: 1}
+    potion_jump: {currency: EMERALD, amount: 1}
+    potion_invisibility: {currency: EMERALD, amount: 2}
+
+    tnt: {currency: GOLD, amount: 8}
+    golden_apple: {currency: GOLD, amount: 3}
+    ender_pearl: {currency: EMERALD, amount: 4}
+    fireball: {currency: IRON, amount: 40}
+    water_bucket: {currency: GOLD, amount: 3}
+
+    healing_seeds: {currency: IRON, amount: 16}
+    chicken_feed: {currency: IRON, amount: 12}
+    nest_block: {currency: EMERALD, amount: 3}

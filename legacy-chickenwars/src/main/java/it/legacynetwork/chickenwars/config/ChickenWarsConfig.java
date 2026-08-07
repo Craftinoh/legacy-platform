@@ -41,6 +41,7 @@ public final class ChickenWarsConfig {
     private final WorldTemplate defaultWorldTemplate;
     private final boolean autoLoadWorlds;
     private final boolean clearWorldEntities;
+    private final double voidDropTolerance;
 
     private final String fallbackLanguage;
     private final String italianFile;
@@ -90,6 +91,8 @@ public final class ChickenWarsConfig {
                 template == null ? WorldTemplate.VOID : template;
         this.autoLoadWorlds = config.getBoolean("world.auto-load", true);
         this.clearWorldEntities = config.getBoolean("world.clear-entities", true);
+        this.voidDropTolerance = Math.max(0.0D,
+                config.getDouble("world.void-drop-tolerance", 5.0D));
 
         this.fallbackLanguage = normalize(config.getString("language.fallback", "it"));
         this.italianFile = config.getString("language.italian-file", "messages_it.yml");
@@ -229,6 +232,13 @@ public final class ChickenWarsConfig {
      */
     public boolean isClearWorldEntities() {
         return clearWorldEntities;
+    }
+
+    /**
+     * Blocchi sopra {@code voidY} entro cui vale la protezione anti-drop.
+     */
+    public double getVoidDropTolerance() {
+        return voidDropTolerance;
     }
 
     public String getFallbackLanguage() {

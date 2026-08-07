@@ -3,9 +3,50 @@
 # gli articoli acquistabili in shop.yml.
 
 language:
+  # Lingua usata quando quella del giocatore non contiene una chiave.
+  # Le traduzioni vengono cercate in translations/messages_xx.yml e, in
+  # alternativa, in messages_xx.yml nella cartella del plugin.
+  # Sono supportate tutte le lingue di Network Language, non solo it ed en.
   fallback: "it"
-  italian-file: "messages_it.yml"
-  english-file: "messages_en.yml"
+
+# Materiali associati a ogni tier di equipaggiamento.
+# I tier restano astratti nello stato di partita: qui si decide come appaiono.
+equipment:
+  # Elmo e corazza sono sempre di cuoio, colorati con il colore della squadra.
+  helmet: LEATHER_HELMET
+  chestplate: LEATHER_CHESTPLATE
+  # Solo leggings e stivali si acquistano.
+  armor:
+    LEATHER:
+      leggings: LEATHER_LEGGINGS
+      boots: LEATHER_BOOTS
+    CHAINMAIL:
+      leggings: CHAINMAIL_LEGGINGS
+      boots: CHAINMAIL_BOOTS
+    IRON:
+      leggings: IRON_LEGGINGS
+      boots: IRON_BOOTS
+    DIAMOND:
+      leggings: DIAMOND_LEGGINGS
+      boots: DIAMOND_BOOTS
+  sword:
+    WOOD: WOOD_SWORD
+    STONE: STONE_SWORD
+    IRON: IRON_SWORD
+    DIAMOND: DIAMOND_SWORD
+  pickaxe:
+    TIER_1: WOOD_PICKAXE
+    TIER_2: STONE_PICKAXE
+    TIER_3: IRON_PICKAXE
+    TIER_4: DIAMOND_PICKAXE
+  axe:
+    TIER_1: WOOD_AXE
+    TIER_2: STONE_AXE
+    TIER_3: IRON_AXE
+    TIER_4: DIAMOND_AXE
+  shears: SHEARS
+  # Tier sotto il quale piccone e ascia non scendono dopo la morte.
+  minimum-tool-tier: TIER_1
 
 game:
   # Secondi di conto alla rovescia una volta raggiunto il minimo giocatori.
@@ -46,6 +87,9 @@ world:
   # Disattivare lo spawn non basta: le creature salvate nei chunk restano.
   # Gli armor stand non vengono mai toccati.
   clear-entities: true
+  # Blocchi sopra "void-y" entro cui scatta la protezione anti-drop:
+  # durante la caduta nel vuoto gli oggetti non possono essere espulsi.
+  void-drop-tolerance: 5.0
 
   block-place: true
   # true = si possono rompere solo i blocchi piazzati durante la partita.

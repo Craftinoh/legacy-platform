@@ -2,6 +2,7 @@ package it.legacynetwork.chickenwars.message;
 
 import it.legacynetwork.language.Language;
 import it.legacynetwork.language.PlayerLanguageProvider;
+import it.legacynetwork.language.TranslationInstaller;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -14,25 +15,37 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 
 /**
- * Traduzioni di ChickenWars, con risoluzione della lingua tramite
- * {@link PlayerLanguageProvider} quando il servizio di rete e' disponibile.
+ * Traduzioni di ChickenWars su tutte le lingue di Network Language.
  *
- * <p>In assenza del servizio lingua viene usata la lingua di fallback indicata
- * in {@code config.yml}, quindi il plugin resta pienamente funzionante da
- * solo.</p>
+ * <p>La lingua del giocatore viene risolta tramite {@link PlayerLanguageProvider}
+ * e usata cosi' com'e': non viene collassata su italiano o inglese. Quando una
+ * chiave manca nella lingua richiesta si applica la catena di fallback
+ * lingua del giocatore, lingua configurata, inglese.</p>
+ *
+ * <p>I file vengono cercati sia nella cartella dati del plugin
+ * ({@code messages_xx.yml}) sia nella sottocartella {@code translations/},
+ * cosi' da restare compatibili con l'installatore centrale.</p>
  */
 public final class MessageService {
 
+    /** Ultimo anello della catena di fallback. */
+    public static final String ULTIMATE_FALLBACK = "en";
+
+    private static final String TRANSLATIONS_DIR = "translations";
+
     private final JavaPlugin plugin;
 
-    private volatile YamlConfiguration italian = new YamlConfiguration();
-    private volatile YamlConfiguration english = new YamlConfiguration();
-    private volatile String fallbackLanguage = "it";
+    private volatile Map<String, YamlConfiguration> bundles =
+            Collections.emptyMap();
+    private volatile String fallbackLanguage = ULTIMATE_FALLBACK;
     private volatile String prefix = "";
     private volatile PlayerLanguageProvider languageProvider;
 
@@ -41,47 +54,77 @@ public final class MessageService {
     }
 
     /**
-     * Ricarica i file di traduzione.
+     * Ricarica tutte le traduzioni disponibili su disco.
      *
-     * @param italianFile      nome del file italiano
-     * @param englishFile      nome del file inglese
-     * @param fallbackLanguage lingua usata quando quella del giocatore manca
-     * @return {@code true} se entrambi i file sono stati caricati
+     * @param fallbackLanguage codice lingua usato quando quella del giocatore
+     *                         non contiene la chiave richiesta
+     * @return {@code true} se almeno una lingua e' stata caricata
      */
-    public boolean reload(String italianFile, String englishFile,
-                          String fallbackLanguage) {
-        try {
-            YamlConfiguration newItalian =
-                    loadStrict(new File(plugin.getDataFolder(), italianFile));
-            YamlConfiguration newEnglish =
-                    loadStrict(new File(plugin.getDataFolder(), englishFile));
+    public boolean reload(String fallbackLanguage) {
+        Map<String, YamlConfiguration> loaded =
+                new LinkedHashMap<String, YamlConfiguration>();
 
-            this.italian = newItalian;
-            this.english = newEnglish;
-            this.fallbackLanguage = normalize(fallbackLanguage);
-            this.prefix = ChatColor.translateAlternateColorCodes('&',
-                    messagesFor(this.fallbackLanguage).getString("prefix", ""));
-            this.languageProvider = null;
-            return true;
-        } catch (IOException exception) {
-            plugin.getLogger().warning("Impossibile caricare i messaggi: "
-                    + exception.getMessage());
-            return false;
-        } catch (InvalidConfigurationException exception) {
-            plugin.getLogger().warning("File messaggi non valido: "
-                    + exception.getMessage());
+        for (String code : TranslationInstaller.ALL_LANGUAGES) {
+            YamlConfiguration configuration = loadFirstAvailable(code);
+            if (configuration != null) {
+                loaded.put(code, configuration);
+            }
+        }
+
+        if (loaded.isEmpty()) {
+            plugin.getLogger().warning(
+                    "Nessun file di traduzione trovato: messaggi non disponibili.");
             return false;
         }
+
+        String normalizedFallback = normalize(fallbackLanguage);
+        if (!loaded.containsKey(normalizedFallback)) {
+            normalizedFallback = loaded.containsKey(ULTIMATE_FALLBACK)
+                    ? ULTIMATE_FALLBACK : loaded.keySet().iterator().next();
+        }
+
+        this.bundles = Collections.unmodifiableMap(loaded);
+        this.fallbackLanguage = normalizedFallback;
+        this.prefix = ChatColor.translateAlternateColorCodes('&',
+                rawLookup(normalizedFallback, "prefix", ""));
+        this.languageProvider = null;
+
+        plugin.getLogger().info("Traduzioni caricate: " + loaded.size()
+                + " lingue (fallback " + normalizedFallback + ").");
+        return true;
     }
 
-    private YamlConfiguration loadStrict(File file)
-            throws IOException, InvalidConfigurationException {
-        if (!file.isFile()) {
-            throw new IOException("File non trovato: " + file.getName());
+    /**
+     * Cerca il file di una lingua prima in {@code translations/}, poi nella
+     * cartella dati, mantenendo compatibilita' con le installazioni esistenti.
+     */
+    private YamlConfiguration loadFirstAvailable(String code) {
+        String fileName = "messages_" + code + ".yml";
+        YamlConfiguration fromTranslations = loadQuietly(
+                new File(new File(plugin.getDataFolder(), TRANSLATIONS_DIR),
+                        fileName));
+        if (fromTranslations != null) {
+            return fromTranslations;
+        }
+        return loadQuietly(new File(plugin.getDataFolder(), fileName));
+    }
+
+    private YamlConfiguration loadQuietly(File file) {
+        if (file == null || !file.isFile()) {
+            return null;
         }
         YamlConfiguration configuration = new YamlConfiguration();
-        configuration.load(file);
-        return configuration;
+        try {
+            configuration.load(file);
+            return configuration;
+        } catch (IOException exception) {
+            plugin.getLogger().warning("Impossibile leggere " + file.getName()
+                    + ": " + exception.getMessage());
+        } catch (InvalidConfigurationException exception) {
+            plugin.getLogger().warning("File traduzione non valido "
+                    + file.getName() + ": " + exception.getMessage());
+        }
+        return null;
     }
 
     /**
@@ -93,8 +136,20 @@ public final class MessageService {
      * @return il testo tradotto e colorato, mai nullo
      */
     public String get(CommandSender sender, String key, String... replacements) {
-        String language = resolveLanguage(sender);
-        String raw = findRaw(language, key);
+        return translate(getLanguage(sender), key, replacements);
+    }
+
+    /**
+     * Traduce una chiave in una lingua specifica.
+     *
+     * @param languageCode codice lingua richiesto
+     * @param key          chiave del messaggio
+     * @param replacements coppie {@code segnaposto, valore}
+     * @return il testo tradotto e colorato, mai nullo
+     */
+    public String translate(String languageCode, String key,
+                            String... replacements) {
+        String raw = findRaw(languageCode, key);
         if (raw == null) {
             return ChatColor.RED + "messaggio mancante: " + key;
         }
@@ -108,19 +163,28 @@ public final class MessageService {
      */
     public List<String> getList(CommandSender sender, String key,
                                 String... replacements) {
-        String language = resolveLanguage(sender);
-        List<String> raw = messagesFor(language).getStringList(key);
-        if (raw == null || raw.isEmpty()) {
-            raw = messagesFor(fallbackLanguage).getStringList(key);
-        }
+        return translateList(getLanguage(sender), key, replacements);
+    }
+
+    /**
+     * Traduce una lista di righe in una lingua specifica.
+     */
+    public List<String> translateList(String languageCode, String key,
+                                      String... replacements) {
+        List<String> raw = findRawList(languageCode, key);
         List<String> result = new ArrayList<String>();
-        if (raw == null) {
-            return result;
-        }
         for (String line : raw) {
             result.add(colorize(applyReplacements(line, replacements)));
         }
         return result;
+    }
+
+    /**
+     * Indica se una chiave esiste nella lingua indicata o nei suoi fallback.
+     */
+    public boolean hasKey(String languageCode, String key) {
+        return findRaw(languageCode, key) != null
+                || !findRawList(languageCode, key).isEmpty();
     }
 
     /**
@@ -145,6 +209,19 @@ public final class MessageService {
             return;
         }
         sender.sendMessage(get(sender, key, replacements));
+    }
+
+    /**
+     * Invia piu' righe tradotte, senza prefisso, al destinatario indicato.
+     */
+    public void sendList(CommandSender sender, String key,
+                         String... replacements) {
+        if (sender == null) {
+            return;
+        }
+        for (String line : getList(sender, key, replacements)) {
+            sender.sendMessage(line);
+        }
     }
 
     /**
@@ -174,18 +251,62 @@ public final class MessageService {
             if (player == null || !player.isOnline()) {
                 continue;
             }
-            for (String line : getList(player, key, replacements)) {
-                player.sendMessage(line);
-            }
+            sendList(player, key, replacements);
         }
     }
 
-    private String findRaw(String language, String key) {
-        String value = messagesFor(language).getString(key);
-        if (value == null || value.trim().isEmpty()) {
-            value = messagesFor(fallbackLanguage).getString(key);
+    /**
+     * Cerca il testo grezzo percorrendo la catena di fallback.
+     *
+     * @return il testo, oppure {@code null} se assente in tutta la catena
+     */
+    private String findRaw(String languageCode, String key) {
+        for (String candidate : fallbackChain(languageCode)) {
+            YamlConfiguration bundle = bundles.get(candidate);
+            if (bundle == null) {
+                continue;
+            }
+            String value = bundle.getString(key);
+            if (value != null && !value.trim().isEmpty()) {
+                return value;
+            }
         }
-        return value;
+        return null;
+    }
+
+    private List<String> findRawList(String languageCode, String key) {
+        for (String candidate : fallbackChain(languageCode)) {
+            YamlConfiguration bundle = bundles.get(candidate);
+            if (bundle == null) {
+                continue;
+            }
+            List<String> value = bundle.getStringList(key);
+            if (value != null && !value.isEmpty()) {
+                return value;
+            }
+        }
+        return Collections.emptyList();
+    }
+
+    private String rawLookup(String languageCode, String key, String fallback) {
+        String value = findRaw(languageCode, key);
+        return value == null ? fallback : value;
+    }
+
+    /**
+     * Ordine di ricerca: lingua richiesta, lingua configurata, inglese.
+     */
+    private List<String> fallbackChain(String languageCode) {
+        List<String> chain = new ArrayList<String>(3);
+        String requested = normalize(languageCode);
+        chain.add(requested);
+        if (!chain.contains(fallbackLanguage)) {
+            chain.add(fallbackLanguage);
+        }
+        if (!chain.contains(ULTIMATE_FALLBACK)) {
+            chain.add(ULTIMATE_FALLBACK);
+        }
+        return chain;
     }
 
     private String applyReplacements(String raw, String... replacements) {
@@ -207,20 +328,15 @@ public final class MessageService {
         return ChatColor.translateAlternateColorCodes('&', text);
     }
 
-    private YamlConfiguration messagesFor(String language) {
-        return "it".equalsIgnoreCase(language) ? italian : english;
-    }
-
     /**
      * Risolve il codice lingua del destinatario.
      *
-     * @return {@code "it"} oppure {@code "en"}, mai nullo
+     * <p>Restituisce il codice reale della lingua scelta dal giocatore, senza
+     * ridurlo a un insieme di due lingue.</p>
+     *
+     * @return un codice lingua non nullo
      */
     public String getLanguage(CommandSender sender) {
-        return resolveLanguage(sender);
-    }
-
-    private String resolveLanguage(CommandSender sender) {
         if (!(sender instanceof Player)) {
             return fallbackLanguage;
         }
@@ -247,7 +363,8 @@ public final class MessageService {
             return provider;
         }
         try {
-            provider = Bukkit.getServicesManager().load(PlayerLanguageProvider.class);
+            provider = Bukkit.getServicesManager().load(
+                    PlayerLanguageProvider.class);
             languageProvider = provider;
             return provider;
         } catch (RuntimeException exception) {
@@ -259,10 +376,22 @@ public final class MessageService {
 
     private String normalize(String language) {
         if (language == null) {
-            return "it";
+            return ULTIMATE_FALLBACK;
         }
-        String normalized = language.trim().toLowerCase(Locale.ROOT);
-        return "it".equals(normalized) ? "it" : "en";
+        String normalized = language.trim().toLowerCase(Locale.ROOT)
+                .replace('-', '_');
+        return normalized.isEmpty() ? ULTIMATE_FALLBACK : normalized;
+    }
+
+    /**
+     * Codici lingua effettivamente caricati.
+     */
+    public Collection<String> getLoadedLanguages() {
+        return bundles.keySet();
+    }
+
+    public String getFallbackLanguage() {
+        return fallbackLanguage;
     }
 
     public String getPrefix() {

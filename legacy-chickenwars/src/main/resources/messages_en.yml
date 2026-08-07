@@ -227,6 +227,7 @@ chicken:
 death:
   normal: "&7{player} &7was killed by &f{killer}&7."
   final: "&7{player} &7was eliminated for good by &f{killer}&7."
+  combat-logout: "&7{player} &7logged out in combat: kill awarded to &f{killer}&7."
   unknown-killer: "natural causes"
 
 respawn:
@@ -240,21 +241,239 @@ team:
   already-started: "&cYou cannot switch team after the match started."
   eliminated: "&7Team {team} &7has been eliminated."
 
+resources:
+  stolen: "&aYou took from &f{victim}&a: {resources}"
+  queued: "&7Inventory full: the rest will be delivered as soon as possible."
+  queue-delivered: "&aReceived &f{amount} &aresources from the reward queue."
+
+reconnect:
+  restored: "&aWelcome back: permanent equipment restored."
+
 shop:
   title: "&8Chicken Wars Shop"
   npc-name: "&e&lSHOPKEEPER"
+  unavailable: "&cThe shop is not available."
+  category-selected:
+    - "&7Open category"
   purchased: "&aPurchased: &f{item}"
+  already-owned: "&cYou already own &f{item}&c."
+  lower-tier: "&cYou already have a higher tier than &f{item}&c."
   not-enough: "&cYou need &f{amount} &cmore {currency}&c."
   inventory-full: "&cYour inventory is full."
-  unavailable: "&cThe shop is not available."
+  unavailable-item: "&cThis item is not available in this mode."
+  no-permission: "&cYou do not have permission to buy it."
+
+  currency:
+    iron: "Iron"
+    gold: "Gold"
+    diamond: "Diamond"
+    emerald: "Emerald"
+    feather: "Feather"
+
+  lore:
+    cost: "&7Cost: &f{amount} {currency}"
+    affordable: "&eClick to purchase"
+    not-affordable: "&cNot enough resources"
+    owned: "&aAlready owned"
+    lower-tier: "&8Lower than your current tier"
+    no-permission: "&cMissing permission"
+    inventory-full: "&cInventory full"
+    unavailable: "&cNot available in this mode"
+
+  presets:
+    title: "&8Quick Buy &7- presets"
+    open: "&e&lManage presets"
+    open-lore:
+      - "&7Create, select and delete"
+      - "&7your Quick Buy presets."
+      - ""
+      - "&eClick to open."
+    create: "&a&lCreate preset"
+    create-lore:
+      - "&7Adds a new empty preset"
+      - "&7and makes it active."
+      - ""
+      - "&7Limit: &f{limit}"
+      - "&eClick to create."
+    limit-reached: "&c&lLimit reached"
+    limit-reached-lore:
+      - "&7You can have at most &f{limit} &7presets."
+      - "&7Delete one to create another."
+    entry-active: "&a&l{preset} &7(active)"
+    entry-inactive: "&e{preset}"
+    entry-slots: "&7Assigned items: &f{amount}"
+    entry-select:
+      - "&eLeft click &7to activate it"
+    entry-delete:
+      - "&cShift + right click &7to delete it"
+    entry-last:
+      - "&8This is the only preset: cannot delete"
+
+  nav:
+    back-shop: "&e&lBack to shop"
+    back-shop-lore:
+      - "&7Reopens the item categories."
+    back-quickbuy: "&e&lBack to Quick Buy"
+    back-quickbuy-lore:
+      - "&7Reopens the active preset grid."
+
+  quickbuy:
+    empty: "&cEmpty slot"
+    empty-lore:
+      - "&7Shift + left click an item from"
+      - "&7another category to assign it."
+    target: "&a&lPick this slot"
+    target-lore:
+      - "&7Click to place the selected"
+      - "&7item here."
+    placing: "&6&lPlacing: &f{item}"
+    placing-lore:
+      - "&7Click a slot to confirm."
+      - "&7An occupied slot is replaced."
+    choose-slot: "&ePick the slot for &f{item}&e."
+    assigned: "&aAdded to Quick Buy: &f{item}"
+    replaced: "&aReplaced &f{previous} &awith &f{item}&a."
+    unchanged: "&7&f{item} &7was already in this slot."
+    removed: "&7Item removed from Quick Buy."
+    empty-slot: "&7This slot is already empty."
+    item-missing: "&cThis item is no longer available."
+    full: "&cYour Quick Buy is full."
+    preset-selected: "&aActive preset: &f{preset}"
+    preset-created: "&aPreset &f{preset} &acreated."
+    preset-deleted: "&7Preset &f{preset} &7deleted."
+    preset-last: "&cYou cannot delete your only remaining preset."
+    preset-missing: "&cPreset &f{preset} &cdoes not exist."
+    preset-limit: "&cYou reached the limit of &f{limit} &cpresets."
+
+  categories:
+    quick_buy: "Quick Buy"
+    blocks: "Blocks"
+    melee: "Melee"
+    armor: "Armor"
+    tools: "Tools"
+    ranged: "Ranged"
+    potions: "Potions"
+    utility: "Utility"
+    chicken: "Chicken"
+
+  items:
+    wool:
+      name: "&fWool"
+      lore: ["&7The fastest way to bridge."]
+    clay:
+      name: "&6Stained Clay"
+      lore: ["&7Tougher than wool."]
+    glass:
+      name: "&bStained Glass"
+      lore: ["&7Immune to explosions."]
+    end_stone:
+      name: "&dEnd Stone"
+      lore: ["&7Solid protection for the nest."]
+    ladder:
+      name: "&6Ladders"
+      lore: ["&7To climb back up quickly."]
+    wood:
+      name: "&6Wood"
+      lore: ["&7Tough and quick to place."]
+    obsidian:
+      name: "&5Obsidian"
+      lore: ["&7The hardest defense to break."]
+    sword_stone:
+      name: "&7Stone Sword"
+      lore: ["&7A solid upgrade."]
+    sword_iron:
+      name: "&fIron Sword"
+      lore: ["&7For decisive assaults."]
+    sword_diamond:
+      name: "&bDiamond Sword"
+      lore: ["&7The best in melee."]
+    knockback_stick:
+      name: "&dKnockback Stick"
+      lore: ["&7Pushes enemies off the edge."]
+    armor_chainmail:
+      name: "&7Chainmail Armor"
+      lore: ["&7Permanent leggings and boots."]
+    armor_iron:
+      name: "&fIron Armor"
+      lore: ["&7Permanent leggings and boots."]
+    armor_diamond:
+      name: "&bDiamond Armor"
+      lore: ["&7Permanent leggings and boots."]
+    shears:
+      name: "&fShears"
+      lore: ["&7Permanent: removes wool instantly."]
+    pickaxe_1:
+      name: "&7Pickaxe I"
+      lore: ["&7Drops one tier on every death."]
+    pickaxe_2:
+      name: "&7Pickaxe II"
+      lore: ["&7Drops one tier on every death."]
+    pickaxe_3:
+      name: "&fPickaxe III"
+      lore: ["&7Drops one tier on every death."]
+    pickaxe_4:
+      name: "&bPickaxe IV"
+      lore: ["&7Drops one tier on every death."]
+    axe_1:
+      name: "&7Axe I"
+      lore: ["&7Drops one tier on every death."]
+    axe_2:
+      name: "&7Axe II"
+      lore: ["&7Drops one tier on every death."]
+    axe_3:
+      name: "&fAxe III"
+      lore: ["&7Drops one tier on every death."]
+    axe_4:
+      name: "&bAxe IV"
+      lore: ["&7Drops one tier on every death."]
+    bow:
+      name: "&6Bow"
+      lore: ["&7Hit the chicken from afar."]
+    bow_power:
+      name: "&6Bow Power I"
+      lore: ["&7Increased damage."]
+    bow_punch:
+      name: "&6Bow Power I Punch I"
+      lore: ["&7Increased damage and knockback."]
+    arrow:
+      name: "&6Arrows"
+      lore: ["&7Ammunition for the bow."]
+    potion_speed:
+      name: "&fQuick Dash"
+      lore: ["&7Speed II for 45 seconds."]
+    potion_jump:
+      name: "&aLight Feet"
+      lore: ["&7Jump III for 45 seconds."]
+    potion_invisibility:
+      name: "&8Invisibility"
+      lore: ["&7Invisible for 30 seconds."]
+    tnt:
+      name: "&cTNT"
+      lore: ["&7Only destroys placed blocks."]
+    golden_apple:
+      name: "&6Golden Apple"
+      lore: ["&7Instant healing in combat."]
+    ender_pearl:
+      name: "&5Ender Pearl"
+      lore: ["&7Reach the enemy nest instantly."]
+    fireball:
+      name: "&cFireball"
+      lore: ["&7Breaks enemy bridges."]
+    water_bucket:
+      name: "&bWater Bucket"
+      lore: ["&7Slows down base attackers."]
+    healing_seeds:
+      name: "&aHealing Seeds"
+      lore: ["&7Right click your Royal Chicken."]
+    chicken_feed:
+      name: "&eRoyal Feed"
+      lore: ["&7Feeds the chicken and refills its shield."]
+    nest_block:
+      name: "&5Nest Blocks"
+      lore: ["&7The toughest protection for the chicken."]
 
 generator:
   countdown: "&7Next resource: &f{seconds}s"
-
-world:
-  protected-block: "&cYou can only break blocks placed during the match."
-  outside-arena: "&cYou cannot build outside the arena."
-  build-limit: "&cYou cannot build above y={limit}."
 
 scoreboard:
   title: "&6&lCHICKEN WARS"
@@ -264,6 +483,12 @@ scoreboard:
   time: "&7Time: &f{time}"
 
 world:
+  # Map protections during the match.
+  protected-block: "&cYou can only break blocks placed during the match."
+  outside-arena: "&cYou cannot build outside the arena."
+  build-limit: "&cYou cannot build above y={limit}."
+
+  # Arena world management.
   created: "&aWorld &f{world} &acreated &8({template})"
   loaded: "&aWorld &f{world} &aactivated &8({template})"
   adopted: "&aArena linked to the existing world &f{world}&a."
@@ -321,6 +546,7 @@ admin:
   no-teleport-target: "&cThe arena has no destination set."
   reloaded: "&aChickenWars reloaded: &f{arenas} &aarenas."
   reload-failed: "&cReload cancelled: invalid configuration."
+  shop-reload-failed: "&cInvalid shop.yml: previous catalog kept."
 
 setup:
   entered:

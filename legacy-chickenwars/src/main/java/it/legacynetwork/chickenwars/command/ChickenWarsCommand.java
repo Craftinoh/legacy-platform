@@ -7,7 +7,9 @@ import it.legacynetwork.chickenwars.game.GameServices;
 import it.legacynetwork.chickenwars.game.GameTeam;
 import it.legacynetwork.chickenwars.message.MessageService;
 import it.legacynetwork.chickenwars.model.ArenaState;
+import it.legacynetwork.chickenwars.persistence.QuickBuyPresetRecord;
 import it.legacynetwork.chickenwars.player.PlayerSession;
+import it.legacynetwork.chickenwars.shop.QuickBuyService;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -30,7 +32,7 @@ public final class ChickenWarsCommand implements CommandExecutor, TabCompleter {
 
     private static final List<String> PLAYER_SUBCOMMANDS = Collections.unmodifiableList(
             Arrays.asList("help", "join", "quickjoin", "leave", "team", "shop",
-                    "list", "stats"));
+                    "quickbuy", "list", "stats"));
 
     private final ArenaManager arenas;
     private final GameServices services;
@@ -103,6 +105,10 @@ public final class ChickenWarsCommand implements CommandExecutor, TabCompleter {
         }
         if ("stats".equals(subcommand)) {
             handleStats(player);
+            return true;
+        }
+        if ("quickbuy".equals(subcommand)) {
+            handleQuickBuy(player, rest);
             return true;
         }
 
@@ -220,7 +226,69 @@ public final class ChickenWarsCommand implements CommandExecutor, TabCompleter {
         }
         GameTeam team = game.getTeam(session.getTeamId());
         services.getShop().open(player, game.getDefinition().getId(), null,
-                team == null ? null : team.getColor());
+                session, team == null ? null : team.getColor(),
+                game.getDefinition().getModeProfile());
+    }
+
+    /**
+     * Elenca, seleziona o crea i preset Quick Buy.
+     *
+     * <p>Utilizzabile anche a partita in corso, come previsto dal
+     * regolamento.</p>
+     */
+    private void handleQuickBuy(Player player, String[] args) {
+        MessageService messages = services.getMessages();
+        QuickBuyService quickBuy = services.getShop().getQuickBuy();
+
+        if (args.length == 0) {
+            StringBuilder names = new StringBuilder();
+            for (QuickBuyPresetRecord preset
+                    : quickBuy.list(player.getUniqueId())) {
+                if (names.length() > 0) {
+                    names.append(", ");
+                }
+                names.append(preset.getPresetId());
+            }
+            messages.send(player, "shop.quickbuy.preset-selected",
+                    "{preset}", quickBuy.getSelected(player.getUniqueId())
+                            .getPresetId());
+            messages.send(player, "command.usage",
+                    "{usage}", "/cw quickbuy <" + names + "|create <nome>>");
+            return;
+        }
+
+        if ("create".equalsIgnoreCase(args[0])) {
+            if (args.length < 2) {
+                messages.send(player, "command.usage",
+                        "{usage}", "/cw quickbuy create <nome>");
+                return;
+            }
+            if (!quickBuy.create(player, args[1])) {
+                messages.send(player, "shop.quickbuy.preset-limit",
+                        "{limit}", String.valueOf(
+                                quickBuy.getPresetLimit(player)));
+                return;
+            }
+            quickBuy.select(player.getUniqueId(), args[1]);
+            messages.send(player, "shop.quickbuy.preset-created",
+                    "{preset}", args[1]);
+            return;
+        }
+
+        if (!quickBuy.select(player.getUniqueId(), args[0])) {
+            messages.send(player, "shop.quickbuy.preset-missing",
+                    "{preset}", args[0]);
+            return;
+        }
+        Game game = arenas.getGameOf(player);
+        if (game != null) {
+            PlayerSession session = game.getSession(player.getUniqueId());
+            if (session != null) {
+                session.getEquipmentState().selectQuickBuyPreset(args[0]);
+            }
+        }
+        messages.send(player, "shop.quickbuy.preset-selected",
+                "{preset}", args[0]);
     }
 
     private void handleStats(Player player) {

@@ -3,7 +3,15 @@ package it.legacynetwork.chickenwars;
 import it.legacynetwork.chickenwars.chicken.ChickenSettings;
 import it.legacynetwork.chickenwars.command.HelpTopic;
 import it.legacynetwork.chickenwars.model.ResourceType;
+import it.legacynetwork.chickenwars.player.equipment.ArmorTier;
+import it.legacynetwork.chickenwars.player.equipment.EquipmentSettings;
+import it.legacynetwork.chickenwars.player.equipment.SwordTier;
+import it.legacynetwork.chickenwars.player.equipment.ToolTier;
 import it.legacynetwork.chickenwars.setup.SetupTool;
+import it.legacynetwork.chickenwars.shop.ShopCategoryDefinition;
+import it.legacynetwork.chickenwars.shop.ShopConfigLoader;
+import it.legacynetwork.chickenwars.shop.ShopConfiguration;
+import it.legacynetwork.chickenwars.shop.ShopItemDefinition;
 import it.legacynetwork.chickenwars.world.WorldTemplate;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -31,6 +39,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * a server avviato.</p>
  */
 class ResourcesTest {
+
+    /**
+     * Incantesimi ed effetti sono risolti dal registro popolato dal server:
+     * in una JVM di test risultano sempre sconosciuti. Le relative segnalazioni
+     * non descrivono quindi un errore di configurazione e vengono escluse,
+     * mentre la loro forma testuale resta verificata separatamente.
+     */
+    private static boolean isRegistryWarning(String warning) {
+        return warning.contains("incantesimo sconosciuto")
+                || warning.contains("effetto non valido");
+    }
 
     private YamlConfiguration load(String resource) throws Exception {
         InputStream stream = getClass().getResourceAsStream("/" + resource);
@@ -170,6 +189,37 @@ class ResourcesTest {
         assertTrue(WorldTemplate.NORMAL.isCreatable());
     }
 
+    /**
+     * La sezione {@code equipment} spedita deve coprire ogni tier: un materiale
+     * mancante lascerebbe il giocatore senza quel pezzo dopo il respawn.
+     */
+    @Test
+    void configYmlDescriveTuttiITierDiEquipaggiamento() throws Exception {
+        EquipmentSettings settings = EquipmentSettings.fromSection(
+                load("config.yml").getConfigurationSection("equipment"));
+
+        for (ArmorTier tier : ArmorTier.values()) {
+            assertNotNull(settings.getLeggings(tier), "leggings " + tier);
+            assertNotNull(settings.getBoots(tier), "stivali " + tier);
+        }
+        for (SwordTier tier : SwordTier.values()) {
+            assertNotNull(settings.getSword(tier), "spada " + tier);
+        }
+        for (ToolTier tier : ToolTier.values()) {
+            if (tier == ToolTier.NONE) {
+                assertNull(settings.getPickaxe(tier));
+                assertNull(settings.getAxe(tier));
+                continue;
+            }
+            assertNotNull(settings.getPickaxe(tier), "piccone " + tier);
+            assertNotNull(settings.getAxe(tier), "ascia " + tier);
+        }
+        assertNotNull(settings.getShears());
+        assertNotNull(settings.getHelmet());
+        assertNotNull(settings.getChestplate());
+        assertSame(ToolTier.TIER_1, settings.getMinimumToolTier());
+    }
+
     @Test
     void chickensYmlProduceImpostazioniCoerenti() throws Exception {
         ChickenSettings settings = ChickenSettings.fromSection(
@@ -184,34 +234,99 @@ class ResourcesTest {
         assertTrue(settings.isLastFeatherEnabled());
     }
 
+    /**
+     * Lo {@code shop.yml} incluso deve caricarsi senza alcuna anomalia: nessun
+     * materiale sconosciuto, nessuna valuta errata, nessun articolo privo di
+     * prezzo in uno dei tre profili economici.
+     */
     @Test
-    void ogniArticoloDelloShopHaMaterialeEValutaValidi() throws Exception {
-        ConfigurationSection categories =
-                load("shop.yml").getConfigurationSection("categories");
-        assertNotNull(categories);
+    void loShopInclusoSiCaricaSenzaAnomalie() throws Exception {
+        ShopConfiguration configuration =
+                ShopConfigLoader.load(load("shop.yml"));
 
-        int checked = 0;
-        for (String categoryId : categories.getKeys(false)) {
-            ConfigurationSection category =
-                    categories.getConfigurationSection(categoryId);
-            assertNotNull(category, categoryId);
-            assertNotNull(Material.matchMaterial(category.getString("icon", "")),
-                    "icona non valida in " + categoryId);
-
-            ConfigurationSection items = category.getConfigurationSection("items");
-            assertNotNull(items, "categoria senza articoli: " + categoryId);
-            for (String itemId : items.getKeys(false)) {
-                ConfigurationSection item = items.getConfigurationSection(itemId);
-                assertNotNull(item, itemId);
-                assertNotNull(Material.matchMaterial(item.getString("material", "")),
-                        "materiale non valido in " + itemId);
-                assertNotNull(ResourceType.fromString(item.getString("currency")),
-                        "valuta non valida in " + itemId);
-                assertTrue(item.getInt("price", 0) > 0,
-                        "prezzo non valido in " + itemId);
-                checked++;
+        java.util.List<String> structural = new java.util.ArrayList<String>();
+        for (String warning : configuration.getWarnings()) {
+            if (!isRegistryWarning(warning)) {
+                structural.add(warning);
             }
         }
-        assertTrue(checked > 0);
+
+        assertTrue(structural.isEmpty(), "anomalie in shop.yml: " + structural);
+        assertFalse(configuration.isEmpty());
+        assertFalse(configuration.getItems().isEmpty());
+
+        for (String profileId : ShopConfigLoader.EXPECTED_PROFILES) {
+            assertNotNull(configuration.getProfile(profileId),
+                    "profilo mancante: " + profileId);
+        }
+    }
+
+    /**
+     * Verifica la forma di incantesimi ed effetti, che il registro Bukkit non
+     * permette di risolvere fuori dal server.
+     */
+    @Test
+    void incantesimiEdEffettiHannoUnaFormaValida() throws Exception {
+        ConfigurationSection items =
+                load("shop.yml").getConfigurationSection("items");
+        assertNotNull(items);
+
+        for (String itemId : items.getKeys(false)) {
+            ConfigurationSection item = items.getConfigurationSection(itemId);
+            assertNotNull(item, itemId);
+
+            ConfigurationSection enchantments =
+                    item.getConfigurationSection("enchantments");
+            if (enchantments != null) {
+                for (String key : enchantments.getKeys(false)) {
+                    assertTrue(key.matches("[A-Z][A-Z_]*"),
+                            "nome incantesimo malformato in " + itemId + ": " + key);
+                    assertTrue(enchantments.getInt(key, 0) > 0,
+                            "livello incantesimo non valido in " + itemId);
+                }
+            }
+
+            for (String effect : item.getStringList("effects")) {
+                assertTrue(effect.matches("[A-Z][A-Z_]*:\\d+:\\d+"),
+                        "effetto malformato in " + itemId + ": " + effect);
+            }
+        }
+    }
+
+    /**
+     * Ogni categoria dichiarata nel menu deve avere nome tradotto in entrambe
+     * le lingue incluse, e ogni articolo nome e descrizione.
+     */
+    @Test
+    void ogniVoceDelloShopEuLocalizzata() throws Exception {
+        ShopConfiguration configuration =
+                ShopConfigLoader.load(load("shop.yml"));
+        YamlConfiguration italian = load("messages_it.yml");
+        YamlConfiguration english = load("messages_en.yml");
+
+        for (ShopCategoryDefinition category : configuration.getCategories()) {
+            assertNotNull(italian.getString(category.getNameKey()),
+                    "categoria senza nome italiano: " + category.getId());
+            assertNotNull(english.getString(category.getNameKey()),
+                    "categoria senza nome inglese: " + category.getId());
+        }
+
+        for (ShopItemDefinition item : configuration.getItems().values()) {
+            assertNotNull(italian.getString(item.getNameKey()),
+                    "articolo senza nome italiano: " + item.getId());
+            assertNotNull(english.getString(item.getNameKey()),
+                    "articolo senza nome inglese: " + item.getId());
+            assertFalse(italian.getStringList(item.getLoreKey()).isEmpty(),
+                    "articolo senza descrizione italiana: " + item.getId());
+            assertFalse(english.getStringList(item.getLoreKey()).isEmpty(),
+                    "articolo senza descrizione inglese: " + item.getId());
+        }
+
+        for (ResourceType currency : ResourceType.values()) {
+            String key = "shop.currency."
+                    + currency.name().toLowerCase(java.util.Locale.ROOT);
+            assertNotNull(italian.getString(key), "valuta non tradotta: " + key);
+            assertNotNull(english.getString(key), "valuta non tradotta: " + key);
+        }
     }
 }
