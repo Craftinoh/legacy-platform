@@ -1,0 +1,127 @@
+# Visual texts for /lang. External values override bundled values key by key.
+languages:
+  en:
+    menu:
+      title: "&8Choose your language"
+      language-name: "&f{language}"
+      language-name-selected: "&a✔ &f{language}"
+      status:
+        selected: "Selected"
+        available: "Available"
+      lore:
+        selected:
+          - "&8{country} • {code}"
+          - ""
+          - "&a✔ This is your current language"
+          - "&7Menus, messages, scoreboard, TAB"
+          - "&7and network interfaces use it."
+        unselected:
+          - "&8{country} • {code}"
+          - ""
+          - "&7Use this language for menus,"
+          - "&7messages and network interfaces."
+          - ""
+          - "&eClick to select"
+      page: "&ePage &f{current}&7/&f{total}"
+      page-lore:
+        - "&7Choose the language used across"
+        - "&7the whole Apteris network."
+        - ""
+        - "&8Limit: {limit} changes / {minutes} min"
+      close: "&cClose"
+      back: "&7Close"
+      next: "&aNext page &7→"
+      prev: "&7← &aPrevious page"
+    change:
+      success: "&aLanguage changed to &f{language}&a."
+      already-selected: "&e{language} is already your current language."
+      pending: "&eYour previous language request is still being processed."
+      cooldown: "&cPlease wait {seconds} seconds before changing language again."
+      rate-limited: "&cYou can change language at most {limit} times every {minutes} minutes."
+      unavailable: "&cThe language service is currently unavailable."
+      timeout: "&cThe language service did not answer in time. Try again."
+      error: "&cThe language could not be changed. Try again later."
+
+  it:
+    menu:
+      title: "&8Scegli la tua lingua"
+      language-name: "&f{language}"
+      language-name-selected: "&a✔ &f{language}"
+      status:
+        selected: "Selezionata"
+        available: "Disponibile"
+      lore:
+        selected:
+          - "&8{country} • {code}"
+          - ""
+          - "&a✔ Questa è la tua lingua attuale"
+          - "&7Menu, messaggi, scoreboard, TAB"
+          - "&7e interfacce di rete la utilizzeranno."
+        unselected:
+          - "&8{country} • {code}"
+          - ""
+          - "&7Usa questa lingua per menu,"
+          - "&7messaggi e interfacce del network."
+          - ""
+          - "&eClicca per selezionarla"
+      page: "&ePagina &f{current}&7/&f{total}"
+      page-lore:
+        - "&7Scegli la lingua utilizzata in tutto"
+        - "&7il network Apteris."
+        - ""
+        - "&8Limite: {limit} cambi / {minutes} min"
+      close: "&cChiudi"
+      back: "&7Chiudi"
+      next: "&aPagina successiva &7→"
+      prev: "&7← &aPagina precedente"
+    change:
+      success: "&aLingua cambiata in &f{language}&a."
+      already-selected: "&e{language} è già la tua lingua attuale."
+      pending: "&eLa richiesta precedente è ancora in elaborazione."
+      cooldown: "&cAttendi {seconds} secondi prima di cambiare di nuovo lingua."
+      rate-limited: "&cPuoi cambiare lingua al massimo {limit} volte ogni {minutes} minuti."
+      unavailable: "&cIl servizio delle lingue non è al momento disponibile."
+      timeout: "&cIl servizio delle lingue non ha risposto in tempo. Riprova."
+      error: "&cNon è stato possibile cambiare lingua. Riprova più tardi."
+
+  fr:
+    menu:
+      title: "&8Choisissez votre langue"
+      language-name: "&f{language}"
+      language-name-selected: "&a✔ &f{language}"
+      status:
+        selected: "Sélectionnée"
+        available: "Disponible"
+      lore:
+        selected:
+          - "&8{country} • {code}"
+          - ""
+          - "&a✔ C'est votre langue actuelle"
+          - "&7Les menus, messages, le scoreboard,"
+          - "&7le TAB et les interfaces l'utilisent."
+        unselected:
+          - "&8{country} • {code}"
+          - ""
+          - "&7Utilisez cette langue pour les menus,"
+          - "&7messages et interfaces du réseau."
+          - ""
+          - "&eCliquez pour la sélectionner"
+      page: "&ePage &f{current}&7/&f{total}"
+      page-lore:
+        - "&7Choisissez la langue utilisée sur"
+        - "&7l'ensemble du réseau Apteris."
+        - ""
+        - "&8Limite : {limit} changements / {minutes} min"
+      close: "&cFermer"
+      back: "&7Fermer"
+      next: "&aPage suivante &7→"
+      prev: "&7← &aPage précédente"
+    change:
+      success: "&aLangue changée en &f{language}&a."
+      already-selected: "&e{language} est déjà votre langue actuelle."
+      pending: "&eVotre demande précédente est encore en cours de traitement."
+      cooldown: "&cAttendez {seconds} secondes avant de changer à nouveau de langue."
+      rate-limited: "&cVous pouvez changer de langue au maximum {limit} fois toutes les {minutes} minutes."
+      unavailable: "&cLe service des langues est actuellement indisponible."
+      timeout: "&cLe service des langues n'a pas répondu à temps. Réessayez."
+      error: "&cLa langue n'a pas pu être modifiée. Réessayez plus tard."
