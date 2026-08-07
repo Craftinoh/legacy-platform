@@ -145,6 +145,10 @@ royal-upgrades:
           doubles: {currency: DIAMOND, amount: 5}
           trio: {currency: DIAMOND, amount: 5}
 
+  # Royal Guard allunga la durata degli effetti che la Contro-Offensiva
+  # concede ai difensori: "duration-ticks" e' cumulativo fra i livelli, quindi
+  # Guard I vale +40 tick e Guard II +80 tick complessivi. Senza questo campo
+  # il bonus resterebbe a zero e l'upgrade non avrebbe alcun effetto.
   ROYAL_GUARD:
     icon: IRON_FENCE
     slot: 31
@@ -152,12 +156,14 @@ royal-upgrades:
     levels:
       1:
         value: 1.0
+        duration-ticks: 40
         cost:
           solo_duel: {currency: FEATHER, amount: 20}
           doubles: {currency: FEATHER, amount: 24}
           trio: {currency: FEATHER, amount: 28}
       2:
         value: 1.0
+        duration-ticks: 40
         cost:
           solo_duel: {currency: EMERALD, amount: 4}
           doubles: {currency: EMERALD, amount: 4}

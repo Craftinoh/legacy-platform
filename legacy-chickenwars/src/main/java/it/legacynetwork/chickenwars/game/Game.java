@@ -1233,18 +1233,21 @@ public final class Game {
         broadcast("collapse.team", "{team}", owner.getColoredName());
         notifyTeam(owner, "collapse.respawn-disabled");
 
+        // L'UUID va letto prima di playDeath: quel metodo rimuove l'entita' e
+        // azzera il riferimento, quindi dopo non sarebbe piu' recuperabile ne'
+        // per deregistrare la voce ne' per descrivere la sconfitta.
+        UUID entityId = chicken.getEntity() == null
+                ? null : chicken.getEntity().getUniqueId();
+
         ChickenSettings settings = services.getConfig().getChicken();
         services.getChickens().playDeath(chicken, settings);
 
-        if (chicken.getEntity() != null) {
-            services.getRoyalRegistry().unregister(
-                    chicken.getEntity().getUniqueId());
+        if (entityId != null) {
+            services.getRoyalRegistry().unregister(entityId);
         }
 
         RoyalDefeat defeat = new RoyalDefeat(definition.getId(), owner.getId(),
-                chicken.getEntity() == null ? null
-                        : chicken.getEntity().getUniqueId(),
-                killer == null ? null : killer.getUniqueId(),
+                entityId, killer == null ? null : killer.getUniqueId(),
                 System.currentTimeMillis());
         services.getRoyalDefeatDispatcher().dispatch(defeat);
 
