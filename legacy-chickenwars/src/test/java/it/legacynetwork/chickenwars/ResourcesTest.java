@@ -12,6 +12,12 @@ import it.legacynetwork.chickenwars.shop.ShopCategoryDefinition;
 import it.legacynetwork.chickenwars.shop.ShopConfigLoader;
 import it.legacynetwork.chickenwars.shop.ShopConfiguration;
 import it.legacynetwork.chickenwars.shop.ShopItemDefinition;
+import it.legacynetwork.chickenwars.upgrade.RoyalUpgradeType;
+import it.legacynetwork.chickenwars.upgrade.TeamUpgradeType;
+import it.legacynetwork.chickenwars.upgrade.TrapDefinition;
+import it.legacynetwork.chickenwars.upgrade.UpgradeCatalog;
+import it.legacynetwork.chickenwars.upgrade.UpgradeConfigLoader;
+import it.legacynetwork.chickenwars.upgrade.UpgradeResult;
 import it.legacynetwork.chickenwars.world.WorldTemplate;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -48,7 +54,11 @@ class ResourcesTest {
      */
     private static boolean isRegistryWarning(String warning) {
         return warning.contains("incantesimo sconosciuto")
-                || warning.contains("effetto non valido");
+                || warning.contains("effetto non valido")
+                || warning.contains("effetto sconosciuto")
+                // Conseguenza diretta: senza registro nessun effetto risolve,
+                // quindi la voce risulta priva di effetti utili.
+                || warning.contains("nessun effetto utile");
     }
 
     private YamlConfiguration load(String resource) throws Exception {
@@ -218,6 +228,103 @@ class ResourcesTest {
         assertNotNull(settings.getHelmet());
         assertNotNull(settings.getChestplate());
         assertSame(ToolTier.TIER_1, settings.getMinimumToolTier());
+    }
+
+    /**
+     * Lo {@code upgrades.yml} incluso deve caricarsi senza anomalie
+     * strutturali: livelli contigui, valute valide, profili completi.
+     */
+    @Test
+    void loUpgradesInclusoSiCaricaSenzaAnomalie() throws Exception {
+        UpgradeCatalog catalog = UpgradeConfigLoader.load(load("upgrades.yml"));
+
+        java.util.List<String> structural = new java.util.ArrayList<String>();
+        for (String warning : catalog.getWarnings()) {
+            if (!isRegistryWarning(warning)) {
+                structural.add(warning);
+            }
+        }
+
+        assertTrue(structural.isEmpty(),
+                "anomalie in upgrades.yml: " + structural);
+        assertFalse(catalog.isEmpty());
+        assertEquals(3, catalog.getMaximumTraps());
+    }
+
+    /**
+     * Verifica la forma di effetti e valute in {@code upgrades.yml}, che il
+     * registro Bukkit non permette di risolvere fuori dal server.
+     */
+    @Test
+    void gliEffettiDegliUpgradeHannoUnaFormaValida() throws Exception {
+        YamlConfiguration upgrades = load("upgrades.yml");
+
+        ConfigurationSection teamUpgrades =
+                upgrades.getConfigurationSection("team-upgrades");
+        assertNotNull(teamUpgrades);
+        for (String id : teamUpgrades.getKeys(false)) {
+            String effect = teamUpgrades.getString(id + ".effect");
+            if (effect != null) {
+                assertTrue(effect.matches("[A-Z][A-Z_]*"),
+                        "effetto malformato in " + id + ": " + effect);
+            }
+            assertNotNull(TeamUpgradeType.fromString(id),
+                    "tipo upgrade sconosciuto: " + id);
+        }
+
+        ConfigurationSection traps =
+                upgrades.getConfigurationSection("traps.types");
+        assertNotNull(traps);
+        for (String id : traps.getKeys(false)) {
+            for (String path : new String[]{"intruder-effects",
+                    "defender-effects"}) {
+                for (String raw : traps.getStringList(id + "." + path)) {
+                    assertTrue(raw.matches("[A-Z][A-Z_]*:\\d+:\\d+"),
+                            "effetto malformato in " + id + ": " + raw);
+                }
+            }
+        }
+    }
+
+    /**
+     * Ogni upgrade e ogni trappola devono avere nome e descrizione tradotti.
+     */
+    @Test
+    void ogniUpgradeEuLocalizzato() throws Exception {
+        UpgradeCatalog catalog = UpgradeConfigLoader.load(load("upgrades.yml"));
+        YamlConfiguration italian = load("messages_it.yml");
+        YamlConfiguration english = load("messages_en.yml");
+
+        for (TeamUpgradeType type : catalog.getTeamUpgrades().keySet()) {
+            assertNotNull(italian.getString(type.getNameKey()), type.name());
+            assertNotNull(english.getString(type.getNameKey()), type.name());
+            assertFalse(italian.getStringList(type.getLoreKey()).isEmpty(),
+                    type.name());
+        }
+        for (RoyalUpgradeType type : catalog.getRoyalUpgrades().keySet()) {
+            assertNotNull(italian.getString(type.getNameKey()), type.name());
+            assertNotNull(english.getString(type.getNameKey()), type.name());
+        }
+        for (TrapDefinition trap : catalog.getTraps().values()) {
+            assertNotNull(italian.getString(trap.getNameKey()), trap.getId());
+            assertNotNull(english.getString(trap.getNameKey()), trap.getId());
+        }
+    }
+
+    /**
+     * Ogni esito di acquisto deve avere un messaggio in entrambe le lingue.
+     */
+    @Test
+    void ogniEsitoDiAcquistoEuLocalizzato() throws Exception {
+        YamlConfiguration italian = load("messages_it.yml");
+        YamlConfiguration english = load("messages_en.yml");
+
+        for (UpgradeResult result : UpgradeResult.values()) {
+            assertNotNull(italian.getString(result.getMessageKey()),
+                    result.name());
+            assertNotNull(english.getString(result.getMessageKey()),
+                    result.name());
+        }
     }
 
     @Test

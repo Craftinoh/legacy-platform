@@ -11,9 +11,9 @@ package it.legacynetwork.chickenwars.chicken;
  */
 public final class ChickenVitals {
 
-    private final double maxHealth;
     private final double maxShield;
 
+    private double maxHealth;
     private double health;
     private double shield;
 
@@ -84,6 +84,26 @@ public final class ChickenVitals {
         double restored = Math.min(maxShield - shield, amount);
         shield += restored;
         return restored;
+    }
+
+    /**
+     * Alza la vita massima aggiungendo alla vita corrente il solo incremento.
+     *
+     * <p>E' il comportamento richiesto da Vitality: potenziare non deve curare
+     * la gallina, quindi la salute corrente cresce esattamente del delta e non
+     * supera mai il nuovo massimo. Su una gallina gia' sconfitta non ha
+     * effetto.</p>
+     *
+     * @param delta incremento della vita massima
+     * @return l'incremento realmente applicato
+     */
+    public double increaseMaximum(double delta) {
+        if (delta <= 0.0D || isDead()) {
+            return 0.0D;
+        }
+        maxHealth += delta;
+        health = Math.min(maxHealth, health + delta);
+        return delta;
     }
 
     /**

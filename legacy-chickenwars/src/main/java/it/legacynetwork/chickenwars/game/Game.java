@@ -11,6 +11,9 @@ import it.legacynetwork.chickenwars.arena.TeamDefinition;
 import it.legacynetwork.chickenwars.chicken.ChickenSettings;
 import it.legacynetwork.chickenwars.chicken.DamageOutcome;
 import it.legacynetwork.chickenwars.chicken.RoyalChicken;
+import it.legacynetwork.chickenwars.chicken.RoyalDamageRequest;
+import it.legacynetwork.chickenwars.chicken.RoyalDamageResult;
+import it.legacynetwork.chickenwars.chicken.RoyalDefeat;
 import it.legacynetwork.chickenwars.config.ChickenWarsConfig;
 import it.legacynetwork.chickenwars.death.DeathCause;
 import it.legacynetwork.chickenwars.death.DeathContext;
@@ -26,6 +29,8 @@ import it.legacynetwork.chickenwars.player.InventorySnapshot;
 import it.legacynetwork.chickenwars.player.PlayerSession;
 import it.legacynetwork.chickenwars.player.PlayerState;
 import it.legacynetwork.chickenwars.scoreboard.GameScoreboard;
+import it.legacynetwork.chickenwars.region.CuboidRegion;
+import it.legacynetwork.chickenwars.upgrade.TeamUpgradeType;
 import it.legacynetwork.chickenwars.world.MapRestoreService;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -69,6 +74,8 @@ public final class Game {
             new ArrayList<RuntimeGenerator>();
     private final Map<UUID, Villager> shopNpcs = new LinkedHashMap<UUID, Villager>();
     private final Map<UUID, Location> shopAnchors = new LinkedHashMap<UUID, Location>();
+    private final Map<UUID, Villager> upgradesNpcs = new LinkedHashMap<UUID, Villager>();
+    private final Map<UUID, Location> upgradesAnchors = new LinkedHashMap<UUID, Location>();
     private final MapRestoreService restore = new MapRestoreService();
 
     private ArenaState state = ArenaState.WAITING;
@@ -177,10 +184,10 @@ public final class Game {
         boards.remove(player.getUniqueId());
         GameScoreboard.clear(player);
 
-        // Il registro delle morte elaborate e' per giocatore e sopravviverebbe
-        // alla sessione: senza questa pulizia la prima morte dopo un rientro
-        // verrebbe scambiata per un duplicato e non trasferirebbe risorse.
         services.getTransfers().clear(player.getUniqueId());
+        services.getTeamEffects().forget(player.getUniqueId());
+        services.getHealPool().forget(player.getUniqueId());
+        services.getBaseEntryTracker().forget(player.getUniqueId());
 
         if (restoreState && session.getSnapshot() != null) {
             session.getSnapshot().restore(player);
@@ -275,9 +282,24 @@ public final class Game {
             services.getChickens().update(chicken, team, chickenSettings);
         }
 
+        if (elapsedSeconds % 10 == 0) {
+            for (GameTeam team : teams.values()) {
+                List<UUID> aliveIds = new ArrayList<UUID>();
+                for (UUID member : team.getAliveMembers()) {
+                    Player player = Bukkit.getPlayer(member);
+                    if (player != null && player.isOnline()) {
+                        aliveIds.add(member);
+                    }
+                }
+                services.getTeamEffects().refresh(
+                        definition.getId(), team.getId(), aliveIds);
+            }
+        }
+
         tickRespawns();
         updateGeneratorHolograms();
         anchorShopNpcs();
+        anchorUpgradesNpcs();
 
         if (elapsedSeconds >= config.getMaximumDurationSeconds()) {
             end(findLeadingTeam());
@@ -347,6 +369,7 @@ public final class Game {
         spawnChickens();
         createGenerators();
         spawnShopNpcs();
+        spawnUpgradesNpcs();
 
         for (PlayerSession session : sessions.values()) {
             Player player = Bukkit.getPlayer(session.getPlayerId());
@@ -423,6 +446,14 @@ public final class Game {
             }
             chicken.releaseProtection();
             team.setChicken(chicken);
+
+            if (chicken.getEntity() != null) {
+                services.getRoyalRegistry().register(
+                        chicken.getEntity().getUniqueId(),
+                        definition.getId(), team.getId());
+            }
+            services.getRoyalApplier().applyVitality(
+                    definition.getId(), team.getId(), chicken);
         }
     }
 
@@ -504,6 +535,22 @@ public final class Game {
         }
     }
 
+    private void anchorUpgradesNpcs() {
+        for (Villager villager : upgradesNpcs.values()) {
+            if (villager == null || !villager.isValid()) {
+                continue;
+            }
+            Location anchor = upgradesAnchors.get(villager.getUniqueId());
+            if (anchor == null) {
+                continue;
+            }
+            if (villager.getLocation().getWorld() != anchor.getWorld()
+                    || villager.getLocation().distanceSquared(anchor) > 1.0D) {
+                villager.teleport(anchor);
+            }
+        }
+    }
+
     private void removeShopNpcs() {
         for (Villager villager : shopNpcs.values()) {
             if (villager != null && villager.isValid()) {
@@ -512,6 +559,43 @@ public final class Game {
         }
         shopNpcs.clear();
         shopAnchors.clear();
+    }
+
+    private void spawnUpgradesNpcs() {
+        removeUpgradesNpcs();
+        for (GameTeam team : teams.values()) {
+            if (team.getMemberCount() == 0) {
+                continue;
+            }
+            Location location = resolve(team.getDefinition().getUpgrades());
+            if (location == null || location.getWorld() == null) {
+                continue;
+            }
+            Villager villager = location.getWorld().spawn(location, Villager.class);
+            villager.setProfession(Villager.Profession.PRIEST);
+            villager.setAdult();
+            villager.setRemoveWhenFarAway(false);
+            villager.setCanPickupItems(false);
+            villager.setCustomName(services.getMessages().get(null,
+                    "chicken.menu.npc-name"));
+            villager.setCustomNameVisible(true);
+            upgradesNpcs.put(villager.getUniqueId(), villager);
+            upgradesAnchors.put(villager.getUniqueId(), location.clone());
+        }
+    }
+
+    private void removeUpgradesNpcs() {
+        for (Villager villager : upgradesNpcs.values()) {
+            if (villager != null && villager.isValid()) {
+                villager.remove();
+            }
+        }
+        upgradesNpcs.clear();
+        upgradesAnchors.clear();
+    }
+
+    public boolean isUpgradesNpc(Entity entity) {
+        return entity != null && upgradesNpcs.containsKey(entity.getUniqueId());
     }
 
     /**
@@ -547,7 +631,6 @@ public final class Game {
         player.setGameMode(GameMode.SURVIVAL);
         player.teleport(spawn);
 
-        // Il loadout dipende solo dallo stato autorevole ed e' idempotente.
         services.getEquipment().applyLoadout(player, session,
                 team.getColor());
 
@@ -558,8 +641,49 @@ public final class Game {
 
         deliverPendingRewards(player);
 
+        services.getTeamEffects().apply(definition.getId(), team.getId(),
+                player.getUniqueId(), true);
+
         if (!initial) {
             services.getMessages().send(player, "respawn.done");
+        }
+    }
+
+    /**
+     * Applica subito a tutti i membri vivi l'upgrade di squadra appena
+     * acquistato, usando lo stato autorevole gia' aggiornato.
+     */
+    public void applyTeamUpgrade(GameTeam team, TeamUpgradeType type) {
+        if (team == null || type == null || state != ArenaState.IN_GAME) {
+            return;
+        }
+        String arenaId = definition.getId();
+        CuboidRegion base = team.getDefinition().getBaseRegion();
+        for (UUID memberId : team.getAliveMembers()) {
+            Player player = Bukkit.getPlayer(memberId);
+            PlayerSession session = sessions.get(memberId);
+            if (player == null || !player.isOnline() || session == null
+                    || !session.getState().isActive()) {
+                continue;
+            }
+            if (type == TeamUpgradeType.PROTECTION) {
+                services.getEquipment().applyArmor(player, session,
+                        team.getColor());
+            } else if (type == TeamUpgradeType.SHARPNESS) {
+                services.getEquipment().applySword(player, session);
+            } else if (type == TeamUpgradeType.HASTE) {
+                services.getTeamEffects().apply(arenaId, team.getId(),
+                        memberId, true);
+            } else if (type == TeamUpgradeType.HEAL_POOL) {
+                Location location = player.getLocation();
+                boolean inside = base != null && location != null
+                        && location.getWorld() != null
+                        && base.contains(location.getWorld().getName(),
+                        location.getX(), location.getY(), location.getZ());
+                services.getHealPool().update(arenaId, team.getId(), memberId,
+                        inside, inside);
+            }
+            player.updateInventory();
         }
     }
 
@@ -795,14 +919,14 @@ public final class Game {
             return false;
         }
 
+        UUID attackerId = attacker == null ? null : attacker.getUniqueId();
+        String attackerTeamId = null;
+        boolean attackerPlaying = false;
         if (attacker != null) {
-            PlayerSession session = sessions.get(attacker.getUniqueId());
-            if (session == null || !session.getState().isActive()) {
-                return false;
-            }
-            if (owner.isMember(attacker.getUniqueId())) {
-                services.getMessages().send(attacker, "chicken.own-team");
-                return false;
+            PlayerSession attackerSession = sessions.get(attacker.getUniqueId());
+            if (attackerSession != null && attackerSession.getState().isActive()) {
+                attackerTeamId = attackerSession.getTeamId();
+                attackerPlaying = true;
             }
         }
 
@@ -813,9 +937,19 @@ public final class Game {
             return false;
         }
 
-        UUID attackerId = attacker == null ? null : attacker.getUniqueId();
-        DamageOutcome outcome = chicken.damage(event.getDamage(), attackerId);
-        if (outcome.isNoop()) {
+        double reduction = services.getRoyalApplier().resolveArmorReduction(
+                definition.getId(), owner.getId());
+        RoyalDamageRequest request = RoyalDamageRequest.builder()
+                .attacker(attackerId, attackerTeamId)
+                .owner(owner.getId())
+                .gameRunning(state == ArenaState.IN_GAME)
+                .attackerPlaying(attackerPlaying)
+                .rawDamage(event.getDamage())
+                .damageReduction(reduction)
+                .build();
+
+        RoyalDamageResult result = services.getRoyalDamage().damage(chicken, request);
+        if (result.isIgnored()) {
             return false;
         }
 
@@ -823,8 +957,8 @@ public final class Game {
         ChickenSettings settings = services.getConfig().getChicken();
         services.getChickens().update(chicken, owner, settings);
 
-        if (outcome.isFatal()) {
-            handleChickenDeath(owner, chicken, attacker);
+        if (result.isDefeated()) {
+            handleChickenDefeat(owner, chicken, attacker);
             return true;
         }
 
@@ -892,10 +1026,26 @@ public final class Game {
         return true;
     }
 
-    private void handleChickenDeath(GameTeam owner, RoyalChicken chicken,
-                                    Player killer) {
+    private void handleChickenDefeat(GameTeam owner, RoyalChicken chicken,
+                                     Player killer) {
+        if (!chicken.markDefeated()) {
+            return;
+        }
+
         ChickenSettings settings = services.getConfig().getChicken();
         services.getChickens().playDeath(chicken, settings);
+
+        if (chicken.getEntity() != null) {
+            services.getRoyalRegistry().unregister(
+                    chicken.getEntity().getUniqueId());
+        }
+
+        RoyalDefeat defeat = new RoyalDefeat(definition.getId(), owner.getId(),
+                chicken.getEntity() == null ? null
+                        : chicken.getEntity().getUniqueId(),
+                killer == null ? null : killer.getUniqueId(),
+                System.currentTimeMillis());
+        services.getRoyalDefeatDispatcher().dispatch(defeat);
 
         if (killer != null) {
             PlayerSession killerSession = sessions.get(killer.getUniqueId());
@@ -1105,6 +1255,12 @@ public final class Game {
         }
         generators.clear();
         removeShopNpcs();
+        removeUpgradesNpcs();
+        services.getUpgrades().clearArena(definition.getId());
+        services.getRoyalRegistry().clearArena(definition.getId());
+        services.getTeamEffects().clearArena(definition.getId());
+        services.getHealPool().clearArena(definition.getId());
+        services.getBaseEntryTracker().clearArena(definition.getId());
         restore.clearEntities(definition);
     }
 
@@ -1254,14 +1410,10 @@ public final class Game {
         if (entity == null) {
             return null;
         }
-        for (GameTeam team : teams.values()) {
-            RoyalChicken chicken = team.getChicken();
-            if (chicken != null && chicken.getEntity() != null
-                    && chicken.getEntity().getUniqueId().equals(entity.getUniqueId())) {
-                return team;
-            }
-        }
-        return null;
+        it.legacynetwork.chickenwars.chicken.RoyalChickenRegistry.Entry entry =
+                services.getRoyalRegistry().lookup(entity.getUniqueId());
+        return entry != null && entry.belongsTo(definition.getId())
+                ? getTeam(entry.getTeamId()) : null;
     }
 
     public PlayerSession getSession(UUID playerId) {

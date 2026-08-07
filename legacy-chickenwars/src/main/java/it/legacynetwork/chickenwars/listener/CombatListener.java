@@ -2,6 +2,7 @@ package it.legacynetwork.chickenwars.listener;
 
 import it.legacynetwork.chickenwars.arena.ArenaDefinition;
 import it.legacynetwork.chickenwars.arena.ArenaManager;
+import it.legacynetwork.chickenwars.chicken.RoyalChickenRegistry;
 import it.legacynetwork.chickenwars.config.ChickenWarsConfig;
 import it.legacynetwork.chickenwars.game.Game;
 import it.legacynetwork.chickenwars.game.GameServices;
@@ -49,16 +50,12 @@ public final class CombatListener implements Listener {
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         Player attacker = resolveAttacker(event.getDamager());
 
-        GameTeam chickenOwner = null;
-        Game chickenGame = null;
-        for (Game game : arenas.getGames()) {
-            GameTeam owner = game.findChickenOwner(event.getEntity());
-            if (owner != null) {
-                chickenOwner = owner;
-                chickenGame = game;
-                break;
-            }
-        }
+        RoyalChickenRegistry.Entry royal = services.getRoyalRegistry()
+                .lookup(event.getEntity().getUniqueId());
+        Game chickenGame = royal == null
+                ? null : arenas.getGame(royal.getArenaId());
+        GameTeam chickenOwner = chickenGame == null
+                ? null : chickenGame.getTeam(royal.getTeamId());
 
         if (chickenOwner != null) {
             event.setCancelled(true);

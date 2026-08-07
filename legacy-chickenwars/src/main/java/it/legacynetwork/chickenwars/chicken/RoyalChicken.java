@@ -29,6 +29,8 @@ public final class RoyalChicken {
     private long lastFeedMillis;
     private UUID lastAttacker;
     private UUID killer;
+    private int appliedVitalityLevel;
+    private boolean defeatDispatched;
 
     public RoyalChicken(String teamId, SimpleLocation nest,
                         ChickenSettings settings) {
@@ -171,6 +173,44 @@ public final class RoyalChicken {
         }
         lastFeedMillis = now;
         return true;
+    }
+
+    /**
+     * Livello di Royal Vitality gia' tradotto in salute massima.
+     *
+     * <p>Distinguere il livello acquistato da quello applicato e' cio' che
+     * rende innocuo riaprire il menu: un livello viene convertito in salute una
+     * sola volta.</p>
+     */
+    public int getAppliedVitalityLevel() {
+        return appliedVitalityLevel;
+    }
+
+    public void setAppliedVitalityLevel(int appliedVitalityLevel) {
+        this.appliedVitalityLevel = Math.max(0, appliedVitalityLevel);
+    }
+
+    /**
+     * Segna la sconfitta come gia' notificata.
+     *
+     * <p>Eventi Bukkit duplicati riferiti allo stesso colpo fatale ottengono
+     * {@code false}: il callback di dominio parte una volta sola.</p>
+     *
+     * @return {@code true} soltanto alla prima chiamata
+     */
+    public synchronized boolean markDefeated() {
+        if (defeatDispatched) {
+            return false;
+        }
+        defeatDispatched = true;
+        return true;
+    }
+
+    /**
+     * Indica se la sconfitta e' gia' stata notificata.
+     */
+    public synchronized boolean isDefeatDispatched() {
+        return defeatDispatched;
     }
 
     /**

@@ -140,6 +140,15 @@ public final class ArenaConfigLoader {
             team.setShop(SimpleLocation.parse(teamSection.getString("shop")));
             team.setUpgrades(SimpleLocation.parse(
                     teamSection.getString("upgrades")));
+            // Formato compatibile con le arene precedenti: la regione base e'
+            // facoltativa e la sua assenza non invalida la mappa.
+            team.setBaseMin(SimpleLocation.parse(
+                    teamSection.getString("base-region.min")));
+            team.setBaseMax(SimpleLocation.parse(
+                    teamSection.getString("base-region.max")));
+            for (String issue : team.findBaseRegionIssues()) {
+                logger.warning("Arena " + arena.getId() + ": " + issue);
+            }
             arena.addTeam(team);
         }
     }
@@ -207,6 +216,10 @@ public final class ArenaConfigLoader {
             configuration.set(path + "chicken", serialize(team.getChicken()));
             configuration.set(path + "shop", serialize(team.getShop()));
             configuration.set(path + "upgrades", serialize(team.getUpgrades()));
+            configuration.set(path + "base-region.min",
+                    serialize(team.getBaseMin()));
+            configuration.set(path + "base-region.max",
+                    serialize(team.getBaseMax()));
         }
 
         for (GeneratorDefinition generator : arena.getGenerators()) {

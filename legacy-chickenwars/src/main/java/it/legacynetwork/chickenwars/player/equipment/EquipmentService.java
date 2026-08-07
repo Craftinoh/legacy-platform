@@ -112,10 +112,9 @@ public final class EquipmentService {
             return;
         }
         PlayerEquipmentState state = session.getEquipmentState();
-        String teamId = session.getTeamId();
 
-        applyArmor(player, state, color, teamId);
-        applySword(player, state, teamId);
+        applyArmor(player, session, color);
+        applySword(player, session);
         applyTools(player, state);
         player.updateInventory();
     }
@@ -123,10 +122,11 @@ public final class EquipmentService {
     /**
      * Riapplica soltanto l'armatura, dopo un acquisto o un upgrade di squadra.
      */
-    public void applyArmor(Player player, PlayerEquipmentState state,
-                           TeamColor color, String teamId) {
+    public void applyArmor(Player player, PlayerSession session,
+                           TeamColor color) {
+        PlayerEquipmentState state = session.getEquipmentState();
         EquipmentSettings current = settings;
-        int protection = enchantProvider.getProtectionLevel(teamId);
+        int protection = enchantProvider.getProtectionLevel(session);
 
         player.getInventory().setHelmet(buildArmorPiece(
                 current.getHelmet(), color, true, protection));
@@ -144,15 +144,15 @@ public final class EquipmentService {
     /**
      * Rimuove ogni spada gestita e consegna quella del tier corrente.
      */
-    public void applySword(Player player, PlayerEquipmentState state,
-                           String teamId) {
+    public void applySword(Player player, PlayerSession session) {
+        PlayerEquipmentState state = session.getEquipmentState();
         removeManaged(player, managedSwords);
         Material material = settings.getSword(state.getSwordTier());
         if (material == null) {
             return;
         }
         ItemStack sword = new ItemStack(material);
-        int sharpness = enchantProvider.getSharpnessLevel(teamId);
+        int sharpness = enchantProvider.getSharpnessLevel(session);
         if (sharpness > 0) {
             sword.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, sharpness);
         }
@@ -372,16 +372,15 @@ public final class EquipmentService {
     private void deliver(Player player, PlayerSession session, TeamColor color,
                          ShopItemDefinition item) {
         PlayerEquipmentState state = session.getEquipmentState();
-        String teamId = session.getTeamId();
 
         switch (item.getTierKind()) {
             case ARMOR:
                 state.upgradeArmor(item.getArmorTier());
-                applyArmor(player, state, color, teamId);
+                applyArmor(player, session, color);
                 return;
             case SWORD:
                 state.upgradeSword(item.getSwordTier());
-                applySword(player, state, teamId);
+                applySword(player, session);
                 return;
             case PICKAXE:
                 state.upgradePickaxe(item.getToolTier());

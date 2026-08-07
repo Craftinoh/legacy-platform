@@ -13,6 +13,13 @@ public interface ResourceInventory {
 
     int count(ResourceType type);
 
+    /**
+     * Preleva una quantita' solo se interamente disponibile.
+     *
+     * @return {@code true} se l'addebito e' avvenuto per intero
+     */
+    boolean withdraw(ResourceType type, int amount);
+
     Map<ResourceType, Integer> withdrawAll();
 
     int deposit(ResourceType type, int amount);
@@ -48,6 +55,28 @@ public interface ResourceInventory {
         public int count(ResourceType type) {
             Integer v = storage.get(type);
             return v == null ? 0 : v.intValue();
+        }
+
+        @Override
+        public boolean withdraw(ResourceType type, int amount) {
+            if (type == null || amount < 0) {
+                return false;
+            }
+            if (amount == 0) {
+                return true;
+            }
+            int available = count(type);
+            if (available < amount) {
+                return false;
+            }
+            int remaining = available - amount;
+            if (remaining <= 0) {
+                storage.remove(type);
+                usedSlots = Math.max(0, usedSlots - 1);
+            } else {
+                storage.put(type, remaining);
+            }
+            return true;
         }
 
         @Override

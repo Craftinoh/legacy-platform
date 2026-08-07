@@ -1,6 +1,7 @@
 package it.legacynetwork.chickenwars.listener;
 
 import it.legacynetwork.chickenwars.arena.ArenaManager;
+import it.legacynetwork.chickenwars.chicken.RoyalChickenRegistry;
 import it.legacynetwork.chickenwars.game.Game;
 import it.legacynetwork.chickenwars.game.GameServices;
 import it.legacynetwork.chickenwars.game.GameTeam;
@@ -8,12 +9,14 @@ import it.legacynetwork.chickenwars.model.ArenaState;
 import it.legacynetwork.chickenwars.player.PlayerSession;
 import it.legacynetwork.chickenwars.shop.ShopClickType;
 import it.legacynetwork.chickenwars.shop.ShopMenuHolder;
+import it.legacynetwork.chickenwars.shop.ShopMenuView;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -59,7 +62,21 @@ public final class InteractionListener implements Listener {
             return;
         }
 
-        GameTeam owner = game.findChickenOwner(event.getRightClicked());
+        if (game.isUpgradesNpc(event.getRightClicked())) {
+            event.setCancelled(true);
+            GameTeam team = game.getTeam(session.getTeamId());
+            if (team != null) {
+                services.getChickenMenu().openChickenRoot(player, game, session,
+                        team, game.getDefinition().getModeProfile());
+            }
+            return;
+        }
+
+        RoyalChickenRegistry.Entry royal = services.getRoyalRegistry()
+                .lookup(event.getRightClicked().getUniqueId());
+        GameTeam owner = royal != null
+                && royal.belongsTo(game.getDefinition().getId())
+                ? game.getTeam(royal.getTeamId()) : null;
         if (owner == null) {
             return;
         }
@@ -95,14 +112,16 @@ public final class InteractionListener implements Listener {
             return;
         }
         Player player = (Player) event.getWhoClicked();
-        ShopMenuHolder holder = resolveHolder(event.getInventory());
+        Inventory top = event.getView() == null
+                ? event.getInventory() : event.getView().getTopInventory();
+        ShopMenuHolder holder = resolveHolder(top);
         if (holder == null) {
             return;
         }
 
         event.setCancelled(true);
         if (event.getRawSlot() < 0
-                || event.getRawSlot() >= event.getInventory().getSize()) {
+                || event.getRawSlot() >= top.getSize()) {
             return;
         }
 
@@ -112,15 +131,35 @@ public final class InteractionListener implements Listener {
             return;
         }
         PlayerSession session = game.getSession(player.getUniqueId());
-        if (session == null || !session.getState().isActive()) {
+        if (session == null || !session.getState().isActive()
+                || game.getState() != ArenaState.IN_GAME) {
             player.closeInventory();
             return;
         }
 
         GameTeam team = game.getTeam(session.getTeamId());
+        if (team == null) {
+            player.closeInventory();
+            return;
+        }
+
+        if (holder.getView() == ShopMenuView.CHICKEN_ROOT
+                || holder.getView() == ShopMenuView.TEAM_UPGRADES
+                || holder.getView() == ShopMenuView.TRAPS
+                || holder.getView() == ShopMenuView.ROYAL_UPGRADES) {
+            if (event.getClick() != ClickType.LEFT) {
+                return;
+            }
+            services.getChickenMenu().handleClick(player, holder,
+                    event.getRawSlot(),
+                    ShopClickType.of(event.isShiftClick(), event.isRightClick()),
+                    game, session, team, game.getDefinition().getModeProfile());
+            return;
+        }
+
         services.getShop().handleClick(player, holder, event.getRawSlot(),
                 ShopClickType.of(event.isShiftClick(), event.isRightClick()),
-                session, team == null ? null : team.getColor(),
+                session, team.getColor(),
                 game.getDefinition().getModeProfile());
     }
 
@@ -129,7 +168,9 @@ public final class InteractionListener implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onInventoryDrag(InventoryDragEvent event) {
-        if (resolveHolder(event.getInventory()) != null) {
+        Inventory top = event.getView() == null
+                ? event.getInventory() : event.getView().getTopInventory();
+        if (resolveHolder(top) != null) {
             event.setCancelled(true);
         }
     }

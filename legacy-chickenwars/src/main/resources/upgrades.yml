@@ -1,0 +1,214 @@
+# Upgrade di squadra, trappole e potenziamenti della Gallina Reale.
+#
+# Ogni costo e' dichiarato per i tre profili economici:
+#   solo_duel  usato da DUEL e SOLO
+#   doubles    usato da DOUBLES
+#   trio       usato da TRIO
+#
+# I livelli devono formare una sequenza contigua a partire da 1: un buco
+# interrompe la lettura e viene segnalato in console.
+#
+# Campi di un livello:
+#   cost            costo per profilo (currency + amount)
+#   amplifier       livello effettivo di incantesimo o effetto (0 = primo)
+#   value           valore numerico generico (salute, riduzione danno, ...)
+#   duration-ticks  durata dell'effetto; 0 = mantenuto dal ciclo di partita
+
+team-upgrades:
+
+  PROTECTION:
+    icon: IRON_CHESTPLATE
+    slot: 19
+    enabled: true
+    levels:
+      1:
+        amplifier: 0
+        cost:
+          solo_duel: {currency: DIAMOND, amount: 2}
+          doubles: {currency: DIAMOND, amount: 2}
+          trio: {currency: DIAMOND, amount: 2}
+      2:
+        amplifier: 1
+        cost:
+          solo_duel: {currency: DIAMOND, amount: 4}
+          doubles: {currency: DIAMOND, amount: 4}
+          trio: {currency: DIAMOND, amount: 4}
+      3:
+        amplifier: 2
+        cost:
+          solo_duel: {currency: DIAMOND, amount: 8}
+          doubles: {currency: DIAMOND, amount: 8}
+          trio: {currency: DIAMOND, amount: 8}
+      4:
+        amplifier: 3
+        cost:
+          solo_duel: {currency: DIAMOND, amount: 16}
+          doubles: {currency: DIAMOND, amount: 16}
+          trio: {currency: DIAMOND, amount: 16}
+
+  SHARPNESS:
+    icon: IRON_SWORD
+    slot: 20
+    enabled: true
+    levels:
+      1:
+        amplifier: 0
+        cost:
+          solo_duel: {currency: DIAMOND, amount: 4}
+          doubles: {currency: DIAMOND, amount: 4}
+          trio: {currency: DIAMOND, amount: 4}
+
+  HASTE:
+    icon: GOLD_PICKAXE
+    slot: 21
+    enabled: true
+    effect: FAST_DIGGING
+    levels:
+      1:
+        amplifier: 0
+        duration-ticks: 0
+        cost:
+          solo_duel: {currency: DIAMOND, amount: 2}
+          doubles: {currency: DIAMOND, amount: 2}
+          trio: {currency: DIAMOND, amount: 2}
+      2:
+        amplifier: 1
+        duration-ticks: 0
+        cost:
+          solo_duel: {currency: DIAMOND, amount: 4}
+          doubles: {currency: DIAMOND, amount: 4}
+          trio: {currency: DIAMOND, amount: 4}
+
+  HEAL_POOL:
+    icon: BEACON
+    slot: 22
+    enabled: true
+    effect: REGENERATION
+    levels:
+      1:
+        amplifier: 0
+        duration-ticks: 100
+        cost:
+          solo_duel: {currency: DIAMOND, amount: 1}
+          doubles: {currency: DIAMOND, amount: 1}
+          trio: {currency: DIAMOND, amount: 1}
+
+# Potenziamenti della Gallina Reale.
+# "value" e' cumulativo: la salute massima cresce sommando i livelli.
+royal-upgrades:
+
+  ROYAL_VITALITY:
+    icon: GOLDEN_APPLE
+    slot: 29
+    enabled: true
+    levels:
+      1:
+        value: 25.0
+        cost:
+          solo_duel: {currency: FEATHER, amount: 12}
+          doubles: {currency: FEATHER, amount: 14}
+          trio: {currency: FEATHER, amount: 16}
+      2:
+        value: 25.0
+        cost:
+          solo_duel: {currency: FEATHER, amount: 24}
+          doubles: {currency: FEATHER, amount: 28}
+          trio: {currency: FEATHER, amount: 32}
+      3:
+        value: 50.0
+        cost:
+          solo_duel: {currency: DIAMOND, amount: 4}
+          doubles: {currency: DIAMOND, amount: 4}
+          trio: {currency: DIAMOND, amount: 4}
+
+  ROYAL_ARMOR:
+    icon: DIAMOND_CHESTPLATE
+    slot: 30
+    enabled: true
+    levels:
+      1:
+        value: 0.10
+        cost:
+          solo_duel: {currency: FEATHER, amount: 16}
+          doubles: {currency: FEATHER, amount: 18}
+          trio: {currency: FEATHER, amount: 20}
+      2:
+        value: 0.10
+        cost:
+          solo_duel: {currency: GOLD, amount: 24}
+          doubles: {currency: GOLD, amount: 28}
+          trio: {currency: GOLD, amount: 32}
+      3:
+        value: 0.15
+        cost:
+          solo_duel: {currency: DIAMOND, amount: 5}
+          doubles: {currency: DIAMOND, amount: 5}
+          trio: {currency: DIAMOND, amount: 5}
+
+  ROYAL_GUARD:
+    icon: IRON_FENCE
+    slot: 31
+    enabled: true
+    levels:
+      1:
+        value: 1.0
+        cost:
+          solo_duel: {currency: FEATHER, amount: 20}
+          doubles: {currency: FEATHER, amount: 24}
+          trio: {currency: FEATHER, amount: 28}
+      2:
+        value: 1.0
+        cost:
+          solo_duel: {currency: EMERALD, amount: 4}
+          doubles: {currency: EMERALD, amount: 4}
+          trio: {currency: EMERALD, amount: 4}
+
+traps:
+  # Numero massimo di trappole in coda per squadra.
+  maximum: 3
+
+  # Il costo dipende dalla posizione occupata nella coda.
+  position-costs:
+    1:
+      solo_duel: {currency: DIAMOND, amount: 1}
+      doubles: {currency: DIAMOND, amount: 1}
+      trio: {currency: DIAMOND, amount: 1}
+    2:
+      solo_duel: {currency: DIAMOND, amount: 2}
+      doubles: {currency: DIAMOND, amount: 2}
+      trio: {currency: DIAMOND, amount: 2}
+    3:
+      solo_duel: {currency: DIAMOND, amount: 4}
+      doubles: {currency: DIAMOND, amount: 4}
+      trio: {currency: DIAMOND, amount: 4}
+
+  # Effetti nel formato TIPO:secondi:livello
+  types:
+    intruder:
+      icon: LEATHER_BOOTS
+      slot: 19
+      enabled: true
+      intruder-effects:
+        - "BLINDNESS:8:0"
+        - "SLOW:8:0"
+
+    miner_fatigue:
+      icon: IRON_PICKAXE
+      slot: 20
+      enabled: true
+      intruder-effects:
+        - "SLOW_DIGGING:10:0"
+
+    counter_offensive:
+      icon: FEATHER
+      slot: 21
+      enabled: true
+      defender-effects:
+        - "SPEED:15:1"
+        - "JUMP:15:1"
+
+    alarm:
+      icon: REDSTONE_TORCH_ON
+      slot: 22
+      enabled: true
+      reveals-invisibility: true

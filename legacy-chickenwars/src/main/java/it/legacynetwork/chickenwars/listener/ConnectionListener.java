@@ -2,6 +2,7 @@ package it.legacynetwork.chickenwars.listener;
 
 import it.legacynetwork.chickenwars.arena.ArenaManager;
 import it.legacynetwork.chickenwars.game.Game;
+import it.legacynetwork.chickenwars.game.GameServices;
 import it.legacynetwork.chickenwars.player.InventorySnapshot;
 import it.legacynetwork.chickenwars.player.PendingRestoreService;
 import it.legacynetwork.chickenwars.player.PlayerSession;
@@ -23,15 +24,18 @@ public final class ConnectionListener implements Listener {
     private final PendingRestoreService pendingRestores;
     private final ReconnectService reconnects;
     private final QuickBuyService quickBuy;
+    private final GameServices services;
 
     public ConnectionListener(ArenaManager arenas,
                               PendingRestoreService pendingRestores,
                               ReconnectService reconnects,
-                              QuickBuyService quickBuy) {
+                              QuickBuyService quickBuy,
+                              GameServices services) {
         this.arenas = arenas;
         this.pendingRestores = pendingRestores;
         this.reconnects = reconnects;
         this.quickBuy = quickBuy;
+        this.services = services;
     }
 
     /**
@@ -73,6 +77,10 @@ public final class ConnectionListener implements Listener {
         }
 
         game.leave(player, false);
+
+        services.getBaseEntryTracker().forget(player.getUniqueId());
+        services.getHealPool().forget(player.getUniqueId());
+        services.getTeamEffects().forget(player.getUniqueId());
 
         if (snapshot != null) {
             pendingRestores.register(player.getUniqueId(), snapshot);

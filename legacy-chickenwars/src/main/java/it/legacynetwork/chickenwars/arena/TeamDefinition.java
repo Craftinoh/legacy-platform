@@ -2,6 +2,7 @@ package it.legacynetwork.chickenwars.arena;
 
 import it.legacynetwork.chickenwars.model.SimpleLocation;
 import it.legacynetwork.chickenwars.model.TeamColor;
+import it.legacynetwork.chickenwars.region.CuboidRegion;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,9 @@ public final class TeamDefinition {
     private SimpleLocation chicken;
     private SimpleLocation shop;
     private SimpleLocation upgrades;
+    private SimpleLocation baseMin;
+    private SimpleLocation baseMax;
+    private CuboidRegion baseRegion;
 
     public TeamDefinition(String id, String displayName, TeamColor color,
                           int maxPlayers) {
@@ -121,6 +125,86 @@ public final class TeamDefinition {
 
     public void setUpgrades(SimpleLocation upgrades) {
         this.upgrades = upgrades;
+    }
+
+    public SimpleLocation getBaseMin() {
+        return baseMin;
+    }
+
+    public void setBaseMin(SimpleLocation baseMin) {
+        this.baseMin = baseMin;
+        this.baseRegion = null;
+    }
+
+    public SimpleLocation getBaseMax() {
+        return baseMax;
+    }
+
+    public void setBaseMax(SimpleLocation baseMax) {
+        this.baseMax = baseMax;
+        this.baseRegion = null;
+    }
+
+    /**
+     * Regione della base, ricavata dai due angoli configurati.
+     *
+     * <p>Il risultato viene memorizzato: e' consultato a ogni movimento dei
+     * giocatori e non deve essere ricostruito ogni volta.</p>
+     *
+     * @return la regione, oppure {@code null} se non configurata o non valida
+     */
+    public CuboidRegion getBaseRegion() {
+        CuboidRegion cached = baseRegion;
+        if (cached != null) {
+            return cached;
+        }
+        CuboidRegion built = CuboidRegion.between(baseMin, baseMax);
+        baseRegion = built;
+        return built;
+    }
+
+    /**
+     * Indica se la squadra ha una regione base utilizzabile.
+     */
+    public boolean hasBaseRegion() {
+        return getBaseRegion() != null;
+    }
+
+    /**
+     * Elenca i problemi della regione base, senza renderla obbligatoria.
+     *
+     * <p>Heal Pool e trappole richiedono la regione: la sua assenza viene
+     * segnalata come avviso, cosi' le mappe gia' configurate restano valide.</p>
+     *
+     * @return descrizioni leggibili, vuote se la regione e' assente o corretta
+     */
+    public List<String> findBaseRegionIssues() {
+        List<String> issues = new ArrayList<String>();
+        if (baseMin == null && baseMax == null) {
+            return issues;
+        }
+        if (baseMin == null || baseMax == null) {
+            issues.add("regione base squadra " + id + ": angolo mancante");
+            return issues;
+        }
+        if (!baseMin.getWorld().equalsIgnoreCase(baseMax.getWorld())) {
+            issues.add("regione base squadra " + id
+                    + ": angoli in mondi diversi");
+            return issues;
+        }
+        if (!isFinite(baseMin) || !isFinite(baseMax)) {
+            issues.add("regione base squadra " + id
+                    + ": coordinate non finite");
+        }
+        return issues;
+    }
+
+    private boolean isFinite(SimpleLocation location) {
+        return !Double.isNaN(location.getX()) && !Double.isInfinite(location.getX())
+                && !Double.isNaN(location.getY())
+                && !Double.isInfinite(location.getY())
+                && !Double.isNaN(location.getZ())
+                && !Double.isInfinite(location.getZ());
     }
 
     /**

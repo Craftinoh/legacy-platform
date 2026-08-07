@@ -94,6 +94,11 @@ final class DeathTestSupport {
         }
 
         @Override
+        public boolean withdraw(ResourceType type, int amount) {
+            return delegate.withdraw(type, amount);
+        }
+
+        @Override
         public Map<ResourceType, Integer> withdrawAll() {
             withdrawAllCalls++;
             return delegate.withdrawAll();
@@ -145,6 +150,11 @@ final class DeathTestSupport {
         @Override
         public int count(ResourceType type) {
             return 0;
+        }
+
+        @Override
+        public boolean withdraw(ResourceType type, int amount) {
+            throw new TransferFailure();
         }
 
         @Override

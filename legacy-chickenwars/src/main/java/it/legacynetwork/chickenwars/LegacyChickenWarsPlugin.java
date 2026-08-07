@@ -6,13 +6,22 @@ import it.legacynetwork.chickenwars.arena.ArenaDefinition;
 import it.legacynetwork.chickenwars.arena.ArenaManager;
 import it.legacynetwork.chickenwars.chicken.ChickenService;
 import it.legacynetwork.chickenwars.chicken.ChickenSettings;
+import it.legacynetwork.chickenwars.chicken.RoyalChickenDamageService;
+import it.legacynetwork.chickenwars.chicken.RoyalChickenRegistry;
+import it.legacynetwork.chickenwars.chicken.RoyalDefeatDispatcher;
+import it.legacynetwork.chickenwars.chicken.RoyalUpgradeApplier;
 import it.legacynetwork.chickenwars.command.AdminCommand;
 import it.legacynetwork.chickenwars.command.ChickenWarsCommand;
 import it.legacynetwork.chickenwars.command.HelpService;
 import it.legacynetwork.chickenwars.config.ChickenWarsConfig;
 import it.legacynetwork.chickenwars.config.GeneratorSettings;
+import it.legacynetwork.chickenwars.effect.BukkitEffectAdapter;
+import it.legacynetwork.chickenwars.effect.EffectAdapter;
+import it.legacynetwork.chickenwars.effect.HealPoolService;
+import it.legacynetwork.chickenwars.effect.TeamEffectService;
 import it.legacynetwork.chickenwars.game.GameLoopTask;
 import it.legacynetwork.chickenwars.game.GameServices;
+import it.legacynetwork.chickenwars.listener.BaseRegionListener;
 import it.legacynetwork.chickenwars.listener.CombatListener;
 import it.legacynetwork.chickenwars.listener.ConnectionListener;
 import it.legacynetwork.chickenwars.listener.InteractionListener;
@@ -29,10 +38,16 @@ import it.legacynetwork.chickenwars.player.ReconnectService;
 import it.legacynetwork.chickenwars.player.equipment.EquipmentService;
 import it.legacynetwork.chickenwars.player.equipment.EquipmentSettings;
 import it.legacynetwork.chickenwars.protection.VoidFallGuard;
+import it.legacynetwork.chickenwars.shop.ChickenMenuService;
 import it.legacynetwork.chickenwars.shop.QuickBuyService;
 import it.legacynetwork.chickenwars.shop.ShopConfigLoader;
 import it.legacynetwork.chickenwars.shop.ShopConfiguration;
 import it.legacynetwork.chickenwars.shop.ShopService;
+import it.legacynetwork.chickenwars.trap.BaseEntryTracker;
+import it.legacynetwork.chickenwars.trap.TrapTriggerService;
+import it.legacynetwork.chickenwars.upgrade.TeamUpgradeService;
+import it.legacynetwork.chickenwars.upgrade.UpgradeCatalog;
+import it.legacynetwork.chickenwars.upgrade.UpgradeConfigLoader;
 import it.legacynetwork.chickenwars.world.WorldService;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
@@ -67,12 +82,22 @@ public final class LegacyChickenWarsPlugin extends JavaPlugin {
     private VoidFallGuard voidGuard;
     private QuickBuyService quickBuy;
     private QuickBuyRepository quickBuyRepository;
+    private TeamUpgradeService upgrades;
+    private TeamEffectService teamEffects;
+    private HealPoolService healPool;
+    private BaseEntryTracker baseEntryTracker;
+    private TrapTriggerService traps;
+    private RoyalChickenRegistry royalRegistry;
+    private RoyalChickenDamageService royalDamage;
+    private RoyalUpgradeApplier royalApplier;
+    private RoyalDefeatDispatcher royalDefeatDispatcher;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
         saveResource("chickens.yml", false);
         saveResource("shop.yml", false);
+        saveResource("upgrades.yml", false);
         saveResource("scoreboard.yml", false);
         saveResource("messages_it.yml", false);
         saveResource("messages_en.yml", false);
@@ -95,9 +120,28 @@ public final class LegacyChickenWarsPlugin extends JavaPlugin {
             reconnects = new ReconnectService();
             voidGuard = new VoidFallGuard(config.getVoidDropTolerance());
 
+            upgrades = new TeamUpgradeService();
+            upgrades.setCatalog(loadUpgradeCatalog());
+
+            EffectAdapter effectAdapter = new BukkitEffectAdapter();
+            teamEffects = new TeamEffectService(upgrades, effectAdapter);
+            healPool = new HealPoolService(upgrades, effectAdapter);
+            baseEntryTracker = new BaseEntryTracker();
+            traps = new TrapTriggerService(upgrades, effectAdapter);
+            royalRegistry = new RoyalChickenRegistry();
+            royalDamage = new RoyalChickenDamageService();
+            royalApplier = new RoyalUpgradeApplier(upgrades);
+            royalDefeatDispatcher = new RoyalDefeatDispatcher();
+
+            ChickenMenuService chickenMenu = new ChickenMenuService(null,
+                    messages);
             services = new GameServices(this, messages,
                     new ChickenService(getLogger()), shop, equipment,
-                    transfers, reconnects, config);
+                    transfers, reconnects, upgrades,
+                    teamEffects, healPool, baseEntryTracker, traps,
+                    royalRegistry, royalDamage, royalApplier,
+                    royalDefeatDispatcher, chickenMenu, config);
+            chickenMenu.setServices(services);
             pendingRestores = new PendingRestoreService();
             help = new HelpService(messages);
 
@@ -156,6 +200,26 @@ public final class LegacyChickenWarsPlugin extends JavaPlugin {
         if (arenas != null) {
             arenas.shutdown();
         }
+        if (teamEffects != null) {
+            teamEffects.clearAll();
+            teamEffects = null;
+        }
+        if (healPool != null) {
+            healPool.clearAll();
+            healPool = null;
+        }
+        if (baseEntryTracker != null) {
+            baseEntryTracker.clearAll();
+            baseEntryTracker = null;
+        }
+        if (royalRegistry != null) {
+            royalRegistry.clearAll();
+            royalRegistry = null;
+        }
+        if (royalDefeatDispatcher != null) {
+            royalDefeatDispatcher.clear();
+            royalDefeatDispatcher = null;
+        }
         getServer().getServicesManager().unregisterAll(this);
         if (pendingRestores != null) {
             pendingRestores.clear();
@@ -165,6 +229,10 @@ public final class LegacyChickenWarsPlugin extends JavaPlugin {
         }
         if (reconnects != null) {
             reconnects.clear();
+        }
+        if (upgrades != null) {
+            upgrades.clearAll();
+            upgrades = null;
         }
         if (quickBuyRepository != null) {
             quickBuyRepository.close();
@@ -208,7 +276,7 @@ public final class LegacyChickenWarsPlugin extends JavaPlugin {
     private void registerListeners() {
         getServer().getPluginManager().registerEvents(
                 new ConnectionListener(arenas, pendingRestores, reconnects,
-                        quickBuy), this);
+                        quickBuy, services), this);
         getServer().getPluginManager().registerEvents(
                 new VoidProtectionListener(arenas, voidGuard), this);
         getServer().getPluginManager().registerEvents(
@@ -219,6 +287,8 @@ public final class LegacyChickenWarsPlugin extends JavaPlugin {
                 new InteractionListener(arenas, services), this);
         getServer().getPluginManager().registerEvents(
                 new SetupListener(setup), this);
+        getServer().getPluginManager().registerEvents(
+                new BaseRegionListener(arenas, services), this);
     }
 
     /**
@@ -242,6 +312,11 @@ public final class LegacyChickenWarsPlugin extends JavaPlugin {
                 config.isClearWorldEntities());
         equipment.setSettings(loadEquipmentSettings());
         voidGuard.setTolerance(config.getVoidDropTolerance());
+
+        UpgradeCatalog reloadedUpgrades = loadUpgradeCatalog();
+        if (!reloadedUpgrades.isEmpty()) {
+            upgrades.setCatalog(reloadedUpgrades);
+        }
 
         ShopConfiguration reloaded = loadShopConfiguration();
         if (!reloaded.isEmpty()) {
@@ -318,6 +393,23 @@ public final class LegacyChickenWarsPlugin extends JavaPlugin {
                 YamlConfiguration.loadConfiguration(file));
         for (String warning : loaded.getWarnings()) {
             getLogger().warning("shop.yml: " + warning);
+        }
+        return loaded;
+    }
+
+    /**
+     * Legge {@code upgrades.yml} e riporta in console le anomalie rilevate.
+     */
+    private UpgradeCatalog loadUpgradeCatalog() {
+        File file = new File(getDataFolder(), "upgrades.yml");
+        if (!file.isFile()) {
+            getLogger().warning("upgrades.yml assente: upgrade disabilitati.");
+            return UpgradeCatalog.empty();
+        }
+        UpgradeCatalog loaded = UpgradeConfigLoader.load(
+                YamlConfiguration.loadConfiguration(file));
+        for (String warning : loaded.getWarnings()) {
+            getLogger().warning("upgrades.yml: " + warning);
         }
         return loaded;
     }

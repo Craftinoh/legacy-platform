@@ -140,6 +140,7 @@ public final class ResourceWallet {
         private final Player player;
         PlayerInventoryAdapter(Player player) { this.player = player; }
         @Override public int count(ResourceType type) { return ResourceWallet.count(player, type); }
+        @Override public boolean withdraw(ResourceType type, int amount) { return ResourceWallet.withdraw(player, type, amount); }
         @Override public Map<ResourceType, Integer> withdrawAll() { return ResourceWallet.withdrawAll(player); }
         @Override public int deposit(ResourceType type, int amount) { return ResourceWallet.deposit(player, type, amount); }
         @Override public boolean hasFreeSlot() { return ResourceWallet.hasFreeSlot(player); }

@@ -223,6 +223,43 @@ chicken:
   fed: "&aHai nutrito la gallina: &f+{health} &avita, &f+{shield} &ascudo &8({current}/{max})"
   feed-full: "&7La tua gallina e' gia' al massimo."
   feed-other-team: "&cPuoi nutrire solo la gallina della tua squadra."
+  menu:
+    title: "&6Menu Gallina"
+    team-upgrades: "&bPotenziamenti"
+    team-upgrades-lore:
+      - "&7Protezione, Affilatezza,"
+      - "&7Haste e Pozza Curativa."
+      - ""
+      - "&eClicca per aprire."
+    traps: "&cTrappole"
+    traps-lore:
+      - "&7Difendi la tua base"
+      - "&7con trappole automatiche."
+      - ""
+      - "&eClicca per aprire."
+    royal-upgrades: "&aPotenziamenti Reali"
+    royal-upgrades-lore:
+      - "&7Vitalita', Armatura e Guardia"
+      - "&7per la tua Gallina Reale."
+      - ""
+      - "&eClicca per aprire."
+    close: "&cChiudi"
+    close-lore:
+      - "&7Chiudi questo menu."
+    shop: "&eApri Negozio"
+    shop-lore:
+      - "&7Torna al negozio oggetti."
+    back: "&7Indietro"
+    back-lore:
+      - "&7Torna al menu precedente."
+    npc-name: "&6Potenziamenti"
+    team-upgrades-title: "&6Potenziamenti Squadra"
+    traps-title: "&6Trappole"
+    royal-upgrades-title: "&6Potenziamenti Reali"
+  status:
+    alive: "&aViva - &f{health}&7/&f{max}"
+    dead: "&cMorta"
+  unknown: "???"
 
 death:
   normal: "&7{player} &7e' stato ucciso da &f{killer}&7."
@@ -240,6 +277,85 @@ team:
   full: "&cLa squadra {team} &ce' al completo."
   already-started: "&cNon puoi cambiare squadra a partita iniziata."
   eliminated: "&7La squadra {team} &7e' stata eliminata."
+
+upgrade:
+  purchased: "&aUpgrade &f{upgrade} &amigliorato al livello &f{level}&a."
+  max-level: "&c&f{upgrade} &ce' gia' al livello massimo."
+  not-enough: "&cTi mancano &f{amount} {currency}&c."
+  unavailable: "&cQuesto upgrade non e' disponibile."
+  no-price: "&cQuesto upgrade non ha un prezzo in questa modalita'."
+  no-team: "&cDevi appartenere a una squadra."
+  not-in-game: "&cLa partita non e' in corso."
+  level: "&7Livello: &f{level}&7/&f{max}"
+  next-cost: "&7Prossimo livello: &f{amount} {currency}"
+  team:
+    protection:
+      name: "&b&lProtezione"
+      lore:
+        - "&7Aggiunge Protezione a tutta"
+        - "&7l'armatura della squadra."
+    sharpness:
+      name: "&c&lAffilatezza"
+      lore:
+        - "&7Aggiunge Affilatezza a tutte"
+        - "&7le spade della squadra."
+    haste:
+      name: "&e&lRapidita'"
+      lore:
+        - "&7Velocita' di scavo aumentata"
+        - "&7per tutta la squadra."
+    heal_pool:
+      name: "&d&lFonte Curativa"
+      lore:
+        - "&7Rigenerazione continua"
+        - "&7dentro la vostra base."
+  royal:
+    royal_vitality:
+      name: "&a&lVitalita' Reale"
+      lore:
+        - "&7Aumenta la salute massima"
+        - "&7della Gallina Reale."
+    royal_armor:
+      name: "&b&lCorazza Reale"
+      lore:
+        - "&7Riduce il danno subito"
+        - "&7dalla Gallina Reale."
+    royal_guard:
+      name: "&6&lGuardia Reale"
+      lore:
+        - "&7Rafforza le difese e gli"
+        - "&7avvisi della gallina."
+
+trap:
+  queue-full: "&cLa coda delle trappole e' piena."
+  queued: "&aTrappola &f{trap} &aaggiunta alla coda &8({position}/{max})"
+  triggered: "&c&lTRAPPOLA ATTIVATA! &7Intruso: &f{intruder}"
+  intruder-warning: "&c&lSei stato individuato!"
+  queue-empty: "&7Nessuna trappola in coda."
+  queue-entry: "&7{position}. &f{trap}"
+  queue-count: "&7In coda: &f{count}&7/&f{max}"
+  queue-empty-slot: "&7[Vuoto]"
+  activated: "&c&lTRAPPOLA ATTIVATA! &f{trap} &7da &f{player}"
+  intruder:
+    name: "&c&lTrappola Intrusione"
+    lore:
+      - "&7Acceca e rallenta chi entra"
+      - "&7nella vostra base."
+  miner_fatigue:
+    name: "&8&lTrappola Fatica"
+    lore:
+      - "&7Applica Fatica da Scavo"
+      - "&7all'intruso."
+  counter_offensive:
+    name: "&a&lContrattacco"
+    lore:
+      - "&7Velocita' e salto ai difensori"
+      - "&7presenti nella base."
+  alarm:
+    name: "&e&lAllarme"
+    lore:
+      - "&7Rivela l'intruso e annulla"
+      - "&7la sua invisibilita'."
 
 resources:
   stolen: "&aHai sottratto a &f{victim}&a: {resources}"

@@ -13,10 +13,16 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
+    testImplementation("org.mockito:mockito-core:4.11.0")
+    testImplementation("org.mockito:mockito-inline:4.11.0")
+    constraints {
+        testImplementation("net.bytebuddy:byte-buddy:1.17.6")
+        testImplementation("net.bytebuddy:byte-buddy-agent:1.17.6")
+    }
 }
 
 java {
-    toolchain { languageVersion.set(JavaLanguageVersion.of(26)) }
+    toolchain { languageVersion.set(JavaLanguageVersion.of(21)) }
 }
 
 tasks.withType<JavaCompile>().configureEach {

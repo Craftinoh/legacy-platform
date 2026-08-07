@@ -223,6 +223,43 @@ chicken:
   fed: "&aYou fed the chicken: &f+{health} &ahealth, &f+{shield} &ashield &8({current}/{max})"
   feed-full: "&7Your chicken is already at full strength."
   feed-other-team: "&cYou can only feed your own team's chicken."
+  menu:
+    title: "&6Chicken Menu"
+    team-upgrades: "&bTeam Upgrades"
+    team-upgrades-lore:
+      - "&7Protection, Sharpness, Haste"
+      - "&7and Heal Pool."
+      - ""
+      - "&eClick to open."
+    traps: "&cTraps"
+    traps-lore:
+      - "&7Defend your base"
+      - "&7with automatic traps."
+      - ""
+      - "&eClick to open."
+    royal-upgrades: "&aRoyal Upgrades"
+    royal-upgrades-lore:
+      - "&7Vitality, Armor and Guard"
+      - "&7for your Royal Chicken."
+      - ""
+      - "&eClick to open."
+    close: "&cClose"
+    close-lore:
+      - "&7Close this menu."
+    shop: "&eOpen Shop"
+    shop-lore:
+      - "&7Return to the item shop."
+    back: "&7Back"
+    back-lore:
+      - "&7Return to previous menu."
+    npc-name: "&6Chicken Upgrades"
+    team-upgrades-title: "&6Team Upgrades"
+    traps-title: "&6Traps"
+    royal-upgrades-title: "&6Royal Upgrades"
+  status:
+    alive: "&aAlive - &f{health}&7/&f{max}"
+    dead: "&cDead"
+  unknown: "???"
 
 death:
   normal: "&7{player} &7was killed by &f{killer}&7."
@@ -240,6 +277,85 @@ team:
   full: "&cTeam {team} &cis full."
   already-started: "&cYou cannot switch team after the match started."
   eliminated: "&7Team {team} &7has been eliminated."
+
+upgrade:
+  purchased: "&aUpgrade &f{upgrade} &aimproved to level &f{level}&a."
+  max-level: "&c&f{upgrade} &cis already at maximum level."
+  not-enough: "&cYou need &f{amount} &cmore {currency}&c."
+  unavailable: "&cThis upgrade is not available."
+  no-price: "&cThis upgrade has no price in this mode."
+  no-team: "&cYou must belong to a team."
+  not-in-game: "&cThe match is not running."
+  next-cost: "&7Next level: &f{amount} {currency}"
+  level: "&7Level: &f{level}&7/&f{max}"
+  team:
+    protection:
+      name: "&b&lProtection"
+      lore:
+        - "&7Adds Protection to all the"
+        - "&7team's armor."
+    sharpness:
+      name: "&c&lSharpness"
+      lore:
+        - "&7Adds Sharpness to all the"
+        - "&7team's swords."
+    haste:
+      name: "&e&lHaste"
+      lore:
+        - "&7Increased mining speed"
+        - "&7for the whole team."
+    heal_pool:
+      name: "&d&lHeal Pool"
+      lore:
+        - "&7Continuous regeneration"
+        - "&7inside your base."
+  royal:
+    royal_vitality:
+      name: "&a&lRoyal Vitality"
+      lore:
+        - "&7Increases the maximum health"
+        - "&7of the Royal Chicken."
+    royal_armor:
+      name: "&b&lRoyal Armor"
+      lore:
+        - "&7Reduces the damage taken"
+        - "&7by the Royal Chicken."
+    royal_guard:
+      name: "&6&lRoyal Guard"
+      lore:
+        - "&7Strengthens the chicken's"
+        - "&7defenses and warnings."
+
+trap:
+  queue-full: "&cYour trap queue is full."
+  queued: "&aTrap &f{trap} &aadded to the queue &8({position}/{max})"
+  triggered: "&c&lTRAP TRIGGERED! &7Intruder: &f{intruder}"
+  intruder-warning: "&c&lYou have been detected!"
+  queue-empty: "&7No traps queued."
+  queue-entry: "&7{position}. &f{trap}"
+  queue-count: "&7In queue: &f{count}&7/&f{max}"
+  queue-empty-slot: "&7[Empty]"
+  activated: "&c&lTRAP ACTIVATED! &f{trap} &7by &f{player}"
+  intruder:
+    name: "&c&lIntruder Trap"
+    lore:
+      - "&7Blinds and slows whoever enters"
+      - "&7your base."
+  miner_fatigue:
+    name: "&8&lMiner Fatigue Trap"
+    lore:
+      - "&7Applies Mining Fatigue"
+      - "&7to the intruder."
+  counter_offensive:
+    name: "&a&lCounter-Offensive"
+    lore:
+      - "&7Speed and jump for defenders"
+      - "&7present in the base."
+  alarm:
+    name: "&e&lAlarm"
+    lore:
+      - "&7Reveals the intruder and cancels"
+      - "&7their invisibility."
 
 resources:
   stolen: "&aYou took from &f{victim}&a: {resources}"
