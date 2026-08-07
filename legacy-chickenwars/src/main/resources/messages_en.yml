@@ -827,3 +827,28 @@ setup:
         - "&7Active only if the team plays."
         - ""
         - "&eClick to place it here."
+
+progression:
+  experience: "&bXP: &f{experience}"
+  level: "&eLevel: &f{level} &7({current}/{required})"
+  coins: "&6Chicken Coins: &f{coins}"
+  rewards: "&aRewards: &b{experience} XP &7and &6{coins} coins"
+
+persistence:
+  loading: "&eLoading your profile..."
+  saving: "&eSaving your profile..."
+  profile-unavailable: "&cProfile unavailable: tracked modes are temporarily disabled."
+
+lobby:
+  selector: "&eMode selector"
+  queued: "&aLooking for a {mode} match..."
+  left-queue: "&eYou left the queue."
+  protected: "&cYou cannot modify the lobby inventory."
+
+routing:
+  found: "&aInstance found: &f{server}"
+  none: "&cNo instance is currently available."
+  reserved: "&aSeat reserved. Transferring..."
+  timeout: "&cThe reservation expired."
+  reconnect: "&eReconnecting to your previous instance..."
+  transfer-failed: "&cTransfer failed."

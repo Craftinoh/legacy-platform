@@ -11,7 +11,11 @@ import it.legacynetwork.chickenwars.economy.ResourceTransferService;
 import it.legacynetwork.chickenwars.effect.HealPoolService;
 import it.legacynetwork.chickenwars.effect.TeamEffectService;
 import it.legacynetwork.chickenwars.message.MessageService;
+import it.legacynetwork.chickenwars.lobby.LobbyRoutingService;
+import it.legacynetwork.chickenwars.lobby.LobbySelectorService;
 import it.legacynetwork.chickenwars.player.ReconnectService;
+import it.legacynetwork.chickenwars.persistence.ProgressionServices;
+import it.legacynetwork.chickenwars.routing.RoutingServices;
 import it.legacynetwork.chickenwars.player.equipment.EquipmentService;
 import it.legacynetwork.chickenwars.shop.ChickenMenuService;
 import it.legacynetwork.chickenwars.shop.ShopService;
@@ -47,6 +51,10 @@ public final class GameServices {
     private final RoyalDefeatDispatcher royalDefeatDispatcher;
     private final ChickenMenuService chickenMenu;
     private final PlayerDeathProcessor deaths;
+    private final ProgressionServices progression;
+    private final RoutingServices routing;
+    private final LobbyRoutingService lobby;
+    private final LobbySelectorService lobbySelector;
 
     private volatile ChickenWarsConfig config;
 
@@ -65,6 +73,10 @@ public final class GameServices {
                         RoyalUpgradeApplier royalApplier,
                         RoyalDefeatDispatcher royalDefeatDispatcher,
                         ChickenMenuService chickenMenu,
+                        ProgressionServices progression,
+                        RoutingServices routing,
+                        LobbyRoutingService lobby,
+                        LobbySelectorService lobbySelector,
                         ChickenWarsConfig config) {
         if (plugin == null || messages == null || chickens == null
                 || shop == null || equipment == null || transfers == null
@@ -74,6 +86,10 @@ public final class GameServices {
                 || royalRegistry == null || royalDamage == null
                 || royalApplier == null || royalDefeatDispatcher == null
                 || chickenMenu == null
+                || progression == null
+                || routing == null
+                || lobby == null
+                || lobbySelector == null
                 || config == null) {
             throw new IllegalArgumentException("Servizi ChickenWars incompleti");
         }
@@ -94,6 +110,10 @@ public final class GameServices {
         this.royalApplier = royalApplier;
         this.royalDefeatDispatcher = royalDefeatDispatcher;
         this.chickenMenu = chickenMenu;
+        this.progression = progression;
+        this.routing = routing;
+        this.lobby = lobby;
+        this.lobbySelector = lobbySelector;
         this.config = config;
         this.deaths = new PlayerDeathProcessor(transfers, equipment);
         equipment.setEnchantProvider(upgrades);
@@ -176,6 +196,11 @@ public final class GameServices {
     public ChickenMenuService getChickenMenu() {
         return chickenMenu;
     }
+
+    public ProgressionServices getProgression() { return progression; }
+    public RoutingServices getRouting() { return routing; }
+    public LobbyRoutingService getLobby() { return lobby; }
+    public LobbySelectorService getLobbySelector() { return lobbySelector; }
 
     public ChickenWarsConfig getConfig() {
         return config;

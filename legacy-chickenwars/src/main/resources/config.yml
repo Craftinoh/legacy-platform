@@ -9,6 +9,44 @@ language:
   # Sono supportate tutte le lingue di Network Language, non solo it ed en.
   fallback: "it"
 
+# PostgreSQL e' l'archivio autorevole per progressione, Quick Buy e routing.
+# Se disabilitato o offline le modalita' tracked vengono rifiutate: DUEL resta
+# utilizzabile senza XP, coins o statistiche persistenti.
+database:
+  enabled: false
+  jdbc-url: "jdbc:postgresql://127.0.0.1:5432/chickenwars"
+  username: ""
+  password: ""
+  maximum-pool-size: 4
+  connection-timeout-millis: 5000
+  profile-timeout-millis: 5000
+  maximum-retries: 2
+
+routing:
+  instance-id: ""
+  server-name: ""
+  heartbeat-timeout-millis: 15000
+  reservation-timeout-millis: 10000
+  reconnect-timeout-millis: 120000
+  lobby-server: ""
+
+rewards:
+  experience:
+    participation: 25
+    win: 100
+    kill: 5
+    final-kill: 10
+  coins:
+    participation: 5
+    win: 20
+    kill: 1
+    final-kill: 2
+
+progression:
+  maximum-level: 100
+  # L'ultimo valore viene ripetuto fino al livello massimo.
+  experience-requirements: [500, 1000, 2000, 3500, 5000]
+
 # Materiali associati a ogni tier di equipaggiamento.
 # I tier restano astratti nello stato di partita: qui si decide come appaiono.
 equipment:

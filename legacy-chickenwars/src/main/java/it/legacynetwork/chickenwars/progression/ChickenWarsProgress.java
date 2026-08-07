@@ -8,27 +8,40 @@ import java.util.UUID;
 public final class ChickenWarsProgress {
 
     private final UUID playerId;
+    private final ExperiencePolicy experiencePolicy;
     private long totalExperience;
     private long coins;
 
     public ChickenWarsProgress(UUID playerId, long totalExperience, long coins) {
+        this(playerId, totalExperience, coins, ExperiencePolicy.defaultPolicy());
+    }
+
+    public ChickenWarsProgress(UUID playerId, long totalExperience, long coins,
+                               ExperiencePolicy experiencePolicy) {
         if (playerId == null) {
             throw new IllegalArgumentException("UUID giocatore mancante");
         }
         this.playerId = playerId;
+        if (experiencePolicy == null) {
+            throw new IllegalArgumentException("Curva esperienza mancante");
+        }
+        this.experiencePolicy = experiencePolicy;
         this.totalExperience = Math.max(0L, totalExperience);
         this.coins = Math.max(0L, coins);
     }
 
     public synchronized ProgressionUpdate addExperience(long amount) {
+        if (amount < 0L) {
+            throw new IllegalArgumentException("Gli XP non possono essere negativi");
+        }
         long previousExperience = totalExperience;
-        int previousLevel = ExperienceCurve.levelForTotalExperience(
-                previousExperience);
+        int previousLevel = experiencePolicy.levelFor(previousExperience);
         if (amount > 0L) {
             totalExperience = safeAdd(totalExperience, amount);
         }
-        int currentLevel = ExperienceCurve.levelForTotalExperience(
-                totalExperience);
+        totalExperience = Math.min(totalExperience,
+                experiencePolicy.getMaximumExperience());
+        int currentLevel = experiencePolicy.levelFor(totalExperience);
         return new ProgressionUpdate(previousExperience, totalExperience,
                 previousLevel, currentLevel);
     }
@@ -63,22 +76,28 @@ public final class ChickenWarsProgress {
     }
 
     public synchronized int getLevel() {
-        return ExperienceCurve.levelForTotalExperience(totalExperience);
+        return experiencePolicy.levelFor(totalExperience);
     }
 
     public synchronized long getExperienceIntoLevel() {
-        return ExperienceCurve.experienceIntoCurrentLevel(totalExperience);
+        return experiencePolicy.experienceIntoLevel(totalExperience);
     }
 
     public synchronized long getExperienceRequiredForNextLevel() {
-        return ExperienceCurve.experienceRequiredForLevel(getLevel());
+        return experiencePolicy.experienceRequiredFor(getLevel());
     }
 
     public synchronized float getProgressToNextLevel() {
-        return ExperienceCurve.progressToNextLevel(totalExperience);
+        return experiencePolicy.progress(totalExperience);
     }
 
     public synchronized long getCoins() {
         return coins;
+    }
+
+    public synchronized ProgressSnapshot snapshot() {
+        return new ProgressSnapshot(playerId, totalExperience, getLevel(),
+                getExperienceIntoLevel(), getExperienceRequiredForNextLevel(),
+                coins);
     }
 }

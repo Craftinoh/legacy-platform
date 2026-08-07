@@ -18,6 +18,7 @@ public final class ModeStatistics {
     private final long deaths;
     private final long finalKills;
     private final long chickenKills;
+    private final long eliminations;
     private final long playSeconds;
     private final long resourcesCollected;
 
@@ -25,6 +26,14 @@ public final class ModeStatistics {
                           long kills, long deaths, long finalKills,
                           long chickenKills, long playSeconds,
                           long resourcesCollected) {
+        this(playerId, mode, games, wins, kills, deaths, finalKills,
+                chickenKills, finalKills, playSeconds, resourcesCollected);
+    }
+
+    public ModeStatistics(UUID playerId, MatchMode mode, long games, long wins,
+                          long kills, long deaths, long finalKills,
+                          long chickenKills, long eliminations,
+                          long playSeconds, long resourcesCollected) {
         if (playerId == null) {
             throw new IllegalArgumentException("UUID giocatore mancante");
         }
@@ -40,6 +49,7 @@ public final class ModeStatistics {
         this.deaths = nonNegative(deaths);
         this.finalKills = nonNegative(finalKills);
         this.chickenKills = nonNegative(chickenKills);
+        this.eliminations = nonNegative(eliminations);
         this.playSeconds = nonNegative(playSeconds);
         this.resourcesCollected = nonNegative(resourcesCollected);
     }
@@ -83,6 +93,8 @@ public final class ModeStatistics {
     public long getChickenKills() {
         return chickenKills;
     }
+
+    public long getEliminations() { return eliminations; }
 
     public long getPlaySeconds() {
         return playSeconds;

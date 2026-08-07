@@ -12,7 +12,7 @@ softdepend:
 commands:
   chickenwars:
     description: Comando principale di Chicken Wars
-    usage: /chickenwars help|join|quickjoin|leave|team|shop|list|admin
+    usage: /chickenwars help|play|queueleave|join|quickjoin|leave|team|shop|list|admin
     aliases: [cw, chicken, chickens]
 permissions:
   chickenwars.command:

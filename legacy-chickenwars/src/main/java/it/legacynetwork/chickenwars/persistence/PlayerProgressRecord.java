@@ -1,6 +1,7 @@
 package it.legacynetwork.chickenwars.persistence;
 
 import it.legacynetwork.chickenwars.progression.ChickenWarsProgress;
+import it.legacynetwork.chickenwars.progression.ExperiencePolicy;
 
 import java.util.UUID;
 
@@ -37,6 +38,10 @@ public final class PlayerProgressRecord {
 
     public ChickenWarsProgress toProgress() {
         return new ChickenWarsProgress(playerId, totalExperience, coins);
+    }
+
+    public ChickenWarsProgress toProgress(ExperiencePolicy policy) {
+        return new ChickenWarsProgress(playerId, totalExperience, coins, policy);
     }
 
     public UUID getPlayerId() {

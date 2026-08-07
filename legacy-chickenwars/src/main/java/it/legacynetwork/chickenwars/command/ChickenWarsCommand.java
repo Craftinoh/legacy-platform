@@ -7,6 +7,8 @@ import it.legacynetwork.chickenwars.game.GameServices;
 import it.legacynetwork.chickenwars.game.GameTeam;
 import it.legacynetwork.chickenwars.message.MessageService;
 import it.legacynetwork.chickenwars.model.ArenaState;
+import it.legacynetwork.chickenwars.mode.MatchMode;
+import it.legacynetwork.chickenwars.mode.ModeProfileRegistry;
 import it.legacynetwork.chickenwars.persistence.QuickBuyPresetRecord;
 import it.legacynetwork.chickenwars.player.PlayerSession;
 import it.legacynetwork.chickenwars.shop.QuickBuyService;
@@ -32,7 +34,7 @@ public final class ChickenWarsCommand implements CommandExecutor, TabCompleter {
 
     private static final List<String> PLAYER_SUBCOMMANDS = Collections.unmodifiableList(
             Arrays.asList("help", "join", "quickjoin", "leave", "team", "shop",
-                    "quickbuy", "list", "stats"));
+                    "quickbuy", "list", "stats", "play", "queueleave"));
 
     private final ArenaManager arenas;
     private final GameServices services;
@@ -85,6 +87,16 @@ public final class ChickenWarsCommand implements CommandExecutor, TabCompleter {
 
         if ("join".equals(subcommand)) {
             handleJoin(player, rest);
+            return true;
+        }
+        if ("play".equals(subcommand)) {
+            handlePlay(player, rest);
+            return true;
+        }
+        if ("queueleave".equals(subcommand)) {
+            if (!services.getLobby().leave(player)) {
+                messages.send(player, "routing.none");
+            }
             return true;
         }
         if ("quickjoin".equals(subcommand)) {
@@ -161,6 +173,31 @@ public final class ChickenWarsCommand implements CommandExecutor, TabCompleter {
             return;
         }
         game.join(player);
+    }
+
+    private void handlePlay(Player player, String[] args) {
+        if (args.length == 0) {
+            services.getLobbySelector().open(player);
+            return;
+        }
+        if (args.length != 1) {
+            services.getMessages().send(player, "command.usage", "{usage}",
+                    "/cw play [duel|solo|doubles|trio]");
+            return;
+        }
+        MatchMode mode = MatchMode.fromString(args[0]);
+        if (mode == null) {
+            services.getMessages().send(player, "routing.none");
+            return;
+        }
+        if (ModeProfileRegistry.defaults().get(mode).isTracked()
+                && !services.getProgression().getProfiles()
+                .mayEnterTracked(player.getUniqueId())) {
+            services.getMessages().send(player,
+                    "persistence.profile-unavailable");
+            return;
+        }
+        services.getLobby().join(player, mode, System.currentTimeMillis());
     }
 
     private void handleLeave(Player player) {
@@ -349,6 +386,10 @@ public final class ChickenWarsCommand implements CommandExecutor, TabCompleter {
         }
         if ("join".equals(subcommand) && args.length == 2) {
             return filter(arenas.getArenaIds(), args[1]);
+        }
+        if ("play".equals(subcommand) && args.length == 2) {
+            return filter(Arrays.asList("duel", "solo", "doubles", "trio"),
+                    args[1]);
         }
         if ("team".equals(subcommand) && args.length == 2 && sender instanceof Player) {
             Game game = arenas.getGameOf((Player) sender);

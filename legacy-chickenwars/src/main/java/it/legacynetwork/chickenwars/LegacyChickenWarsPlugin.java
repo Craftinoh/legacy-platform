@@ -4,6 +4,7 @@ import it.legacynetwork.chickenwars.api.ChickenWarsService;
 import it.legacynetwork.chickenwars.api.ChickenWarsServiceImpl;
 import it.legacynetwork.chickenwars.arena.ArenaDefinition;
 import it.legacynetwork.chickenwars.arena.ArenaManager;
+import it.legacynetwork.chickenwars.bootstrap.ChickenWarsNetworkRuntime;
 import it.legacynetwork.chickenwars.chicken.ChickenService;
 import it.legacynetwork.chickenwars.chicken.ChickenSettings;
 import it.legacynetwork.chickenwars.chicken.RoyalChickenDamageService;
@@ -25,6 +26,7 @@ import it.legacynetwork.chickenwars.listener.BaseRegionListener;
 import it.legacynetwork.chickenwars.listener.CombatListener;
 import it.legacynetwork.chickenwars.listener.ConnectionListener;
 import it.legacynetwork.chickenwars.listener.InteractionListener;
+import it.legacynetwork.chickenwars.listener.LobbyInventoryListener;
 import it.legacynetwork.chickenwars.listener.SetupListener;
 import it.legacynetwork.chickenwars.listener.WorldProtectionListener;
 import it.legacynetwork.chickenwars.message.MessageService;
@@ -32,7 +34,6 @@ import it.legacynetwork.chickenwars.player.PendingRestoreService;
 import it.legacynetwork.chickenwars.setup.SetupService;
 import it.legacynetwork.chickenwars.economy.ResourceTransferService;
 import it.legacynetwork.chickenwars.listener.VoidProtectionListener;
-import it.legacynetwork.chickenwars.persistence.InMemoryQuickBuyRepository;
 import it.legacynetwork.chickenwars.persistence.QuickBuyRepository;
 import it.legacynetwork.chickenwars.player.ReconnectService;
 import it.legacynetwork.chickenwars.player.equipment.EquipmentService;
@@ -82,6 +83,7 @@ public final class LegacyChickenWarsPlugin extends JavaPlugin {
     private VoidFallGuard voidGuard;
     private QuickBuyService quickBuy;
     private QuickBuyRepository quickBuyRepository;
+    private ChickenWarsNetworkRuntime network;
     private TeamUpgradeService upgrades;
     private TeamEffectService teamEffects;
     private HealPoolService healPool;
@@ -111,7 +113,8 @@ public final class LegacyChickenWarsPlugin extends JavaPlugin {
             }
 
             equipment = new EquipmentService(loadEquipmentSettings());
-            quickBuyRepository = new InMemoryQuickBuyRepository();
+            network = new ChickenWarsNetworkRuntime(this, messages, getConfig());
+            quickBuyRepository = network.quickBuy();
             quickBuy = new QuickBuyService(quickBuyRepository, getLogger());
             shop = new ShopService(messages, equipment, quickBuy);
             shop.setConfiguration(loadShopConfiguration());
@@ -140,7 +143,9 @@ public final class LegacyChickenWarsPlugin extends JavaPlugin {
                     transfers, reconnects, upgrades,
                     teamEffects, healPool, baseEntryTracker, traps,
                     royalRegistry, royalDamage, royalApplier,
-                    royalDefeatDispatcher, chickenMenu, config);
+                    royalDefeatDispatcher, chickenMenu,
+                    network.progression(), network.routing(),
+                    network.lobby(), network.selector(), config);
             chickenMenu.setServices(services);
             pendingRestores = new PendingRestoreService();
             help = new HelpService(messages);
@@ -168,6 +173,7 @@ public final class LegacyChickenWarsPlugin extends JavaPlugin {
 
             gameLoop = new GameLoopTask(arenas);
             gameLoop.start(this);
+            network.startHeartbeat(arenas);
 
             getServer().getServicesManager().register(ChickenWarsService.class,
                     new ChickenWarsServiceImpl(arenas), this, ServicePriority.Normal);
@@ -234,8 +240,9 @@ public final class LegacyChickenWarsPlugin extends JavaPlugin {
             upgrades.clearAll();
             upgrades = null;
         }
-        if (quickBuyRepository != null) {
-            quickBuyRepository.close();
+        if (network != null) {
+            network.close();
+            network = null;
         }
         if (messages != null) {
             messages.close();
@@ -289,6 +296,8 @@ public final class LegacyChickenWarsPlugin extends JavaPlugin {
                 new SetupListener(setup), this);
         getServer().getPluginManager().registerEvents(
                 new BaseRegionListener(arenas, services), this);
+        getServer().getPluginManager().registerEvents(
+                new LobbyInventoryListener(network.selector()), this);
     }
 
     /**

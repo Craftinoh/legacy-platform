@@ -28,6 +28,9 @@ import it.legacynetwork.chickenwars.model.SimpleLocation;
 import it.legacynetwork.chickenwars.player.InventorySnapshot;
 import it.legacynetwork.chickenwars.player.PlayerSession;
 import it.legacynetwork.chickenwars.player.PlayerState;
+import it.legacynetwork.chickenwars.persistence.MatchFinalizationRequest;
+import it.legacynetwork.chickenwars.persistence.MatchParticipantRecord;
+import it.legacynetwork.chickenwars.progression.MatchRewards;
 import it.legacynetwork.chickenwars.scoreboard.GameScoreboard;
 import it.legacynetwork.chickenwars.region.CuboidRegion;
 import it.legacynetwork.chickenwars.upgrade.TeamUpgradeType;
@@ -51,6 +54,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
 
 /**
  * Partita in corso su una singola arena.
@@ -70,6 +74,8 @@ public final class Game {
             new LinkedHashMap<UUID, PlayerSession>();
     private final Map<UUID, GameScoreboard> boards =
             new LinkedHashMap<UUID, GameScoreboard>();
+    private final Map<UUID, PlayerSession> completedSessions =
+            new LinkedHashMap<UUID, PlayerSession>();
     private final List<RuntimeGenerator> generators =
             new ArrayList<RuntimeGenerator>();
     private final Map<UUID, Villager> shopNpcs = new LinkedHashMap<UUID, Villager>();
@@ -84,6 +90,7 @@ public final class Game {
     private int elapsedSeconds;
     private int endingSecondsLeft;
     private GameTeam winner;
+    private String matchId;
 
     public Game(GameServices services, ArenaDefinition definition) {
         if (services == null || definition == null) {
@@ -123,6 +130,14 @@ public final class Game {
         if (player == null || !canJoin() || sessions.containsKey(player.getUniqueId())) {
             return false;
         }
+        if (services.getProgression() != null
+                && definition.getModeProfile().isTracked()
+                && !services.getProgression().getProfiles()
+                .mayEnterTracked(player.getUniqueId())) {
+            services.getMessages().send(player,
+                    "persistence.profile-unavailable");
+            return false;
+        }
         Location lobby = resolve(definition.getLobby());
         if (lobby == null) {
             services.getMessages().send(player, "arena.world-not-loaded");
@@ -133,6 +148,7 @@ public final class Game {
                 player.getName(), definition.getId(),
                 InventorySnapshot.capture(player));
         sessions.put(player.getUniqueId(), session);
+        completedSessions.remove(player.getUniqueId());
 
         // Rientro nella stessa partita: torna solo lo stato permanente.
         if (services.getReconnects().restore(session) != null) {
@@ -161,6 +177,36 @@ public final class Game {
         return true;
     }
 
+    /** Ripristina una sessione valida sulla stessa istanza durante IN_GAME. */
+    public boolean rejoin(Player player) {
+        if (player == null || state != ArenaState.IN_GAME
+                || sessions.containsKey(player.getUniqueId())
+                || !services.getReconnects().canRestore(
+                player.getUniqueId(), definition.getId())) {
+            return false;
+        }
+        PlayerSession session = new PlayerSession(player.getUniqueId(),
+                player.getName(), definition.getId(),
+                InventorySnapshot.capture(player));
+        if (services.getReconnects().restore(session) == null) {
+            return false;
+        }
+        GameTeam team = getTeam(session.getTeamId());
+        if (team == null || !team.addMember(player.getUniqueId())) {
+            return false;
+        }
+        sessions.put(player.getUniqueId(), session);
+        completedSessions.remove(player.getUniqueId());
+        session.setState(PlayerState.PLAYING);
+        preparePlayer(player, session, true);
+        GameScoreboard board = new GameScoreboard(
+                services.getMessages().get(player, "scoreboard.title"));
+        boards.put(player.getUniqueId(), board);
+        board.apply(player);
+        services.getMessages().send(player, "reconnect.restored");
+        return true;
+    }
+
     /**
      * Rimuove un giocatore dalla partita e ne ripristina lo stato personale.
      *
@@ -174,6 +220,9 @@ public final class Game {
         PlayerSession session = sessions.remove(player.getUniqueId());
         if (session == null) {
             return;
+        }
+        if (state == ArenaState.IN_GAME || state == ArenaState.ENDING) {
+            completedSessions.put(session.getPlayerId(), session);
         }
 
         GameTeam team = getTeam(session.getTeamId());
@@ -364,6 +413,8 @@ public final class Game {
         }
 
         state = ArenaState.IN_GAME;
+        matchId = definition.getId() + ":" + UUID.randomUUID().toString();
+        completedSessions.clear();
         elapsedSeconds = 0;
         applyWorldRules();
         spawnChickens();
@@ -1200,7 +1251,44 @@ public final class Game {
             player.setGameMode(GameMode.SPECTATOR);
         }
 
+        finalizeMatch(winningTeam);
+
         Bukkit.getPluginManager().callEvent(new CWGameEndEvent(this, winningTeam));
+    }
+
+    private void finalizeMatch(GameTeam winningTeam) {
+        if (matchId == null) {
+            return;
+        }
+        Map<UUID, PlayerSession> participants =
+                new LinkedHashMap<UUID, PlayerSession>(completedSessions);
+        participants.putAll(sessions);
+        List<MatchParticipantRecord> records =
+                new ArrayList<MatchParticipantRecord>();
+        for (PlayerSession session : participants.values()) {
+            boolean won = winningTeam != null
+                    && winningTeam.getId().equals(session.getTeamId());
+            MatchRewards rewards = services.getProgression().getRewards()
+                    .calculate(won, session.getKills(), session.getFinalKills());
+            records.add(new MatchParticipantRecord(session.getPlayerId(),
+                    session.getTeamId(), won, rewards.getExperience(),
+                    rewards.getCoins(), session.getKills(),
+                    session.getFinalKills(), session.getDeaths(),
+                    session.getFinalKills(), session.getResourcesCollected(),
+                    elapsedSeconds));
+        }
+        final String finalizedMatchId = matchId;
+        MatchFinalizationRequest request = new MatchFinalizationRequest(finalizedMatchId,
+                definition.getMode(), winningTeam == null ? null
+                : winningTeam.getId(), records, System.currentTimeMillis());
+        services.getProgression().getMatches().finalizeMatch(request)
+                .whenComplete((result, failure) -> {
+                    if (failure != null) {
+                        services.getPlugin().getLogger().log(Level.SEVERE,
+                                "Finalizzazione partita fallita: " + finalizedMatchId,
+                                failure);
+                    }
+                });
     }
 
     /**
@@ -1218,6 +1306,7 @@ public final class Game {
             }
         }
         sessions.clear();
+        completedSessions.clear();
         boards.clear();
 
         cleanup();
@@ -1226,6 +1315,7 @@ public final class Game {
 
         elapsedSeconds = 0;
         winner = null;
+        matchId = null;
         countdownSeconds = services.getConfig().getStartingCountdownSeconds();
         state = definition.isEnabled() ? ArenaState.WAITING : ArenaState.DISABLED;
     }

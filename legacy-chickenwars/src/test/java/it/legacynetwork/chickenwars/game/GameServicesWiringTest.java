@@ -11,8 +11,12 @@ import it.legacynetwork.chickenwars.effect.EffectAdapter;
 import it.legacynetwork.chickenwars.effect.HealPoolService;
 import it.legacynetwork.chickenwars.effect.TeamEffectService;
 import it.legacynetwork.chickenwars.message.MessageService;
+import it.legacynetwork.chickenwars.lobby.LobbyRoutingService;
+import it.legacynetwork.chickenwars.lobby.LobbySelectorService;
 import it.legacynetwork.chickenwars.player.ReconnectService;
 import it.legacynetwork.chickenwars.player.equipment.EquipmentService;
+import it.legacynetwork.chickenwars.persistence.ProgressionServices;
+import it.legacynetwork.chickenwars.routing.RoutingServices;
 import it.legacynetwork.chickenwars.shop.ChickenMenuService;
 import it.legacynetwork.chickenwars.shop.ShopService;
 import it.legacynetwork.chickenwars.trap.BaseEntryTracker;
@@ -50,6 +54,10 @@ class GameServicesWiringTest {
     private ChickenMenuService chickenMenu;
     private ChickenWarsConfig config;
     private EffectAdapter effects;
+    private ProgressionServices progression;
+    private RoutingServices routing;
+    private LobbyRoutingService lobby;
+    private LobbySelectorService lobbySelector;
 
     @BeforeEach
     void setUp() {
@@ -72,12 +80,17 @@ class GameServicesWiringTest {
         royalDefeatDispatcher = new RoyalDefeatDispatcher();
         chickenMenu = new ChickenMenuService(null, messages);
         config = mock(ChickenWarsConfig.class);
+        progression = mock(ProgressionServices.class);
+        routing = mock(RoutingServices.class);
+        lobby = mock(LobbyRoutingService.class);
+        lobbySelector = mock(LobbySelectorService.class);
 
         services = new GameServices(plugin, messages, chickens, shop,
                 equipment, transfers, reconnects, upgrades,
                 teamEffects, healPool, baseEntryTracker, traps,
                 royalRegistry, royalDamage, royalApplier,
-                royalDefeatDispatcher, chickenMenu, config);
+                royalDefeatDispatcher, chickenMenu, progression, routing, lobby,
+                lobbySelector, config);
     }
 
     @Test
@@ -99,6 +112,10 @@ class GameServicesWiringTest {
         assertSame(royalApplier, services.getRoyalApplier());
         assertSame(royalDefeatDispatcher, services.getRoyalDefeatDispatcher());
         assertSame(chickenMenu, services.getChickenMenu());
+        assertSame(progression, services.getProgression());
+        assertSame(routing, services.getRouting());
+        assertSame(lobby, services.getLobby());
+        assertSame(lobbySelector, services.getLobbySelector());
         assertSame(config, services.getConfig());
     }
 
@@ -127,7 +144,8 @@ class GameServicesWiringTest {
                         equipment, transfers, reconnects, upgrades,
                         teamEffects, healPool, baseEntryTracker, traps,
                         royalRegistry, royalDamage, royalApplier,
-                        royalDefeatDispatcher, chickenMenu, config));
+                        royalDefeatDispatcher, chickenMenu, progression, routing,
+                        lobby, lobbySelector, config));
     }
 
     @Test

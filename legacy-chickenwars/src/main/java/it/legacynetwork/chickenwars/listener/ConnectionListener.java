@@ -44,6 +44,8 @@ public final class ConnectionListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(PlayerJoinEvent event) {
         pendingRestores.restore(event.getPlayer());
+        services.getProgression().getProfiles().load(
+                event.getPlayer().getUniqueId());
         // I preset arrivano dal repository: quando sara' un database il flusso
         // restera' identico.
         quickBuy.load(event.getPlayer().getUniqueId());
@@ -56,6 +58,8 @@ public final class ConnectionListener implements Listener {
     public void onQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         quickBuy.unload(player.getUniqueId());
+        services.getProgression().getProfiles().saveAndUnload(
+                player.getUniqueId());
 
         Game game = arenas.getGameOf(player);
         if (game == null) {
@@ -74,6 +78,8 @@ public final class ConnectionListener implements Listener {
         // con la sessione, quindi non sono recuperabili con logout e login.
         if (session != null) {
             reconnects.remember(session);
+            services.getRouting().remember(player.getUniqueId(),
+                    game.getDefinition().getId(), System.currentTimeMillis());
         }
 
         game.leave(player, false);

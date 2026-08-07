@@ -13,11 +13,12 @@ public final class GlobalStatistics {
     private final long deaths;
     private final long finalKills;
     private final long chickenKills;
+    private final long eliminations;
     private final long playSeconds;
     private final long resourcesCollected;
 
     private GlobalStatistics(long games, long wins, long kills, long deaths,
-                             long finalKills, long chickenKills,
+                             long finalKills, long chickenKills, long eliminations,
                              long playSeconds, long resourcesCollected) {
         this.games = games;
         this.wins = wins;
@@ -25,6 +26,7 @@ public final class GlobalStatistics {
         this.deaths = deaths;
         this.finalKills = finalKills;
         this.chickenKills = chickenKills;
+        this.eliminations = eliminations;
         this.playSeconds = playSeconds;
         this.resourcesCollected = resourcesCollected;
     }
@@ -36,6 +38,7 @@ public final class GlobalStatistics {
         long deaths = 0L;
         long finalKills = 0L;
         long chickenKills = 0L;
+        long eliminations = 0L;
         long playSeconds = 0L;
         long resourcesCollected = 0L;
         if (entries != null) {
@@ -49,13 +52,14 @@ public final class GlobalStatistics {
                 deaths = safeAdd(deaths, entry.getDeaths());
                 finalKills = safeAdd(finalKills, entry.getFinalKills());
                 chickenKills = safeAdd(chickenKills, entry.getChickenKills());
+                eliminations = safeAdd(eliminations, entry.getEliminations());
                 playSeconds = safeAdd(playSeconds, entry.getPlaySeconds());
                 resourcesCollected = safeAdd(resourcesCollected,
                         entry.getResourcesCollected());
             }
         }
         return new GlobalStatistics(games, wins, kills, deaths, finalKills,
-                chickenKills, playSeconds, resourcesCollected);
+                chickenKills, eliminations, playSeconds, resourcesCollected);
     }
 
     private static long safeAdd(long current, long value) {
@@ -98,6 +102,8 @@ public final class GlobalStatistics {
     public long getChickenKills() {
         return chickenKills;
     }
+
+    public long getEliminations() { return eliminations; }
 
     public long getPlaySeconds() {
         return playSeconds;

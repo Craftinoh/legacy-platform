@@ -7,6 +7,8 @@ dependencies {
     compileOnly(project(":language-common"))
     compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
     compileOnly("me.clip:placeholderapi:2.11.6")
+    implementation("com.zaxxer:HikariCP:4.0.3")
+    runtimeOnly("org.postgresql:postgresql:42.7.7")
 
     testImplementation(project(":language-common"))
     testImplementation(platform("org.junit:junit-bom:5.13.4"))
@@ -15,6 +17,7 @@ dependencies {
     testImplementation("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
     testImplementation("org.mockito:mockito-core:4.11.0")
     testImplementation("org.mockito:mockito-inline:4.11.0")
+    testImplementation("com.h2database:h2:2.2.224")
     constraints {
         testImplementation("net.bytebuddy:byte-buddy:1.17.6")
         testImplementation("net.bytebuddy:byte-buddy-agent:1.17.6")

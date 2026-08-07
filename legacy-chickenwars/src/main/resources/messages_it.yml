@@ -827,3 +827,28 @@ setup:
         - "&7Attivo solo se la squadra gioca."
         - ""
         - "&eClicca per posizionarlo qui."
+
+progression:
+  experience: "&bXP: &f{experience}"
+  level: "&eLivello: &f{level} &7({current}/{required})"
+  coins: "&6Chicken Coins: &f{coins}"
+  rewards: "&aRicompense: &b{experience} XP &7e &6{coins} coins"
+
+persistence:
+  loading: "&eCaricamento del profilo in corso..."
+  saving: "&eSalvataggio del profilo..."
+  profile-unavailable: "&cProfilo non disponibile: le modalita' classificate sono temporaneamente disabilitate."
+
+lobby:
+  selector: "&eSelettore modalita'"
+  queued: "&aRicerca di una partita {mode}..."
+  left-queue: "&eHai lasciato la coda."
+  protected: "&cNon puoi modificare l'inventario della lobby."
+
+routing:
+  found: "&aIstanza trovata: &f{server}"
+  none: "&cNessuna istanza disponibile."
+  reserved: "&aPosto prenotato. Trasferimento in corso..."
+  timeout: "&cLa prenotazione e' scaduta."
+  reconnect: "&eRiconnessione all'istanza precedente..."
+  transfer-failed: "&cTrasferimento non riuscito."
