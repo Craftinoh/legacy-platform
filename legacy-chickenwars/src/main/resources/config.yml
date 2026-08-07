@@ -36,6 +36,7 @@ rewards:
     win: 100
     kill: 5
     final-kill: 10
+    natural-resource: 1
   coins:
     participation: 5
     win: 20
@@ -46,6 +47,37 @@ progression:
   maximum-level: 100
   # L'ultimo valore viene ripetuto fino al livello massimo.
   experience-requirements: [500, 1000, 2000, 3500, 5000]
+
+phases:
+  DIAMOND_II:
+    at-seconds: 300
+    resource: DIAMOND
+    tier: 2
+    message-key: phase.diamond_ii
+    sound: NOTE_PLING
+  EMERALD_II:
+    at-seconds: 600
+    resource: EMERALD
+    tier: 2
+    message-key: phase.emerald_ii
+    sound: NOTE_PLING
+  DIAMOND_III:
+    at-seconds: 900
+    resource: DIAMOND
+    tier: 3
+    message-key: phase.diamond_iii
+    sound: NOTE_PLING
+  EMERALD_III:
+    at-seconds: 1200
+    resource: EMERALD
+    tier: 3
+    message-key: phase.emerald_iii
+    sound: NOTE_PLING
+  ROYAL_COLLAPSE:
+    at-seconds: 1500
+    royal-collapse: true
+    message-key: phase.royal_collapse
+    sound: ENDERDRAGON_GROWL
 
 # Materiali associati a ogni tier di equipaggiamento.
 # I tier restano astratti nello stato di partita: qui si decide come appaiono.
@@ -92,6 +124,7 @@ game:
   reduced-countdown: 10
   # Durata massima di una partita, in secondi.
   maximum-duration: 1800
+  timeout-policy: LEADING_TEAM
   # Secondi di riepilogo prima del ripristino della mappa.
   ending-duration: 10
   allow-rejoin: true
@@ -139,17 +172,27 @@ world:
   daylight-cycle: false
   mob-spawning: false
 
-scoreboard:
-  # Ogni quanti tick aggiornare la scoreboard laterale.
-  update-ticks: 20
-
 generators:
+  enabled: true
+  chunk-policy: REQUIRE_LOADED
+  catch-up-policy: LIMITED
+  maximum-catch-up-drops: 2
   # Numero massimo di risorse dello stesso tipo lasciate a terra su un generatore.
   maximum-ground-items: 32
   # true = le risorse vicine vengono raggruppate invece di moltiplicare le entita'.
   item-stacking: true
   # Raggio entro cui cercare risorse da raggruppare.
   merge-radius: 2.0
+  profiles:
+    solo_duel:
+      interval-multiplier: 1.0
+      amount-multiplier: 1.0
+    doubles:
+      interval-multiplier: 1.0
+      amount-multiplier: 1.0
+    trio:
+      interval-multiplier: 1.0
+      amount-multiplier: 1.0
   types:
     IRON:
       levels:

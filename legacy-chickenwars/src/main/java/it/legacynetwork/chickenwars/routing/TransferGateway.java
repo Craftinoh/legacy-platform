@@ -6,4 +6,5 @@ import java.util.UUID;
 public interface TransferGateway {
     void transfer(UUID playerId, String serverName, String reservationId,
                   String arenaId);
+    void connect(UUID playerId, String serverName);
 }

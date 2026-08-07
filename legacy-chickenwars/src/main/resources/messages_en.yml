@@ -597,6 +597,40 @@ scoreboard:
   starting: "&7Starting in &f{seconds}s"
   kills: "&7Kills: &f{kills} &8(&f{final_kills}&8)"
   time: "&7Time: &f{time}"
+  training-notice: "Training mode: no persistent rewards"
+  no-next-phase: "No next phase"
+  label:
+    map: "Map"
+    mode: "Mode"
+    players: "Players"
+    chicken: "Chicken"
+    shield: "Shield"
+    kills: "Kills"
+    final-kills: "Final kills"
+    chickens: "Chickens"
+    feathers: "Feathers"
+    spectator: "SPECTATOR"
+    winner: "Winner"
+    deaths: "Deaths"
+    resources: "Resources"
+    duration: "Duration"
+    level: "Level"
+
+phase:
+  announced: "&6New phase: &f{phase}"
+  diamond_ii: "Diamond II"
+  emerald_ii: "Emerald II"
+  diamond_iii: "Diamond III"
+  emerald_iii: "Emerald III"
+  royal_collapse: "Royal Collapse"
+
+ending:
+  returning-lobby: "&7Returning to the lobby..."
+
+collapse:
+  team: "&cThe Royal Chicken of {team} &chas fallen: respawns disabled."
+  respawn-disabled: "&cYou can no longer respawn. Stay alive!"
+  global: "&4&lROYAL COLLAPSE! &cRespawns are disabled for every team."
 
 world:
   # Map protections during the match.
@@ -838,6 +872,7 @@ persistence:
   loading: "&eLoading your profile..."
   saving: "&eSaving your profile..."
   profile-unavailable: "&cProfile unavailable: tracked modes are temporarily disabled."
+  finalization-failed: "&cThe result could not be saved: no persistent reward was granted."
 
 lobby:
   selector: "&eMode selector"

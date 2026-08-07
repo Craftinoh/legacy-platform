@@ -53,7 +53,7 @@ public final class ProfileLifecycleService {
     public boolean mayEnterTracked(UUID playerId){return loaded.containsKey(playerId)
             ||offlinePolicy==DatabaseOfflinePolicy.UNTRACKED_DEGRADED;}
     public CompletionStage<Void> saveAndUnload(UUID id){
-        PlayerProfile profile=loaded.remove(id);return profile==null?CompletableFuture.completedFuture(null):progression.save(profile.getProgress());
+        loaded.remove(id);return CompletableFuture.completedFuture(null);
     }
     public PlayerProfile get(UUID id){return loaded.get(id);}
     public CompletionStage<Void> shutdown(){

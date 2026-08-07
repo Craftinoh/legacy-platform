@@ -6,5 +6,6 @@ import java.util.concurrent.CompletionStage;
 public interface ReconnectCoordinator {
     CompletionStage<Void> remember(UUID playerId,String instanceId,long expiresAt);
     CompletionStage<RouteResult> reconnect(UUID playerId,String idempotencyKey,long now);
+    CompletionStage<Void> forget(UUID playerId);
     CompletionStage<Integer> cleanup(long now);
 }

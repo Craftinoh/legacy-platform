@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 public final class PlayerProfile {
-    private final UUID playerId; private final PlayerProgressRecord progress;
+    private final UUID playerId; private volatile PlayerProgressRecord progress;
     private final List<ModeStatistics> statistics;
     private final List<QuickBuyPresetRecord> quickBuy;
     public PlayerProfile(UUID playerId, PlayerProgressRecord progress,
@@ -18,6 +18,7 @@ public final class PlayerProfile {
     }
     public UUID getPlayerId(){return playerId;}
     public PlayerProgressRecord getProgress(){return progress;}
+    public void updateProgress(PlayerProgressRecord progress){if(progress!=null&&playerId.equals(progress.getPlayerId()))this.progress=progress;}
     public List<ModeStatistics> getStatistics(){return statistics;}
     public List<QuickBuyPresetRecord> getQuickBuy(){return quickBuy;}
 }

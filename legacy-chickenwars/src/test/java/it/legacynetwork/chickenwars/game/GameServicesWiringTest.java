@@ -13,6 +13,8 @@ import it.legacynetwork.chickenwars.effect.TeamEffectService;
 import it.legacynetwork.chickenwars.message.MessageService;
 import it.legacynetwork.chickenwars.lobby.LobbyRoutingService;
 import it.legacynetwork.chickenwars.lobby.LobbySelectorService;
+import it.legacynetwork.chickenwars.lobby.ReturnLobbyService;
+import it.legacynetwork.chickenwars.generator.GeneratedResourceRegistry;
 import it.legacynetwork.chickenwars.player.ReconnectService;
 import it.legacynetwork.chickenwars.player.equipment.EquipmentService;
 import it.legacynetwork.chickenwars.persistence.ProgressionServices;
@@ -58,6 +60,8 @@ class GameServicesWiringTest {
     private RoutingServices routing;
     private LobbyRoutingService lobby;
     private LobbySelectorService lobbySelector;
+    private ReturnLobbyService returnLobby;
+    private GeneratedResourceRegistry generatedResources;
 
     @BeforeEach
     void setUp() {
@@ -84,13 +88,15 @@ class GameServicesWiringTest {
         routing = mock(RoutingServices.class);
         lobby = mock(LobbyRoutingService.class);
         lobbySelector = mock(LobbySelectorService.class);
+        returnLobby = mock(ReturnLobbyService.class);
+        generatedResources = new GeneratedResourceRegistry();
 
         services = new GameServices(plugin, messages, chickens, shop,
                 equipment, transfers, reconnects, upgrades,
                 teamEffects, healPool, baseEntryTracker, traps,
                 royalRegistry, royalDamage, royalApplier,
                 royalDefeatDispatcher, chickenMenu, progression, routing, lobby,
-                lobbySelector, config);
+                lobbySelector, returnLobby, generatedResources, config);
     }
 
     @Test
@@ -116,6 +122,8 @@ class GameServicesWiringTest {
         assertSame(routing, services.getRouting());
         assertSame(lobby, services.getLobby());
         assertSame(lobbySelector, services.getLobbySelector());
+        assertSame(returnLobby, services.getReturnLobby());
+        assertSame(generatedResources, services.getGeneratedResources());
         assertSame(config, services.getConfig());
     }
 
@@ -145,7 +153,8 @@ class GameServicesWiringTest {
                         teamEffects, healPool, baseEntryTracker, traps,
                         royalRegistry, royalDamage, royalApplier,
                         royalDefeatDispatcher, chickenMenu, progression, routing,
-                        lobby, lobbySelector, config));
+                        lobby, lobbySelector, returnLobby, generatedResources,
+                        config));
     }
 
     @Test

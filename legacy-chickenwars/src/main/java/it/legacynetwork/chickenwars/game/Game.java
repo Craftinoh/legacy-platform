@@ -20,7 +20,13 @@ import it.legacynetwork.chickenwars.death.DeathContext;
 import it.legacynetwork.chickenwars.death.DeathOutcome;
 import it.legacynetwork.chickenwars.death.KillerEligibility;
 import it.legacynetwork.chickenwars.economy.ResourceTransfer;
-import it.legacynetwork.chickenwars.generator.RuntimeGenerator;
+import it.legacynetwork.chickenwars.economy.ResourceWallet;
+import it.legacynetwork.chickenwars.generator.BukkitGeneratorDropSink;
+import it.legacynetwork.chickenwars.generator.ConfiguredGeneratorSchedule;
+import it.legacynetwork.chickenwars.generator.GeneratorService;
+import it.legacynetwork.chickenwars.generator.GeneratorState;
+import it.legacynetwork.chickenwars.generator.MatchPhaseDefinition;
+import it.legacynetwork.chickenwars.generator.MatchTimeline;
 import it.legacynetwork.chickenwars.hologram.Hologram;
 import it.legacynetwork.chickenwars.model.ArenaState;
 import it.legacynetwork.chickenwars.model.ResourceType;
@@ -29,9 +35,17 @@ import it.legacynetwork.chickenwars.player.InventorySnapshot;
 import it.legacynetwork.chickenwars.player.PlayerSession;
 import it.legacynetwork.chickenwars.player.PlayerState;
 import it.legacynetwork.chickenwars.persistence.MatchFinalizationRequest;
+import it.legacynetwork.chickenwars.persistence.MatchFinalizationResult;
 import it.legacynetwork.chickenwars.persistence.MatchParticipantRecord;
+import it.legacynetwork.chickenwars.persistence.PlayerProfile;
+import it.legacynetwork.chickenwars.progression.ChickenWarsProgress;
 import it.legacynetwork.chickenwars.progression.MatchRewards;
 import it.legacynetwork.chickenwars.scoreboard.GameScoreboard;
+import it.legacynetwork.chickenwars.scoreboard.RenderedScoreboard;
+import it.legacynetwork.chickenwars.scoreboard.ScoreboardLayout;
+import it.legacynetwork.chickenwars.scoreboard.ScoreboardPlaceholderModel;
+import it.legacynetwork.chickenwars.scoreboard.ScoreboardRenderer;
+import it.legacynetwork.chickenwars.scoreboard.ScoreboardSettings;
 import it.legacynetwork.chickenwars.region.CuboidRegion;
 import it.legacynetwork.chickenwars.upgrade.TeamUpgradeType;
 import it.legacynetwork.chickenwars.world.MapRestoreService;
@@ -54,6 +68,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.logging.Level;
 
 /**
@@ -76,8 +92,14 @@ public final class Game {
             new LinkedHashMap<UUID, GameScoreboard>();
     private final Map<UUID, PlayerSession> completedSessions =
             new LinkedHashMap<UUID, PlayerSession>();
-    private final List<RuntimeGenerator> generators =
-            new ArrayList<RuntimeGenerator>();
+    private final Map<UUID, FinalPlayerSnapshot> finalSnapshots =
+            new LinkedHashMap<UUID, FinalPlayerSnapshot>();
+    private final ScoreboardRenderer scoreboardRenderer =
+            new ScoreboardRenderer();
+    private final MatchOutcomeResolver outcomes = new MatchOutcomeResolver();
+    private GeneratorService generators;
+    private final Map<String, Hologram> generatorHolograms =
+            new LinkedHashMap<String, Hologram>();
     private final Map<UUID, Villager> shopNpcs = new LinkedHashMap<UUID, Villager>();
     private final Map<UUID, Location> shopAnchors = new LinkedHashMap<UUID, Location>();
     private final Map<UUID, Villager> upgradesNpcs = new LinkedHashMap<UUID, Villager>();
@@ -91,6 +113,13 @@ public final class Game {
     private int endingSecondsLeft;
     private GameTeam winner;
     private String matchId;
+    private MatchTimeline timeline;
+    private boolean royalCollapse;
+    private String currentPhase;
+    private MatchEndingCoordinator endingCoordinator =
+            new MatchEndingCoordinator();
+    private boolean finalizationAnnounced;
+    private boolean victoryCheckPending;
 
     public Game(GameServices services, ArenaDefinition definition) {
         if (services == null || definition == null) {
@@ -99,6 +128,7 @@ public final class Game {
         this.services = services;
         this.definition = definition;
         this.countdownSeconds = services.getConfig().getStartingCountdownSeconds();
+        this.timeline = new MatchTimeline(services.getConfig().getPhases());
         rebuildTeams();
     }
 
@@ -150,11 +180,6 @@ public final class Game {
         sessions.put(player.getUniqueId(), session);
         completedSessions.remove(player.getUniqueId());
 
-        // Rientro nella stessa partita: torna solo lo stato permanente.
-        if (services.getReconnects().restore(session) != null) {
-            services.getMessages().send(player, "reconnect.restored");
-        }
-
         InventorySnapshot.clear(player);
         player.setGameMode(GameMode.SURVIVAL);
         player.teleport(lobby);
@@ -185,26 +210,51 @@ public final class Game {
                 player.getUniqueId(), definition.getId())) {
             return false;
         }
-        PlayerSession session = new PlayerSession(player.getUniqueId(),
-                player.getName(), definition.getId(),
-                InventorySnapshot.capture(player));
-        if (services.getReconnects().restore(session) == null) {
+        PlayerSession session = completedSessions.get(player.getUniqueId());
+        if (session == null) {
+            session = new PlayerSession(player.getUniqueId(), player.getName(),
+                    definition.getId(), InventorySnapshot.capture(player));
+        }
+        it.legacynetwork.chickenwars.player.ReconnectService.Snapshot restored =
+                services.getReconnects().restore(session);
+        if (restored == null) {
             return false;
         }
         GameTeam team = getTeam(session.getTeamId());
-        if (team == null || !team.addMember(player.getUniqueId())) {
+        if (team == null || !team.restoreMember(player.getUniqueId())) {
             return false;
         }
         sessions.put(player.getUniqueId(), session);
         completedSessions.remove(player.getUniqueId());
-        session.setState(PlayerState.PLAYING);
-        preparePlayer(player, session, true);
+        if (restored.getPlayerState() == PlayerState.RESPAWNING) {
+            if (!team.canRespawn()) {
+                team.eliminateMember(player.getUniqueId());
+                makeSpectator(player, session);
+                checkTeamElimination(team);
+                checkVictory();
+            } else {
+                prepareReconnectRespawn(player);
+            }
+        } else {
+            session.setState(PlayerState.PLAYING);
+            preparePlayer(player, session, true);
+        }
         GameScoreboard board = new GameScoreboard(
                 services.getMessages().get(player, "scoreboard.title"));
         boards.put(player.getUniqueId(), board);
         board.apply(player);
         services.getMessages().send(player, "reconnect.restored");
         return true;
+    }
+
+    private void prepareReconnectRespawn(Player player) {
+        InventorySnapshot.clear(player);
+        player.setGameMode(GameMode.SPECTATOR);
+        Location spectatorPoint = resolve(definition.getSpectator());
+        if (spectatorPoint != null) player.teleport(spectatorPoint);
+        services.getMessages().send(player, "respawn.countdown",
+                "{seconds}", String.valueOf(getSession(player.getUniqueId())
+                        .getRespawnSecondsLeft()));
     }
 
     /**
@@ -226,7 +276,10 @@ public final class Game {
         }
 
         GameTeam team = getTeam(session.getTeamId());
-        if (team != null) {
+        boolean reconnectPending = state == ArenaState.IN_GAME
+                && !restoreState && services.getConfig().isAllowRejoin()
+                && services.getReconnects().hasSnapshot(player.getUniqueId());
+        if (team != null && !reconnectPending) {
             team.removeMember(player.getUniqueId());
         }
 
@@ -279,14 +332,18 @@ public final class Game {
                 }
                 break;
             case IN_GAME:
+                resolvePendingVictory();
+                if (state != ArenaState.IN_GAME) break;
                 tickGenerators();
                 if (tickCounter % TICKS_PER_SECOND == 0) {
                     tickSecond();
                 }
                 break;
             case ENDING:
-                if (tickCounter % TICKS_PER_SECOND == 0 && --endingSecondsLeft <= 0) {
-                    restart();
+                if (tickCounter % TICKS_PER_SECOND == 0) {
+                    announceFinalization();
+                    if (endingCoordinator.isSettled()
+                            && --endingSecondsLeft <= 0) restart();
                 }
                 break;
             default:
@@ -312,14 +369,18 @@ public final class Game {
     }
 
     private void tickGenerators() {
-        for (int i = 0; i < generators.size(); i++) {
-            generators.get(i).tick(services.getConfig().getGenerators());
+        if (generators != null) {
+            generators.tick(tickCounter);
         }
     }
 
     private void tickSecond() {
         elapsedSeconds++;
         ChickenWarsConfig config = services.getConfig();
+        timeline.reload(config.getPhases());
+        for (MatchPhaseDefinition phase : timeline.poll(elapsedSeconds)) {
+            applyPhase(phase);
+        }
         ChickenSettings chickenSettings = config.getChicken();
 
         for (GameTeam team : teams.values()) {
@@ -346,13 +407,47 @@ public final class Game {
         }
 
         tickRespawns();
+        expireReconnects();
         updateGeneratorHolograms();
         anchorShopNpcs();
         anchorUpgradesNpcs();
 
         if (elapsedSeconds >= config.getMaximumDurationSeconds()) {
-            end(findLeadingTeam());
+            end(outcomes.atTimeout(teams.values(), config.getTimeoutPolicy())
+                    .getWinner());
         }
+    }
+
+    private void applyPhase(MatchPhaseDefinition phase) {
+        currentPhase = phase.getId();
+        if (phase.getResource() != null && generators != null) {
+            generators.setTier(phase.getResource(), phase.getTier(), tickCounter);
+        }
+        if (phase.isRoyalCollapse()) {
+            activateRoyalCollapse();
+        }
+        broadcast("phase.announced", "{phase}", services.getMessages().get(
+                null, phase.getMessageKey()));
+        playSound(Sound.valueOf(phase.getSound()), 0.8F);
+    }
+
+    private void activateRoyalCollapse() {
+        if (royalCollapse) return;
+        royalCollapse = true;
+        broadcast("collapse.global");
+        for (GameTeam team : teams.values()) {
+            team.collapse();
+            for (PlayerSession session : sessions.values()) {
+                if (!team.getId().equals(session.getTeamId())
+                        || session.getState() != PlayerState.RESPAWNING) continue;
+                team.eliminateMember(session.getPlayerId());
+                Player player = Bukkit.getPlayer(session.getPlayerId());
+                if (player != null && player.isOnline()) makeSpectator(player, session);
+                else session.setState(PlayerState.SPECTATOR);
+            }
+            checkTeamElimination(team);
+        }
+        checkVictory();
     }
 
     private void tickRespawns() {
@@ -376,17 +471,36 @@ public final class Game {
         }
     }
 
+    private void expireReconnects() {
+        boolean changed = false;
+        for (UUID playerId : services.getReconnects().expireArena(
+                definition.getId(), System.currentTimeMillis())) {
+            PlayerSession session = completedSessions.get(playerId);
+            GameTeam team = session == null ? null : getTeam(session.getTeamId());
+            if (team != null && team.eliminateMember(playerId)) {
+                changed = true;
+                checkTeamElimination(team);
+            }
+        }
+        if (changed) checkVictory();
+    }
+
     private void updateGeneratorHolograms() {
-        for (RuntimeGenerator generator : generators) {
-            if (generator.getHologram() == null) {
+        if (generators == null) {
+            return;
+        }
+        for (GeneratorState generator : generators.states()) {
+            Hologram hologram = generatorHolograms.get(generator.getId());
+            if (hologram == null) {
                 continue;
             }
             List<String> lines = new ArrayList<String>();
             lines.add(generator.getType().getColor() + ChatColor.BOLD.toString()
                     + generator.getType().getItalianName());
             lines.add(services.getMessages().get(null, "generator.countdown",
-                    "{seconds}", String.valueOf(generator.getSecondsUntilNext())));
-            generator.updateHologram(lines);
+                    "{seconds}", String.valueOf(Math.max(0L,
+                    (generator.getNextTick() - tickCounter + 19L) / 20L))));
+            hologram.update(lines);
         }
     }
 
@@ -400,7 +514,8 @@ public final class Game {
      * @return {@code true} se l'avvio e' riuscito
      */
     public boolean start() {
-        if (state == ArenaState.IN_GAME || sessions.isEmpty()) {
+        if ((state != ArenaState.WAITING && state != ArenaState.STARTING)
+                || sessions.isEmpty()) {
             return false;
         }
 
@@ -415,6 +530,13 @@ public final class Game {
         state = ArenaState.IN_GAME;
         matchId = definition.getId() + ":" + UUID.randomUUID().toString();
         completedSessions.clear();
+        finalSnapshots.clear();
+        endingCoordinator = new MatchEndingCoordinator();
+        finalizationAnnounced = false;
+        victoryCheckPending = false;
+        timeline = new MatchTimeline(services.getConfig().getPhases());
+        royalCollapse = false;
+        currentPhase = null;
         elapsedSeconds = 0;
         applyWorldRules();
         spawnChickens();
@@ -509,8 +631,19 @@ public final class Game {
     }
 
     private void createGenerators() {
-        generators.clear();
+        if (generators != null) {
+            generators.clear();
+        }
+        for (Hologram hologram : generatorHolograms.values()) {
+            hologram.remove();
+        }
+        generatorHolograms.clear();
+        Map<String, Location> locations = new LinkedHashMap<String, Location>();
+        List<GeneratorDefinition> active = new ArrayList<GeneratorDefinition>();
         for (GeneratorDefinition generatorDefinition : definition.getGenerators()) {
+            if (!generatorDefinition.isEnabled()) {
+                continue;
+            }
             if (generatorDefinition.isTeamGenerator()) {
                 GameTeam owner = getTeam(generatorDefinition.getTeamId());
                 if (owner == null || owner.getMemberCount() == 0) {
@@ -522,8 +655,8 @@ public final class Game {
             if (location == null) {
                 continue;
             }
-            RuntimeGenerator generator = new RuntimeGenerator(generatorDefinition,
-                    location, services.getConfig().getGenerators());
+            locations.put(generatorDefinition.getId(), location);
+            active.add(generatorDefinition);
             if (generatorDefinition.hasHologram()
                     && !generatorDefinition.isTeamGenerator()) {
                 List<String> lines = new ArrayList<String>();
@@ -531,11 +664,20 @@ public final class Game {
                         + ChatColor.BOLD.toString()
                         + generatorDefinition.getType().getItalianName());
                 lines.add("");
-                generator.setHologram(new Hologram(
+                generatorHolograms.put(generatorDefinition.getId(), new Hologram(
                         location.clone().add(0.0D, 2.0D, 0.0D), lines));
             }
-            generators.add(generator);
         }
+        generators = new GeneratorService(new ConfiguredGeneratorSchedule(
+                services.getConfig().getGenerators(), definition.getModeProfile()
+                .getPricingProfile()),
+                new BukkitGeneratorDropSink(
+                        services.getConfig().getGenerators(), locations,
+                        services.getGeneratedResources()));
+        for (GeneratorDefinition generator : active) {
+            generators.add(new GeneratorState(matchId, generator));
+        }
+        generators.start(tickCounter);
     }
 
     /**
@@ -790,7 +932,7 @@ public final class Game {
 
         InventorySnapshot.clear(player);
 
-        boolean finalDeath = !team.hasChicken()
+        boolean finalDeath = !team.canRespawn()
                 || !services.getConfig().isRespawnEnabled();
 
         if (killer != null && !killer.getUniqueId().equals(player.getUniqueId())) {
@@ -867,6 +1009,11 @@ public final class Game {
 
         GameTeam team = getTeam(session.getTeamId());
         if (team != null) {
+            PlayerSession killerSession = sessions.get(attackerId);
+            if (killerSession != null
+                    && !attackerId.equals(player.getUniqueId())) {
+                killerSession.addFinalKill();
+            }
             team.eliminateMember(player.getUniqueId());
             broadcast("death.combat-logout",
                     "{player}", team.getColor().getChatColor() + player.getName(),
@@ -925,7 +1072,7 @@ public final class Game {
 
     private void respawn(Player player, PlayerSession session) {
         GameTeam team = getTeam(session.getTeamId());
-        if (team == null || !team.hasChicken()) {
+        if (team == null || !team.canRespawn()) {
             makeSpectator(player, session);
             checkVictory();
             return;
@@ -1082,6 +1229,9 @@ public final class Game {
         if (!chicken.markDefeated()) {
             return;
         }
+        owner.collapse();
+        broadcast("collapse.team", "{team}", owner.getColoredName());
+        notifyTeam(owner, "collapse.respawn-disabled");
 
         ChickenSettings settings = services.getConfig().getChicken();
         services.getChickens().playDeath(chicken, settings);
@@ -1117,6 +1267,18 @@ public final class Game {
 
         if (settings.isLastFeatherEnabled()) {
             applyLastFeather(owner, settings);
+        }
+
+        for (PlayerSession session : sessions.values()) {
+            if (!owner.getId().equals(session.getTeamId())
+                    || session.getState() != PlayerState.RESPAWNING) continue;
+            owner.eliminateMember(session.getPlayerId());
+            Player respawning = Bukkit.getPlayer(session.getPlayerId());
+            if (respawning != null && respawning.isOnline()) {
+                makeSpectator(respawning, session);
+            } else {
+                session.setState(PlayerState.SPECTATOR);
+            }
         }
 
         checkTeamElimination(owner);
@@ -1176,7 +1338,7 @@ public final class Game {
     // ------------------------------------------------------------------
 
     private void checkTeamElimination(GameTeam team) {
-        if (team.isEliminated() || team.hasChicken() || team.getAliveCount() > 0) {
+        if (team.isEliminated() || team.getAliveCount() > 0) {
             return;
         }
         team.setEliminated(true);
@@ -1191,31 +1353,17 @@ public final class Game {
         if (state != ArenaState.IN_GAME) {
             return;
         }
-        GameTeam survivor = null;
-        int remaining = 0;
-        for (GameTeam team : teams.values()) {
-            if (team.getMemberCount() == 0 || team.isOut()) {
-                continue;
-            }
-            remaining++;
-            survivor = team;
-        }
-        if (remaining <= 1) {
-            end(survivor);
-        }
+        victoryCheckPending = true;
     }
 
-    private GameTeam findLeadingTeam() {
-        GameTeam leader = null;
-        for (GameTeam team : teams.values()) {
-            if (team.isOut()) {
-                continue;
-            }
-            if (leader == null || team.getAliveCount() > leader.getAliveCount()) {
-                leader = team;
-            }
+    private void resolvePendingVictory() {
+        if (!victoryCheckPending || state != ArenaState.IN_GAME) return;
+        victoryCheckPending = false;
+        MatchOutcomeResolver.Result result =
+                outcomes.afterElimination(teams.values());
+        if (result.isTerminal()) {
+            end(result.getWinner());
         }
-        return leader;
     }
 
     /**
@@ -1224,10 +1372,11 @@ public final class Game {
      * @param winningTeam squadra vincitrice, eventualmente nulla
      */
     public void end(GameTeam winningTeam) {
-        if (state == ArenaState.ENDING || state == ArenaState.RESTARTING) {
+        if (state != ArenaState.IN_GAME) {
             return;
         }
         state = ArenaState.ENDING;
+        if (generators != null) generators.stop();
         this.winner = winningTeam;
         this.endingSecondsLeft = services.getConfig().getEndingSeconds();
 
@@ -1248,28 +1397,36 @@ public final class Game {
                     "{final_kills}", String.valueOf(session.getFinalKills()),
                     "{chickens}", String.valueOf(session.getChickensKilled()),
                     "{deaths}", String.valueOf(session.getDeaths()));
+            player.closeInventory();
             player.setGameMode(GameMode.SPECTATOR);
+            session.clearInvulnerability();
         }
 
-        finalizeMatch(winningTeam);
+        endingCoordinator.start(finalizeMatch(winningTeam));
 
         Bukkit.getPluginManager().callEvent(new CWGameEndEvent(this, winningTeam));
     }
 
-    private void finalizeMatch(GameTeam winningTeam) {
+    private CompletionStage<MatchFinalizationResult> finalizeMatch(
+            GameTeam winningTeam) {
         if (matchId == null) {
-            return;
+            return CompletableFuture.completedFuture(
+                    new MatchFinalizationResult(false));
         }
         Map<UUID, PlayerSession> participants =
                 new LinkedHashMap<UUID, PlayerSession>(completedSessions);
         participants.putAll(sessions);
         List<MatchParticipantRecord> records =
                 new ArrayList<MatchParticipantRecord>();
+        finalSnapshots.clear();
         for (PlayerSession session : participants.values()) {
             boolean won = winningTeam != null
                     && winningTeam.getId().equals(session.getTeamId());
-            MatchRewards rewards = services.getProgression().getRewards()
-                    .calculate(won, session.getKills(), session.getFinalKills());
+            MatchRewards rewards = definition.getModeProfile().isRewardsEnabled()
+                    ? services.getProgression().getRewards().calculate(won,
+                    session.getKills(), session.getFinalKills(),
+                    session.getResourcesCollected()) : new MatchRewards(0L, 0L);
+            finalSnapshots.put(session.getPlayerId(), snapshot(session, rewards));
             records.add(new MatchParticipantRecord(session.getPlayerId(),
                     session.getTeamId(), won, rewards.getExperience(),
                     rewards.getCoins(), session.getKills(),
@@ -1280,15 +1437,56 @@ public final class Game {
         final String finalizedMatchId = matchId;
         MatchFinalizationRequest request = new MatchFinalizationRequest(finalizedMatchId,
                 definition.getMode(), winningTeam == null ? null
-                : winningTeam.getId(), records, System.currentTimeMillis());
-        services.getProgression().getMatches().finalizeMatch(request)
-                .whenComplete((result, failure) -> {
+                : winningTeam.getId(), records, System.currentTimeMillis(),
+                services.getProgression().getExperience().getMaximumExperience());
+        CompletionStage<MatchFinalizationResult> finalization =
+                services.getProgression().getFinalizer().finalizeMatch(request);
+        finalization.whenComplete((result, failure) -> {
                     if (failure != null) {
                         services.getPlugin().getLogger().log(Level.SEVERE,
                                 "Finalizzazione partita fallita: " + finalizedMatchId,
                                 failure);
+                    } else {
+                        services.getProgression().applyFinalized(request);
                     }
                 });
+        return finalization;
+    }
+
+    private void announceFinalization() {
+        if (finalizationAnnounced || !endingCoordinator.isSettled()) return;
+        finalizationAnnounced = true;
+        if (!endingCoordinator.isSuccessful()) {
+            broadcast("persistence.finalization-failed");
+            return;
+        }
+        if (!definition.getModeProfile().isRewardsEnabled()) return;
+        for (Player player : getOnlinePlayers()) {
+            FinalPlayerSnapshot snapshot = finalSnapshots.get(
+                    player.getUniqueId());
+            if (snapshot != null) {
+                services.getMessages().send(player, "progression.rewards",
+                        "{experience}", String.valueOf(snapshot.getExperience()),
+                        "{coins}", String.valueOf(snapshot.getCoins()));
+            }
+        }
+    }
+
+    private FinalPlayerSnapshot snapshot(PlayerSession session,
+                                         MatchRewards rewards) {
+        int level = 0;
+        PlayerProfile profile = services.getProgression().getProfiles()
+                .get(session.getPlayerId());
+        if (profile != null) {
+            ChickenWarsProgress progress = profile.getProgress().toProgress(
+                    services.getProgression().getExperience());
+            progress.addExperience(rewards.getExperience());
+            level = progress.getLevel();
+        }
+        return new FinalPlayerSnapshot(session.getPlayerId(), session.getKills(),
+                session.getFinalKills(), session.getChickensKilled(),
+                session.getDeaths(), session.getResourcesCollected(),
+                rewards.getExperience(), rewards.getCoins(), level);
     }
 
     /**
@@ -1305,22 +1503,32 @@ public final class Game {
                 sendToReturnLobby(player);
             }
         }
+        cleanup();
         sessions.clear();
         completedSessions.clear();
+        finalSnapshots.clear();
         boards.clear();
-
-        cleanup();
         restore.restore(definition);
         rebuildTeams();
 
         elapsedSeconds = 0;
         winner = null;
         matchId = null;
+        royalCollapse = false;
+        currentPhase = null;
+        timeline = new MatchTimeline(services.getConfig().getPhases());
+        endingCoordinator = new MatchEndingCoordinator();
+        finalizationAnnounced = false;
+        victoryCheckPending = false;
         countdownSeconds = services.getConfig().getStartingCountdownSeconds();
         state = definition.isEnabled() ? ArenaState.WAITING : ArenaState.DISABLED;
     }
 
     private void sendToReturnLobby(Player player) {
+        if (services.getReturnLobby().transfer(player)) {
+            services.getMessages().send(player, "ending.returning-lobby");
+            return;
+        }
         Location target = resolve(services.getConfig().getReturnLobby());
         if (target != null) {
             player.teleport(target);
@@ -1333,6 +1541,11 @@ public final class Game {
      * <p>Va richiamato anche allo spegnimento del plugin.</p>
      */
     public void cleanup() {
+        for (UUID playerId : completedSessions.keySet()) {
+            services.getReconnects().forget(playerId);
+            services.getRouting().forget(playerId);
+            services.getTransfers().clear(playerId);
+        }
         for (GameTeam team : teams.values()) {
             RoyalChicken chicken = team.getChicken();
             if (chicken != null) {
@@ -1340,10 +1553,17 @@ public final class Game {
                 team.setChicken(null);
             }
         }
-        for (RuntimeGenerator generator : generators) {
-            generator.removeHologram();
+        if (generators != null) {
+            generators.clear();
+            generators = null;
         }
-        generators.clear();
+        for (Hologram hologram : generatorHolograms.values()) {
+            hologram.remove();
+        }
+        generatorHolograms.clear();
+        if (matchId != null) {
+            services.getGeneratedResources().clearMatch(matchId);
+        }
         removeShopNpcs();
         removeUpgradesNpcs();
         services.getUpgrades().clearArena(definition.getId());
@@ -1359,54 +1579,157 @@ public final class Game {
     // ------------------------------------------------------------------
 
     private void updateScoreboards() {
+        ScoreboardSettings settings = services.getConfig().getScoreboard();
+        if (!settings.isEnabled()) {
+            for (UUID playerId : boards.keySet()) {
+                GameScoreboard.clear(Bukkit.getPlayer(playerId));
+            }
+            return;
+        }
         for (Map.Entry<UUID, GameScoreboard> entry : boards.entrySet()) {
             Player player = Bukkit.getPlayer(entry.getKey());
             if (player == null || !player.isOnline()) {
                 continue;
             }
-            entry.getValue().update(
-                    services.getMessages().get(player, "scoreboard.title"),
-                    renderScoreboard(player));
+            ScoreboardLayout layout = settings.getLayout(scoreboardLayout(player));
+            if (layout == null) {
+                continue;
+            }
+            RenderedScoreboard rendered = scoreboardRenderer.render(layout,
+                    scoreboardModel(player, settings));
+            entry.getValue().update(rendered.getTitle(), rendered.getLines());
         }
     }
 
-    private List<String> renderScoreboard(Player player) {
-        List<String> lines = new ArrayList<String>();
+    private String scoreboardLayout(Player player) {
+        if (state == ArenaState.WAITING) return "waiting";
+        if (state == ArenaState.STARTING) return "starting";
+        if (state == ArenaState.ENDING) {
+            return definition.getModeProfile().isRewardsEnabled()
+                    ? "ending" : "ending-duel";
+        }
         PlayerSession session = sessions.get(player.getUniqueId());
-
-        lines.add(ChatColor.GRAY + definition.getDisplayName());
-        lines.add("");
-
-        if (state == ArenaState.WAITING) {
-            lines.add(services.getMessages().get(player, "scoreboard.waiting",
-                    "{online}", String.valueOf(sessions.size()),
-                    "{min}", String.valueOf(definition.getMinimumPlayers())));
-        } else if (state == ArenaState.STARTING) {
-            lines.add(services.getMessages().get(player, "scoreboard.starting",
-                    "{seconds}", String.valueOf(countdownSeconds)));
-        } else {
-            for (GameTeam team : teams.values()) {
-                if (team.getMemberCount() == 0) {
-                    continue;
-                }
-                lines.add(renderTeamLine(player, team, session));
-            }
-            lines.add("");
-            if (session != null) {
-                lines.add(services.getMessages().get(player, "scoreboard.kills",
-                        "{kills}", String.valueOf(session.getKills()),
-                        "{final_kills}", String.valueOf(session.getFinalKills())));
-            }
-            lines.add(services.getMessages().get(player, "scoreboard.time",
-                    "{time}", formatTime(elapsedSeconds)));
+        if (session != null && session.getState() == PlayerState.SPECTATOR) {
+            return "spectator";
         }
-
-        lines.add("");
-        return lines;
+        if (!definition.getModeProfile().isTracked()) return "duel";
+        return definition.getModeProfile().getTeamCount() == 8
+                ? "playing-eight-teams" : "playing-compact";
     }
 
-    private String renderTeamLine(Player player, GameTeam team,
-                                  PlayerSession session) {
+    private ScoreboardPlaceholderModel scoreboardModel(Player player,
+                                                       ScoreboardSettings settings) {
+        PlayerSession session = sessions.get(player.getUniqueId());
+        FinalPlayerSnapshot ended = finalSnapshots.get(player.getUniqueId());
+        ScoreboardPlaceholderModel model = new ScoreboardPlaceholderModel()
+                .value("date", new java.text.SimpleDateFormat("dd/MM/yyyy")
+                        .format(new java.util.Date()))
+                .value("map", definition.getDisplayName())
+                .value("mode", definition.getMode().name())
+                .value("players", sessions.size())
+                .value("max_players", definition.getMaximumPlayers())
+                .value("server_id", services.getConfig().getServerId())
+                .value("footer", settings.getFooter())
+                .value("waiting_status", message(player, "scoreboard.waiting",
+                        "{online}", String.valueOf(sessions.size()), "{min}",
+                        String.valueOf(definition.getMinimumPlayers())))
+                .value("starting_status", message(player, "scoreboard.starting",
+                        "{seconds}", String.valueOf(countdownSeconds)))
+                .value("training_notice", message(player,
+                        "scoreboard.training-notice"))
+                .value("winner_team", winner == null
+                        ? message(player, "game.draw") : winner.getColoredName())
+                .value("duration", formatTime(elapsedSeconds));
+        addLabels(model, player);
+        addNextPhase(model, player);
+        addTeamPlaceholders(model, session);
+
+        int kills = ended == null ? session == null ? 0 : session.getKills()
+                : ended.getKills();
+        int finalKills = ended == null ? session == null ? 0
+                : session.getFinalKills() : ended.getFinalKills();
+        int chickenKills = ended == null ? session == null ? 0
+                : session.getChickensKilled() : ended.getChickenKills();
+        int deaths = ended == null ? session == null ? 0 : session.getDeaths()
+                : ended.getDeaths();
+        long resources = ended == null ? session == null ? 0L
+                : session.getResourcesCollected() : ended.getResources();
+        boolean rewardsVisible = definition.getModeProfile().isRewardsEnabled()
+                && endingCoordinator.isSuccessful();
+        model.value("kills", kills).value("final_kills", finalKills)
+                .value("chicken_kills", chickenKills).value("deaths", deaths)
+                .value("resources", resources)
+                .value("feathers", ResourceWallet.count(player,
+                        ResourceType.FEATHER))
+                .value("reward_xp", rewardsVisible && ended != null
+                        ? ended.getExperience() : 0L)
+                .value("reward_coins", rewardsVisible && ended != null
+                        ? ended.getCoins() : 0L)
+                .value("level", ended == null ? 0 : ended.getLevel());
+        return model;
+    }
+
+    private void addLabels(ScoreboardPlaceholderModel model, Player player) {
+        String[] labels = {"map", "mode", "players", "chicken", "shield",
+                "kills", "final_kills", "chickens", "feathers", "spectator",
+                "winner", "deaths", "resources", "duration", "level"};
+        for (String label : labels) {
+            model.value("label_" + label, message(player,
+                    "scoreboard.label." + label.replace('_', '-')));
+        }
+    }
+
+    private void addNextPhase(ScoreboardPlaceholderModel model, Player player) {
+        MatchPhaseDefinition next = timeline.next(elapsedSeconds);
+        if (next == null) {
+            model.value("next_event_name", message(player,
+                    "scoreboard.no-next-phase")).value("next_event_time", "--:--");
+            return;
+        }
+        model.value("next_event_name", message(player,
+                        next.getMessageKey()))
+                .value("next_event_time", formatTime(Math.max(0,
+                        next.getAtSecond() - elapsedSeconds)));
+    }
+
+    private void addTeamPlaceholders(ScoreboardPlaceholderModel model,
+                                     PlayerSession session) {
+        List<String> lines = new ArrayList<String>();
+        String own = "";
+        String enemy = "";
+        for (it.legacynetwork.chickenwars.model.TeamColor color
+                : it.legacynetwork.chickenwars.model.TeamColor.values()) {
+            model.value("team_" + color.name().toLowerCase(Locale.ROOT), "");
+        }
+        model.value("chicken_health", "-").value("chicken_max_health", "-")
+                .value("chicken_shield", "-").value("chicken_max_shield", "-");
+        for (GameTeam team : teams.values()) {
+            if (team.getMemberCount() == 0) continue;
+            String line = renderTeamLine(team, session);
+            lines.add(line);
+            model.value("team_" + team.getColor().name()
+                    .toLowerCase(Locale.ROOT), line);
+            if (session != null && team.getId().equals(session.getTeamId())) {
+                own = line;
+                if (team.getChicken() != null) {
+                    model.value("chicken_health", team.getChicken().getVitals()
+                                    .getDisplayHealth())
+                            .value("chicken_max_health", (int) team.getChicken()
+                                    .getVitals().getMaxHealth())
+                            .value("chicken_shield", team.getChicken().getVitals()
+                                    .getDisplayShield())
+                            .value("chicken_max_shield", (int) team.getChicken()
+                                    .getVitals().getMaxShield());
+                }
+            } else if (enemy.isEmpty()) {
+                enemy = line;
+            }
+        }
+        model.lines("team_lines", lines).value("own_team_line", own)
+                .value("enemy_team_line", enemy);
+    }
+
+    private String renderTeamLine(GameTeam team, PlayerSession session) {
         String marker = session != null && team.getId().equals(session.getTeamId())
                 ? ChatColor.GRAY + " *" : "";
         String status;
@@ -1421,6 +1744,10 @@ public final class Game {
         return team.getColor().getChatColor() + team.getColor().getInitial()
                 + ChatColor.WHITE + " " + team.getDefinition().getDisplayName()
                 + ": " + status + marker;
+    }
+
+    private String message(Player player, String key, String... replacements) {
+        return services.getMessages().get(player, key, replacements);
     }
 
     private String formatTime(int seconds) {
@@ -1529,6 +1856,8 @@ public final class Game {
     public ArenaDefinition getDefinition() {
         return definition;
     }
+
+    public String getMatchId() { return matchId; }
 
     public ArenaState getState() {
         return state;

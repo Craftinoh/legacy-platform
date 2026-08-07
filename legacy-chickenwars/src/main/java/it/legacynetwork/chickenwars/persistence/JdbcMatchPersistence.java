@@ -68,15 +68,20 @@ public final class JdbcMatchPersistence implements MatchPersistence {
                                 MatchFinalizationRequest r) throws SQLException {
         int changed;
         try (PreparedStatement s = c.prepareStatement("UPDATE cw_player_progress SET "
-                + "total_experience=total_experience+?,coins=coins+?,updated_at=? WHERE player_id=?")) {
-            s.setLong(1,p.getExperience()); s.setLong(2,p.getCoins());
-            s.setLong(3,r.getFinishedAtEpochMillis());
-            s.setString(4,p.getPlayerId().toString()); changed=s.executeUpdate();
+                + "total_experience=CASE WHEN total_experience>? THEN ? ELSE total_experience+? END,"
+                + "coins=CASE WHEN coins>? THEN ? ELSE coins+? END,updated_at=? WHERE player_id=?")) {
+            long maximumExperience=r.getMaximumExperience();
+            s.setLong(1,maximumExperience-p.getExperience());
+            s.setLong(2,maximumExperience);s.setLong(3,p.getExperience());
+            s.setLong(4,Long.MAX_VALUE-p.getCoins());s.setLong(5,Long.MAX_VALUE);
+            s.setLong(6,p.getCoins());s.setLong(7,r.getFinishedAtEpochMillis());
+            s.setString(8,p.getPlayerId().toString()); changed=s.executeUpdate();
         }
         if (changed == 0) {
             try (PreparedStatement s = c.prepareStatement("INSERT INTO cw_player_progress"
                     + "(player_id,total_experience,coins,updated_at) VALUES(?,?,?,?)")) {
-                s.setString(1,p.getPlayerId().toString()); s.setLong(2,p.getExperience());
+                s.setString(1,p.getPlayerId().toString()); s.setLong(2,Math.min(
+                        p.getExperience(),r.getMaximumExperience()));
                 s.setLong(3,p.getCoins()); s.setLong(4,r.getFinishedAtEpochMillis()); s.executeUpdate();
             }
         }

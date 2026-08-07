@@ -177,7 +177,8 @@ public final class ArenaConfigLoader {
             arena.addGenerator(new GeneratorDefinition(generatorId, type,
                     location, generatorSection.getString("team"),
                     generatorSection.getInt("level", 1),
-                    generatorSection.getBoolean("hologram", true)));
+                    generatorSection.getBoolean("hologram", true),
+                    generatorSection.getBoolean("enabled", true)));
         }
     }
 
@@ -230,6 +231,7 @@ public final class ArenaConfigLoader {
             configuration.set(path + "team", generator.getTeamId());
             configuration.set(path + "level", generator.getLevel());
             configuration.set(path + "hologram", generator.hasHologram());
+            configuration.set(path + "enabled", generator.isEnabled());
         }
 
         try {

@@ -4,6 +4,11 @@ import it.legacynetwork.chickenwars.chicken.ChickenSettings;
 import it.legacynetwork.chickenwars.model.SimpleLocation;
 import it.legacynetwork.chickenwars.world.WorldTemplate;
 import org.bukkit.configuration.file.FileConfiguration;
+import it.legacynetwork.chickenwars.generator.MatchPhaseSchedule;
+import it.legacynetwork.chickenwars.game.MatchTimeoutPolicy;
+import it.legacynetwork.chickenwars.scoreboard.ScoreboardSettings;
+
+import java.util.Locale;
 
 /**
  * Vista immutabile di {@code config.yml} e {@code chickens.yml}.
@@ -18,6 +23,7 @@ public final class ChickenWarsConfig {
     private final int maximumDurationSeconds;
     private final int endingSeconds;
     private final boolean allowRejoin;
+    private final MatchTimeoutPolicy timeoutPolicy;
 
     private final boolean respawnEnabled;
     private final int respawnSeconds;
@@ -49,10 +55,15 @@ public final class ChickenWarsConfig {
 
     private final GeneratorSettings generators;
     private final ChickenSettings chicken;
+    private final MatchPhaseSchedule phases;
+    private final ScoreboardSettings scoreboard;
+    private final String serverId;
+    private final long reconnectTimeoutMillis;
 
     private ChickenWarsConfig(FileConfiguration config,
                               GeneratorSettings generators,
-                              ChickenSettings chicken) {
+                              ChickenSettings chicken,
+                              ScoreboardSettings scoreboard) {
         this.startingCountdownSeconds = Math.max(3,
                 config.getInt("game.starting-countdown", 30));
         this.reducedCountdownSeconds = Math.max(3,
@@ -61,6 +72,14 @@ public final class ChickenWarsConfig {
                 config.getInt("game.maximum-duration", 1800));
         this.endingSeconds = Math.max(3, config.getInt("game.ending-duration", 10));
         this.allowRejoin = config.getBoolean("game.allow-rejoin", true);
+        try {
+            this.timeoutPolicy = MatchTimeoutPolicy.valueOf(config.getString(
+                    "game.timeout-policy", "LEADING_TEAM").trim()
+                    .toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException exception) {
+            throw new IllegalArgumentException(
+                    "Politica di fine partita non valida", exception);
+        }
 
         this.respawnEnabled = config.getBoolean("respawn.enabled", true);
         this.respawnSeconds = Math.max(0, config.getInt("respawn.base-time", 5));
@@ -80,8 +99,7 @@ public final class ChickenWarsConfig {
         this.daylightCycle = config.getBoolean("world.daylight-cycle", false);
         this.mobSpawning = config.getBoolean("world.mob-spawning", false);
 
-        this.scoreboardUpdateTicks = Math.max(5,
-                config.getInt("scoreboard.update-ticks", 20));
+        this.scoreboardUpdateTicks = Math.max(5, scoreboard.getUpdateTicks());
         this.returnLobby = SimpleLocation.parse(config.getString("game.return-lobby"));
 
         this.worldNamePrefix = config.getString("world.name-prefix", "cw_");
@@ -100,6 +118,12 @@ public final class ChickenWarsConfig {
 
         this.generators = generators;
         this.chicken = chicken;
+        this.phases = MatchPhaseSchedule.fromSection(
+                config.getConfigurationSection("phases"));
+        this.scoreboard = scoreboard;
+        this.serverId = config.getString("routing.instance-id", "local");
+        this.reconnectTimeoutMillis = Math.max(1000L, config.getLong(
+                "routing.reconnect-timeout-millis", 120000L));
     }
 
     /**
@@ -111,18 +135,15 @@ public final class ChickenWarsConfig {
      * @return la configurazione risultante
      */
     public static ChickenWarsConfig create(FileConfiguration config,
-                                           GeneratorSettings generators,
-                                           ChickenSettings chicken) {
-        if (config == null) {
-            throw new IllegalArgumentException("config.yml non caricato");
+            GeneratorSettings generators, ChickenSettings chicken,
+            ScoreboardSettings scoreboard) {
+        if (scoreboard == null) {
+            throw new IllegalArgumentException("Scoreboard mancante");
         }
-        if (generators == null) {
-            throw new IllegalArgumentException("Impostazioni generatori mancanti");
+        if (config == null || generators == null || chicken == null) {
+            throw new IllegalArgumentException("Configurazione incompleta");
         }
-        if (chicken == null) {
-            throw new IllegalArgumentException("Impostazioni gallina mancanti");
-        }
-        return new ChickenWarsConfig(config, generators, chicken);
+        return new ChickenWarsConfig(config, generators, chicken, scoreboard);
     }
 
     private static String normalize(String language) {
@@ -152,6 +173,8 @@ public final class ChickenWarsConfig {
     public boolean isAllowRejoin() {
         return allowRejoin;
     }
+
+    public MatchTimeoutPolicy getTimeoutPolicy() { return timeoutPolicy; }
 
     public boolean isRespawnEnabled() {
         return respawnEnabled;
@@ -260,4 +283,9 @@ public final class ChickenWarsConfig {
     public ChickenSettings getChicken() {
         return chicken;
     }
+
+    public MatchPhaseSchedule getPhases() { return phases; }
+    public ScoreboardSettings getScoreboard() { return scoreboard; }
+    public String getServerId() { return serverId; }
+    public long getReconnectTimeoutMillis() { return reconnectTimeoutMillis; }
 }

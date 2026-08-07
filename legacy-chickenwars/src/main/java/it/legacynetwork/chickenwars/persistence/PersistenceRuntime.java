@@ -82,7 +82,7 @@ public final class PersistenceRuntime {
     public QuickBuyRepository getQuickBuy(){return quickBuy;}
     public ProfileLifecycleService getProfiles(){return profiles;}
     public MatchPersistence getMatches(){return matches;}
-    public ProgressionServices services(it.legacynetwork.chickenwars.progression.MatchRewardPolicy rewards,it.legacynetwork.chickenwars.progression.ExperiencePolicy experience){return new ProgressionServices(profiles,matches,coins,rewards,experience);}
+    public ProgressionServices services(it.legacynetwork.chickenwars.progression.MatchRewardPolicy rewards,it.legacynetwork.chickenwars.progression.ExperiencePolicy experience,int maximumRetries){return new ProgressionServices(profiles,matches,coins,rewards,experience,maximumRetries);}
     public RoutingServices routing(){return routing;}
     private static void scheduleRoutingCleanup(ScheduledExecutorService scheduler,
             final RoutingServices routing){scheduler.scheduleAtFixedRate(new Runnable(){

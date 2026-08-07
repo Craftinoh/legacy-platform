@@ -51,6 +51,8 @@ class SimpleLocationTest {
         assertNull(SimpleLocation.parse("cw_farm,10,64,20,0"));
         assertNull(SimpleLocation.parse("cw_farm,dieci,64,20"));
         assertNull(SimpleLocation.parse(",10,64,20"));
+        assertNull(SimpleLocation.parse("cw_farm,NaN,64,20"));
+        assertNull(SimpleLocation.parse("cw_farm,10,Infinity,20"));
     }
 
     @Test

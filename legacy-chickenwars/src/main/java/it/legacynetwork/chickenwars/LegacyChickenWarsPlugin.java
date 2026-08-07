@@ -22,6 +22,7 @@ import it.legacynetwork.chickenwars.effect.HealPoolService;
 import it.legacynetwork.chickenwars.effect.TeamEffectService;
 import it.legacynetwork.chickenwars.game.GameLoopTask;
 import it.legacynetwork.chickenwars.game.GameServices;
+import it.legacynetwork.chickenwars.generator.GeneratedResourceRegistry;
 import it.legacynetwork.chickenwars.listener.BaseRegionListener;
 import it.legacynetwork.chickenwars.listener.CombatListener;
 import it.legacynetwork.chickenwars.listener.ConnectionListener;
@@ -44,6 +45,8 @@ import it.legacynetwork.chickenwars.shop.QuickBuyService;
 import it.legacynetwork.chickenwars.shop.ShopConfigLoader;
 import it.legacynetwork.chickenwars.shop.ShopConfiguration;
 import it.legacynetwork.chickenwars.shop.ShopService;
+import it.legacynetwork.chickenwars.scoreboard.ScoreboardConfigLoader;
+import it.legacynetwork.chickenwars.scoreboard.ScoreboardSettings;
 import it.legacynetwork.chickenwars.trap.BaseEntryTracker;
 import it.legacynetwork.chickenwars.trap.TrapTriggerService;
 import it.legacynetwork.chickenwars.upgrade.TeamUpgradeService;
@@ -145,7 +148,9 @@ public final class LegacyChickenWarsPlugin extends JavaPlugin {
                     royalRegistry, royalDamage, royalApplier,
                     royalDefeatDispatcher, chickenMenu,
                     network.progression(), network.routing(),
-                    network.lobby(), network.selector(), config);
+                    network.lobby(), network.selector(),
+                    network.returnLobby(),
+                    new GeneratedResourceRegistry(), config);
             chickenMenu.setServices(services);
             pendingRestores = new PendingRestoreService();
             help = new HelpService(messages);
@@ -243,6 +248,9 @@ public final class LegacyChickenWarsPlugin extends JavaPlugin {
         if (network != null) {
             network.close();
             network = null;
+        }
+        if (services != null) {
+            services.getGeneratedResources().clear();
         }
         if (messages != null) {
             messages.close();
@@ -365,8 +373,10 @@ public final class LegacyChickenWarsPlugin extends JavaPlugin {
                     chickenConfig.getConfigurationSection("default"));
             GeneratorSettings generatorSettings = GeneratorSettings.fromSection(
                     getConfig().getConfigurationSection("generators"));
+            ScoreboardSettings scoreboard = ScoreboardConfigLoader.load(
+                    new File(getDataFolder(), "scoreboard.yml"), getLogger());
             return ChickenWarsConfig.create(getConfig(), generatorSettings,
-                    chickenSettings);
+                    chickenSettings, scoreboard);
         } catch (RuntimeException exception) {
             getLogger().warning("Configurazione non valida: "
                     + exception.getMessage());

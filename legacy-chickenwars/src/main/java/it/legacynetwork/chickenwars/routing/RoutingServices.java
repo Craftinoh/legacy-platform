@@ -12,4 +12,5 @@ public final class RoutingServices {
     public InstancePublisher getPublisher(){return publisher;}
     public ReconnectCoordinator getReconnect(){return reconnect;}
     public void remember(UUID playerId,String arenaId,long now){if(localInstancePrefix!=null&&!localInstancePrefix.trim().isEmpty())reconnect.remember(playerId,localInstancePrefix+":"+arenaId,now+reconnectTtl);}
+    public void forget(UUID playerId){if(playerId!=null)reconnect.forget(playerId);}
 }

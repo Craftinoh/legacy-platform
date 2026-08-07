@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Conservazione dello stato permanente tra logout e rientro.
@@ -105,5 +106,42 @@ class ReconnectServiceTest {
         service.forget(playerId);
 
         assertFalse(service.canRestore(playerId, "arena"));
+    }
+
+    @Test
+    void timeoutRimuoveSoloLeSessioniDellaPartitaCorretta() {
+        ReconnectService service = new ReconnectService();
+        UUID expired = UUID.randomUUID();
+        UUID otherArena = UUID.randomUUID();
+        service.remember(session(expired, "arena"), 100L);
+        service.remember(session(otherArena, "other"), Long.MAX_VALUE);
+
+        assertEquals(1, service.expireArena("arena", 101L).size());
+        assertFalse(service.hasSnapshot(expired));
+        assertTrue(service.hasSnapshot(otherArena));
+    }
+
+    @Test
+    void restoreRifiutaUnaSessioneScaduta() {
+        ReconnectService service = new ReconnectService();
+        UUID playerId = UUID.randomUUID();
+        service.remember(session(playerId, "arena"), 1L);
+        assertNull(service.restore(session(playerId, "arena")));
+    }
+
+    @Test
+    void reconnectNonSaltaIlTempoDiRespawn() {
+        ReconnectService service = new ReconnectService();
+        UUID playerId = UUID.randomUUID();
+        PlayerSession before = session(playerId, "arena");
+        before.setState(PlayerState.RESPAWNING);
+        before.setRespawnSecondsLeft(4);
+        service.remember(before);
+
+        PlayerSession after = session(playerId, "arena");
+        service.restore(after);
+
+        assertSame(PlayerState.RESPAWNING, after.getState());
+        assertEquals(4, after.getRespawnSecondsLeft());
     }
 }

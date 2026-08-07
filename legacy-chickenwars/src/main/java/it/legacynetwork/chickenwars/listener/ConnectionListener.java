@@ -72,12 +72,14 @@ public final class ConnectionListener implements Listener {
         // Uscire mentre si e' in combattimento vale come morte: risorse,
         // downgrade e reset della spada seguono lo stesso orchestratore della
         // morte normale, quindi avvengono una sola volta.
-        game.handleCombatLogout(player);
+        boolean combatLogout = game.handleCombatLogout(player);
 
         // Conserva solo cio' che e' permanente: valute e consumabili spariscono
         // con la sessione, quindi non sono recuperabili con logout e login.
-        if (session != null) {
-            reconnects.remember(session);
+        if (session != null && session.getState().occupiesTeamSlot()
+                && !combatLogout) {
+            reconnects.remember(session, System.currentTimeMillis()
+                    + services.getConfig().getReconnectTimeoutMillis());
             services.getRouting().remember(player.getUniqueId(),
                     game.getDefinition().getId(), System.currentTimeMillis());
         }

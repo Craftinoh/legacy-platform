@@ -39,6 +39,7 @@ public final class InMemoryMatchPersistence implements MatchPersistence {
                     PlayerProgressRecord old = nextProgress.get(participant.getPlayerId());
                     long xp = add(old == null ? 0L : old.getTotalExperience(),
                             participant.getExperience());
+                    xp = Math.min(xp, request.getMaximumExperience());
                     long coins = add(old == null ? 0L : old.getCoins(),
                             participant.getCoins());
                     nextProgress.put(participant.getPlayerId(), new PlayerProgressRecord(

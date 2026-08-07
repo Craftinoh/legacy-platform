@@ -18,6 +18,7 @@ public final class DistributedReconnectService {
     }
     private final Map<UUID, Session> sessions = new HashMap<UUID, Session>();
     public synchronized void remember(Session session) { sessions.put(session.playerId, session); }
+    public synchronized void forget(UUID playerId) { sessions.remove(playerId); }
     public synchronized GameInstanceDescriptor consume(UUID playerId, long now,
             InstanceRegistry registry, long heartbeatTimeout) {
         Session session = sessions.get(playerId);

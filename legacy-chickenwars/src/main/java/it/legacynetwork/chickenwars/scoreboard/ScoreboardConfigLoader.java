@@ -15,8 +15,8 @@ import java.util.logging.Logger;
 public final class ScoreboardConfigLoader {
 
     private static final String[] REQUIRED_LAYOUTS = {
-            "waiting", "playing-eight-teams", "playing-compact",
-            "duel", "spectator", "ending"
+            "waiting", "starting", "playing-eight-teams", "playing-compact",
+            "duel", "spectator", "ending", "ending-duel"
     };
 
     private ScoreboardConfigLoader() {

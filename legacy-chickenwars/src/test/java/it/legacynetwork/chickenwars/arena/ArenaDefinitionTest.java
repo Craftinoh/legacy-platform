@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ArenaDefinitionTest {
 
@@ -117,5 +118,23 @@ class ArenaDefinitionTest {
         ArenaDefinition arena = new ArenaDefinition("  FARM_Kingdom ");
 
         assertEquals("farm_kingdom", arena.getId());
+    }
+
+    @Test
+    void generatoriDisabilitatiNonRendonoCompletaLArena() {
+        ArenaDefinition arena = completeArena();
+        arena.removeGenerator("iron_1");
+        arena.addGenerator(new GeneratorDefinition("off", ResourceType.IRON,
+                at(0.0D, 65.0D, 0.0D), null, 1, false, false));
+
+        assertTrue(arena.findMissing().contains("almeno un generatore"));
+    }
+
+    @Test
+    void unIdGeneratoreDuplicatoVieneRifiutato() {
+        ArenaDefinition arena = completeArena();
+        assertThrows(IllegalArgumentException.class, () -> arena.addGenerator(
+                new GeneratorDefinition("IRON_1", ResourceType.GOLD,
+                        at(0.0D, 65.0D, 0.0D), null, 1, false)));
     }
 }

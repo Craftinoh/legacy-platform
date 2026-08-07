@@ -22,7 +22,7 @@ public final class GameTeam {
     private final Set<UUID> aliveMembers = new LinkedHashSet<UUID>();
 
     private RoyalChicken chicken;
-    private boolean eliminated;
+    private TeamLifecycleState lifecycle = TeamLifecycleState.ACTIVE;
 
     public GameTeam(TeamDefinition definition) {
         if (definition == null) {
@@ -37,6 +37,17 @@ public final class GameTeam {
         }
         aliveMembers.add(playerId);
         return members.add(playerId);
+    }
+
+    public boolean restoreMember(UUID playerId) {
+        if (playerId == null || lifecycle == TeamLifecycleState.ELIMINATED) {
+            return false;
+        }
+        if (!members.contains(playerId)) {
+            return addMember(playerId);
+        }
+        aliveMembers.add(playerId);
+        return true;
     }
 
     public void removeMember(UUID playerId) {
@@ -76,6 +87,16 @@ public final class GameTeam {
         return chicken != null && chicken.isAlive();
     }
 
+    public boolean canRespawn() {
+        return lifecycle == TeamLifecycleState.ACTIVE && hasChicken();
+    }
+
+    public boolean collapse() {
+        if (lifecycle != TeamLifecycleState.ACTIVE) return false;
+        lifecycle = TeamLifecycleState.COLLAPSED;
+        return true;
+    }
+
     /**
      * Indica se la squadra e' fuori dalla partita.
      *
@@ -83,7 +104,8 @@ public final class GameTeam {
      * gallina e non ha piu' membri vivi.</p>
      */
     public boolean isOut() {
-        return eliminated || (!hasChicken() && aliveMembers.isEmpty());
+        return lifecycle == TeamLifecycleState.ELIMINATED
+                || (!canRespawn() && aliveMembers.isEmpty());
     }
 
     public Set<UUID> getMembers() {
@@ -127,13 +149,16 @@ public final class GameTeam {
     }
 
     public boolean isEliminated() {
-        return eliminated;
+        return lifecycle == TeamLifecycleState.ELIMINATED;
     }
 
     public void setEliminated(boolean eliminated) {
-        this.eliminated = eliminated;
+        this.lifecycle = eliminated ? TeamLifecycleState.ELIMINATED
+                : TeamLifecycleState.ACTIVE;
         if (eliminated) {
             aliveMembers.clear();
         }
     }
+
+    public TeamLifecycleState getLifecycle() { return lifecycle; }
 }

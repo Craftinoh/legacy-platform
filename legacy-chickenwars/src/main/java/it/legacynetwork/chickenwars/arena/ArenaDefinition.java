@@ -76,10 +76,29 @@ public final class ArenaDefinition {
         for (TeamDefinition team : teams.values()) {
             missing.addAll(team.findMissing());
         }
-        if (generators.isEmpty()) {
+        boolean enabledGenerator = false;
+        for (GeneratorDefinition generator : generators.values()) {
+            if (generator.isEnabled()) {
+                enabledGenerator = true;
+                if (world != null && !world.equals(
+                        generator.getLocation().getWorld())) {
+                    missing.add("mondo generatore " + generator.getId());
+                }
+                SimpleLocation location = generator.getLocation();
+                if (!finite(location.getX()) || !finite(location.getY())
+                        || !finite(location.getZ())) {
+                    missing.add("coordinate generatore " + generator.getId());
+                }
+            }
+        }
+        if (!enabledGenerator) {
             missing.add("almeno un generatore");
         }
         return missing;
+    }
+
+    private boolean finite(double value) {
+        return !Double.isNaN(value) && !Double.isInfinite(value);
     }
 
     public boolean isComplete() {
@@ -145,6 +164,10 @@ public final class ArenaDefinition {
     public void addGenerator(GeneratorDefinition generator) {
         if (generator == null) {
             throw new IllegalArgumentException("Generatore nullo");
+        }
+        if (generators.containsKey(generator.getId())) {
+            throw new IllegalArgumentException(
+                    "ID generatore duplicato: " + generator.getId());
         }
         generators.put(generator.getId(), generator);
     }

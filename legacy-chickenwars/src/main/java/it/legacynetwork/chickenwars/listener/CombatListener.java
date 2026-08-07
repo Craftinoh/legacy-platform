@@ -208,7 +208,7 @@ public final class CombatListener implements Listener {
      * Conteggia le risorse raccolte e blocca la raccolta agli spettatori.
      */
     @EventHandler(ignoreCancelled = true)
-    public void onPickupItem(PlayerPickupItemEvent event) {
+    public void onPickupProtection(PlayerPickupItemEvent event) {
         Game game = arenas.getGameOf(event.getPlayer());
         if (game == null) {
             return;
@@ -216,10 +216,22 @@ public final class CombatListener implements Listener {
         PlayerSession session = game.getSession(event.getPlayer().getUniqueId());
         if (session == null || !session.getState().isActive()) {
             event.setCancelled(true);
-            return;
         }
-        if (event.getItem().getItemStack() != null) {
-            session.addResources(event.getItem().getItemStack().getAmount());
+    }
+
+    /** Registra a MONITOR soltanto la quantita' che Bukkit consegnera'. */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onNaturalResourcePickup(PlayerPickupItemEvent event) {
+        Game game = arenas.getGameOf(event.getPlayer());
+        if (game == null || event.getItem().getItemStack() == null) return;
+        PlayerSession session = game.getSession(event.getPlayer().getUniqueId());
+        if (session == null || !session.getState().isActive()) return;
+        int stackAmount = event.getItem().getItemStack().getAmount();
+        int collected = Math.max(0, stackAmount - event.getRemaining());
+        if (collected > 0 && services.getGeneratedResources().pickup(
+                event.getItem().getUniqueId(), game.getMatchId(),
+                event.getRemaining() <= 0) != null) {
+            session.addResources(collected);
         }
     }
 

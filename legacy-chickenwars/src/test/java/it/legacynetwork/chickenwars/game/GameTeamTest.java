@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class GameTeamTest {
 
@@ -88,5 +89,33 @@ class GameTeamTest {
         assertTrue(team.addMember(UUID.randomUUID()));
         assertFalse(team.addMember(UUID.randomUUID()));
         assertTrue(team.isFull());
+    }
+
+    @Test
+    void collapseDisabilitaRespawnMaNonEliminaISuperstiti() {
+        GameTeam team = team();
+        UUID member = UUID.randomUUID();
+        team.setChicken(chicken());
+        team.addMember(member);
+
+        assertTrue(team.collapse());
+        assertFalse(team.collapse());
+        assertFalse(team.canRespawn());
+        assertFalse(team.isOut());
+        assertTrue(team.isAlive(member));
+        assertEquals(TeamLifecycleState.COLLAPSED, team.getLifecycle());
+    }
+
+    @Test
+    void squadraCollapsedDiventaEliminataSoloSenzaVivi() {
+        GameTeam team = team();
+        UUID member = UUID.randomUUID();
+        team.addMember(member);
+        team.collapse();
+
+        team.eliminateMember(member);
+        assertTrue(team.isOut());
+        team.setEliminated(true);
+        assertEquals(TeamLifecycleState.ELIMINATED, team.getLifecycle());
     }
 }

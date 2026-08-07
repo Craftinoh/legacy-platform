@@ -36,13 +36,29 @@ public final class BukkitProxyTransferGateway implements TransferGateway {
             player.sendPluginMessage(plugin, "BungeeCord",
                     forwardBytes.toByteArray());
 
-            ByteArrayOutputStream connectBytes = new ByteArrayOutputStream();
-            DataOutputStream connect = new DataOutputStream(connectBytes);
-            connect.writeUTF("Connect"); connect.writeUTF(serverName);
-            player.sendPluginMessage(plugin, "BungeeCord",
-                    connectBytes.toByteArray());
+            sendConnect(player, serverName);
         } catch (IOException exception) {
             throw new IllegalStateException("Trasferimento proxy non serializzabile", exception);
         }
+    }
+
+    @Override public void connect(UUID playerId, String serverName) {
+        Player player = players.find(playerId);
+        if (player == null || !player.isOnline() || serverName == null
+                || serverName.trim().isEmpty()) return;
+        try { sendConnect(player, serverName); }
+        catch (IOException exception) {
+            throw new IllegalStateException(
+                    "Trasferimento lobby non serializzabile", exception);
+        }
+    }
+
+    private void sendConnect(Player player, String serverName)
+            throws IOException {
+        ByteArrayOutputStream connectBytes = new ByteArrayOutputStream();
+        DataOutputStream connect = new DataOutputStream(connectBytes);
+        connect.writeUTF("Connect"); connect.writeUTF(serverName);
+        player.sendPluginMessage(plugin, "BungeeCord",
+                connectBytes.toByteArray());
     }
 }

@@ -19,10 +19,17 @@ public final class GeneratorDefinition {
     private final String teamId;
     private final int level;
     private final boolean hologram;
+    private final boolean enabled;
 
     public GeneratorDefinition(String id, ResourceType type,
                                SimpleLocation location, String teamId,
                                int level, boolean hologram) {
+        this(id, type, location, teamId, level, hologram, true);
+    }
+
+    public GeneratorDefinition(String id, ResourceType type,
+                               SimpleLocation location, String teamId,
+                               int level, boolean hologram, boolean enabled) {
         if (id == null || id.trim().isEmpty()) {
             throw new IllegalArgumentException("ID generatore mancante");
         }
@@ -39,6 +46,7 @@ public final class GeneratorDefinition {
                 ? null : teamId.trim().toLowerCase(Locale.ROOT);
         this.level = Math.max(1, level);
         this.hologram = hologram;
+        this.enabled = enabled;
     }
 
     public String getId() {
@@ -72,10 +80,13 @@ public final class GeneratorDefinition {
         return hologram;
     }
 
+    public boolean isEnabled() { return enabled; }
+
     /**
      * Crea una copia identica con un livello differente.
      */
     public GeneratorDefinition withLevel(int newLevel) {
-        return new GeneratorDefinition(id, type, location, teamId, newLevel, hologram);
+        return new GeneratorDefinition(id, type, location, teamId, newLevel,
+                hologram, enabled);
     }
 }

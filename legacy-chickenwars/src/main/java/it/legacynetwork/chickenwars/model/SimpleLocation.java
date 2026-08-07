@@ -59,6 +59,13 @@ public final class SimpleLocation {
             double z = Double.parseDouble(parts[3].trim());
             float yaw = parts.length == 6 ? Float.parseFloat(parts[4].trim()) : 0.0F;
             float pitch = parts.length == 6 ? Float.parseFloat(parts[5].trim()) : 0.0F;
+            if (Double.isNaN(x) || Double.isInfinite(x)
+                    || Double.isNaN(y) || Double.isInfinite(y)
+                    || Double.isNaN(z) || Double.isInfinite(z)
+                    || Float.isNaN(yaw) || Float.isInfinite(yaw)
+                    || Float.isNaN(pitch) || Float.isInfinite(pitch)) {
+                return null;
+            }
             return new SimpleLocation(worldName, x, y, z, yaw, pitch);
         } catch (NumberFormatException exception) {
             return null;

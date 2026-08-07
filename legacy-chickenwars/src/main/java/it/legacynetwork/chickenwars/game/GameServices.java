@@ -13,6 +13,8 @@ import it.legacynetwork.chickenwars.effect.TeamEffectService;
 import it.legacynetwork.chickenwars.message.MessageService;
 import it.legacynetwork.chickenwars.lobby.LobbyRoutingService;
 import it.legacynetwork.chickenwars.lobby.LobbySelectorService;
+import it.legacynetwork.chickenwars.lobby.ReturnLobbyService;
+import it.legacynetwork.chickenwars.generator.GeneratedResourceRegistry;
 import it.legacynetwork.chickenwars.player.ReconnectService;
 import it.legacynetwork.chickenwars.persistence.ProgressionServices;
 import it.legacynetwork.chickenwars.routing.RoutingServices;
@@ -55,6 +57,8 @@ public final class GameServices {
     private final RoutingServices routing;
     private final LobbyRoutingService lobby;
     private final LobbySelectorService lobbySelector;
+    private final ReturnLobbyService returnLobby;
+    private final GeneratedResourceRegistry generatedResources;
 
     private volatile ChickenWarsConfig config;
 
@@ -77,6 +81,8 @@ public final class GameServices {
                         RoutingServices routing,
                         LobbyRoutingService lobby,
                         LobbySelectorService lobbySelector,
+                        ReturnLobbyService returnLobby,
+                        GeneratedResourceRegistry generatedResources,
                         ChickenWarsConfig config) {
         if (plugin == null || messages == null || chickens == null
                 || shop == null || equipment == null || transfers == null
@@ -90,6 +96,8 @@ public final class GameServices {
                 || routing == null
                 || lobby == null
                 || lobbySelector == null
+                || returnLobby == null
+                || generatedResources == null
                 || config == null) {
             throw new IllegalArgumentException("Servizi ChickenWars incompleti");
         }
@@ -114,6 +122,8 @@ public final class GameServices {
         this.routing = routing;
         this.lobby = lobby;
         this.lobbySelector = lobbySelector;
+        this.returnLobby = returnLobby;
+        this.generatedResources = generatedResources;
         this.config = config;
         this.deaths = new PlayerDeathProcessor(transfers, equipment);
         equipment.setEnchantProvider(upgrades);
@@ -201,6 +211,8 @@ public final class GameServices {
     public RoutingServices getRouting() { return routing; }
     public LobbyRoutingService getLobby() { return lobby; }
     public LobbySelectorService getLobbySelector() { return lobbySelector; }
+    public ReturnLobbyService getReturnLobby() { return returnLobby; }
+    public GeneratedResourceRegistry getGeneratedResources() { return generatedResources; }
 
     public ChickenWarsConfig getConfig() {
         return config;

@@ -597,6 +597,40 @@ scoreboard:
   starting: "&7Inizio tra &f{seconds}s"
   kills: "&7Uccisioni: &f{kills} &8(&f{final_kills}&8)"
   time: "&7Tempo: &f{time}"
+  training-notice: "Modalita' allenamento: nessuna ricompensa persistente"
+  no-next-phase: "Nessuna fase successiva"
+  label:
+    map: "Mappa"
+    mode: "Modalita'"
+    players: "Giocatori"
+    chicken: "Gallina"
+    shield: "Scudo"
+    kills: "Uccisioni"
+    final-kills: "Uccisioni finali"
+    chickens: "Galline"
+    feathers: "Piume"
+    spectator: "SPETTATORE"
+    winner: "Vincitore"
+    deaths: "Morti"
+    resources: "Risorse"
+    duration: "Durata"
+    level: "Livello"
+
+phase:
+  announced: "&6Nuova fase: &f{phase}"
+  diamond_ii: "Diamante II"
+  emerald_ii: "Smeraldo II"
+  diamond_iii: "Diamante III"
+  emerald_iii: "Smeraldo III"
+  royal_collapse: "Royal Collapse"
+
+ending:
+  returning-lobby: "&7Ritorno alla lobby..."
+
+collapse:
+  team: "&cLa Gallina di {team} &ce' stata sconfitta: respawn disabilitato."
+  respawn-disabled: "&cNon puoi piu' respawnare. Resta in vita!"
+  global: "&4&lROYAL COLLAPSE! &cIl respawn e' disabilitato per tutte le squadre."
 
 world:
   # Protezioni della mappa durante la partita.
@@ -838,6 +872,7 @@ persistence:
   loading: "&eCaricamento del profilo in corso..."
   saving: "&eSalvataggio del profilo..."
   profile-unavailable: "&cProfilo non disponibile: le modalita' classificate sono temporaneamente disabilitate."
+  finalization-failed: "&cImpossibile salvare il risultato: nessuna ricompensa persistente e' stata assegnata."
 
 lobby:
   selector: "&eSelettore modalita'"

@@ -1,12 +1,15 @@
 package it.legacynetwork.chickenwars.config;
 
 import it.legacynetwork.chickenwars.model.ResourceType;
+import it.legacynetwork.chickenwars.generator.CatchUpPolicy;
+import it.legacynetwork.chickenwars.generator.ChunkPolicy;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -18,10 +21,20 @@ public final class GeneratorSettings {
     private final int maximumGroundItems;
     private final boolean itemStacking;
     private final double mergeRadius;
+    private final boolean enabled;
+    private final CatchUpPolicy catchUpPolicy;
+    private final int maximumCatchUpDrops;
+    private final ChunkPolicy chunkPolicy;
+    private final Map<String, Double> intervalMultipliers;
+    private final Map<String, Double> amountMultipliers;
 
     private GeneratorSettings(Map<ResourceType, List<GeneratorTier>> tiers,
                               int maximumGroundItems, boolean itemStacking,
-                              double mergeRadius) {
+                              double mergeRadius, boolean enabled,
+                              CatchUpPolicy catchUpPolicy,
+                              int maximumCatchUpDrops, ChunkPolicy chunkPolicy,
+                              Map<String, Double> intervalMultipliers,
+                              Map<String, Double> amountMultipliers) {
         EnumMap<ResourceType, List<GeneratorTier>> copy =
                 new EnumMap<ResourceType, List<GeneratorTier>>(ResourceType.class);
         for (Map.Entry<ResourceType, List<GeneratorTier>> entry : tiers.entrySet()) {
@@ -32,6 +45,14 @@ public final class GeneratorSettings {
         this.maximumGroundItems = maximumGroundItems;
         this.itemStacking = itemStacking;
         this.mergeRadius = mergeRadius;
+        this.enabled = enabled;
+        this.catchUpPolicy = catchUpPolicy;
+        this.maximumCatchUpDrops = maximumCatchUpDrops;
+        this.chunkPolicy = chunkPolicy;
+        this.intervalMultipliers = Collections.unmodifiableMap(
+                new java.util.LinkedHashMap<String, Double>(intervalMultipliers));
+        this.amountMultipliers = Collections.unmodifiableMap(
+                new java.util.LinkedHashMap<String, Double>(amountMultipliers));
     }
 
     /**
@@ -53,6 +74,14 @@ public final class GeneratorSettings {
         int maximumGroundItems = 32;
         boolean itemStacking = true;
         double mergeRadius = 2.0D;
+        boolean enabled = true;
+        CatchUpPolicy catchUpPolicy = CatchUpPolicy.LIMITED;
+        int maximumCatchUpDrops = 2;
+        ChunkPolicy chunkPolicy = ChunkPolicy.REQUIRE_LOADED;
+        Map<String, Double> intervalMultipliers =
+                new java.util.LinkedHashMap<String, Double>();
+        Map<String, Double> amountMultipliers =
+                new java.util.LinkedHashMap<String, Double>();
 
         if (section != null) {
             maximumGroundItems = Math.max(1,
@@ -60,6 +89,18 @@ public final class GeneratorSettings {
             itemStacking = section.getBoolean("item-stacking", itemStacking);
             mergeRadius = Math.max(0.5D,
                     section.getDouble("merge-radius", mergeRadius));
+            enabled = section.getBoolean("enabled", enabled);
+            maximumCatchUpDrops = Math.max(1,
+                    section.getInt("maximum-catch-up-drops", 2));
+            try {
+                catchUpPolicy = CatchUpPolicy.valueOf(section.getString(
+                        "catch-up-policy", "LIMITED").trim().toUpperCase(Locale.ROOT));
+                chunkPolicy = ChunkPolicy.valueOf(section.getString(
+                        "chunk-policy", "REQUIRE_LOADED").trim().toUpperCase(Locale.ROOT));
+            } catch (IllegalArgumentException exception) {
+                throw new IllegalArgumentException(
+                        "Politica generatori non valida", exception);
+            }
 
             ConfigurationSection typesSection =
                     section.getConfigurationSection("types");
@@ -72,10 +113,30 @@ public final class GeneratorSettings {
                     }
                 }
             }
+            ConfigurationSection profiles =
+                    section.getConfigurationSection("profiles");
+            if (profiles != null) {
+                for (String profileId : profiles.getKeys(false)) {
+                    double interval = profiles.getDouble(profileId
+                            + ".interval-multiplier", 1.0D);
+                    double amount = profiles.getDouble(profileId
+                            + ".amount-multiplier", 1.0D);
+                    if (interval <= 0.0D || amount <= 0.0D
+                            || Double.isNaN(interval) || Double.isNaN(amount)) {
+                        throw new IllegalArgumentException(
+                                "Profilo generatori non valido: " + profileId);
+                    }
+                    String normalized = profileId.trim()
+                            .toLowerCase(Locale.ROOT);
+                    intervalMultipliers.put(normalized, Double.valueOf(interval));
+                    amountMultipliers.put(normalized, Double.valueOf(amount));
+                }
+            }
         }
 
         return new GeneratorSettings(result, maximumGroundItems, itemStacking,
-                mergeRadius);
+                mergeRadius, enabled, catchUpPolicy, maximumCatchUpDrops,
+                chunkPolicy, intervalMultipliers, amountMultipliers);
     }
 
     private static List<GeneratorTier> readTiers(ConfigurationSection section) {
@@ -156,6 +217,20 @@ public final class GeneratorSettings {
         return available.get(index);
     }
 
+    /** Applica il bilanciamento del profilo economico della modalita'. */
+    public GeneratorTier getTier(ResourceType type, int level,
+                                 String profileId) {
+        GeneratorTier base = getTier(type, level);
+        String key = profileId == null ? "" : profileId.trim()
+                .toLowerCase(Locale.ROOT);
+        Double interval = intervalMultipliers.get(key);
+        Double amount = amountMultipliers.get(key);
+        return new GeneratorTier((int) Math.round(base.getIntervalTicks()
+                * (interval == null ? 1.0D : interval.doubleValue())),
+                (int) Math.round(base.getAmount()
+                        * (amount == null ? 1.0D : amount.doubleValue())));
+    }
+
     /** Numero massimo di livelli configurati per la risorsa indicata. */
     public int getMaximumLevel(ResourceType type) {
         List<GeneratorTier> available = tiers.get(type);
@@ -173,4 +248,9 @@ public final class GeneratorSettings {
     public double getMergeRadius() {
         return mergeRadius;
     }
+
+    public boolean isEnabled() { return enabled; }
+    public CatchUpPolicy getCatchUpPolicy() { return catchUpPolicy; }
+    public int getMaximumCatchUpDrops() { return maximumCatchUpDrops; }
+    public ChunkPolicy getChunkPolicy() { return chunkPolicy; }
 }

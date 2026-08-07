@@ -34,8 +34,11 @@ public final class ReconnectService {
         private final ToolTier axeTier;
         private final String quickBuyPreset;
         private final long deathSequence;
+        private final long expiresAt;
+        private final PlayerState playerState;
+        private final int respawnSecondsLeft;
 
-        Snapshot(PlayerSession session) {
+        Snapshot(PlayerSession session, long expiresAt) {
             PlayerEquipmentState state = session.getEquipmentState();
             this.arenaId = session.getArenaId();
             this.teamId = session.getTeamId();
@@ -45,6 +48,9 @@ public final class ReconnectService {
             this.axeTier = state.getAxeTier();
             this.quickBuyPreset = state.getSelectedQuickBuyPreset();
             this.deathSequence = session.getDeathSequence();
+            this.expiresAt = expiresAt;
+            this.playerState = session.getState();
+            this.respawnSecondsLeft = session.getRespawnSecondsLeft();
         }
 
         public String getArenaId() {
@@ -78,6 +84,10 @@ public final class ReconnectService {
         public long getDeathSequence() {
             return deathSequence;
         }
+
+        public long getExpiresAt() { return expiresAt; }
+        public PlayerState getPlayerState() { return playerState; }
+        public int getRespawnSecondsLeft() { return respawnSecondsLeft; }
     }
 
     private final Map<UUID, Snapshot> snapshots = new HashMap<UUID, Snapshot>();
@@ -86,10 +96,14 @@ public final class ReconnectService {
      * Conserva gli elementi permanenti della sessione che sta terminando.
      */
     public void remember(PlayerSession session) {
+        remember(session, Long.MAX_VALUE);
+    }
+
+    public void remember(PlayerSession session, long expiresAt) {
         if (session == null) {
             return;
         }
-        snapshots.put(session.getPlayerId(), new Snapshot(session));
+        snapshots.put(session.getPlayerId(), new Snapshot(session, expiresAt));
     }
 
     /**
@@ -97,6 +111,11 @@ public final class ReconnectService {
      */
     public boolean canRestore(UUID playerId, String arenaId) {
         Snapshot snapshot = snapshots.get(playerId);
+        if (snapshot != null && snapshot.getExpiresAt()
+                <= System.currentTimeMillis()) {
+            snapshots.remove(playerId);
+            return false;
+        }
         return snapshot != null && snapshot.getArenaId() != null
                 && snapshot.getArenaId().equals(arenaId);
     }
@@ -115,6 +134,7 @@ public final class ReconnectService {
         }
         Snapshot snapshot = snapshots.remove(session.getPlayerId());
         if (snapshot == null
+                || snapshot.getExpiresAt() <= System.currentTimeMillis()
                 || !snapshot.getArenaId().equals(session.getArenaId())) {
             return null;
         }
@@ -132,6 +152,8 @@ public final class ReconnectService {
         state.prepareReconnect();
         session.setTeamId(snapshot.getTeamId());
         session.completeDeath();
+        session.setState(snapshot.getPlayerState());
+        session.setRespawnSecondsLeft(snapshot.getRespawnSecondsLeft());
         return snapshot;
     }
 
@@ -143,7 +165,30 @@ public final class ReconnectService {
     }
 
     public boolean hasSnapshot(UUID playerId) {
-        return snapshots.containsKey(playerId);
+        Snapshot snapshot = snapshots.get(playerId);
+        if (snapshot != null && snapshot.getExpiresAt()
+                <= System.currentTimeMillis()) {
+            snapshots.remove(playerId);
+            return false;
+        }
+        return snapshot != null;
+    }
+
+    /** Rimuove e restituisce le sessioni scadute della sola arena indicata. */
+    public java.util.List<UUID> expireArena(String arenaId, long now) {
+        java.util.List<UUID> expired = new java.util.ArrayList<UUID>();
+        java.util.Iterator<Map.Entry<UUID, Snapshot>> iterator =
+                snapshots.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<UUID, Snapshot> entry = iterator.next();
+            Snapshot snapshot = entry.getValue();
+            if (snapshot.getExpiresAt() <= now
+                    && snapshot.getArenaId().equals(arenaId)) {
+                expired.add(entry.getKey());
+                iterator.remove();
+            }
+        }
+        return expired;
     }
 
     public void clear() {

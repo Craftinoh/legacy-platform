@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class GeneratorSettingsTest {
 
@@ -79,5 +80,39 @@ class GeneratorSettingsTest {
                 settings.getTier(ResourceType.DIAMOND, 0).getIntervalTicks());
         assertEquals(settings.getTier(ResourceType.DIAMOND, 1).getIntervalTicks(),
                 settings.getTier(ResourceType.DIAMOND, -5).getIntervalTicks());
+    }
+
+    @Test
+    void profiloModalitaModificaIntervalloEQuantita() throws Exception {
+        YamlConfiguration configuration = parse("generators:\n"
+                + "  profiles:\n"
+                + "    trio:\n"
+                + "      interval-multiplier: 0.5\n"
+                + "      amount-multiplier: 2.0\n");
+        GeneratorSettings settings = GeneratorSettings.fromSection(
+                configuration.getConfigurationSection("generators"));
+        GeneratorTier base = settings.getTier(ResourceType.IRON, 1);
+        GeneratorTier trio = settings.getTier(ResourceType.IRON, 1, "trio");
+
+        assertEquals(Math.round(base.getIntervalTicks() * 0.5D),
+                trio.getIntervalTicks());
+        assertEquals(base.getAmount() * 2, trio.getAmount());
+    }
+
+    @Test
+    void politicheEProfiliNonValidiSonoRifiutati() throws Exception {
+        YamlConfiguration policy = parse("generators:\n"
+                + "  catch-up-policy: BURST\n");
+        assertThrows(IllegalArgumentException.class, () ->
+                GeneratorSettings.fromSection(policy
+                        .getConfigurationSection("generators")));
+
+        YamlConfiguration profile = parse("generators:\n"
+                + "  profiles:\n"
+                + "    trio:\n"
+                + "      interval-multiplier: 0\n");
+        assertThrows(IllegalArgumentException.class, () ->
+                GeneratorSettings.fromSection(profile
+                        .getConfigurationSection("generators")));
     }
 }

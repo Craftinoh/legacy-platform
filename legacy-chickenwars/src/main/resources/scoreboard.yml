@@ -19,6 +19,19 @@ layouts:
       - ""
       - "&e{footer}"
 
+  starting:
+    title: "&6&lCHICKEN WARS"
+    lines:
+      - "&7{date}"
+      - ""
+      - "&f{label_map}: &a{map}"
+      - "&f{label_mode}: &a{mode}"
+      - "&f{label_players}: &a{players}/{max_players}"
+      - ""
+      - "{starting_status}"
+      - ""
+      - "&e{footer}"
+
   playing-eight-teams:
     title: "&6&lCHICKEN WARS"
     lines:
@@ -53,6 +66,7 @@ layouts:
       - "&f{label_kills}: &a{kills}"
       - "&f{label_final_kills}: &a{final_kills}"
       - "&f{label_chickens}: &a{chicken_kills}"
+      - "&f{label_feathers}: &e{feathers}"
       - "&e{footer}"
 
   duel:
@@ -95,5 +109,26 @@ layouts:
       - "&f{label_kills}: &a{kills}"
       - "&f{label_final_kills}: &a{final_kills}"
       - "&f{label_chickens}: &a{chicken_kills}"
+      - "&f{label_deaths}: &a{deaths}"
+      - "&f{label_resources}: &a{resources}"
+      - "&b+{reward_xp} XP &6+{reward_coins} coins"
+      - "&f{label_level}: &a{level}"
+      - "&f{label_duration}: &a{duration}"
+      - "&7{map} &8| &7{server_id}"
+
+  ending-duel:
+    title: "&6&lCHICKEN WARS &7DUEL"
+    lines:
+      - "&7{date}"
       - ""
-      - "&e{footer}"
+      - "&6{label_winner}:"
+      - "{winner_team}"
+      - ""
+      - "&f{label_kills}: &a{kills}"
+      - "&f{label_final_kills}: &a{final_kills}"
+      - "&f{label_chickens}: &a{chicken_kills}"
+      - "&f{label_deaths}: &a{deaths}"
+      - "&f{label_resources}: &a{resources}"
+      - "&f{label_duration}: &a{duration}"
+      - "&7{training_notice}"
+      - "&7{map} &8| &7{server_id}"
