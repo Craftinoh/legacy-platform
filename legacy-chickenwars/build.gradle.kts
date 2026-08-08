@@ -4,6 +4,9 @@ plugins {
 }
 
 dependencies {
+    // Contratti di routing condivisi con il proxy Velocity: stessa forma, stesso
+    // schema, nessun algoritmo duplicato ai due lati.
+    implementation(project(":chickenwars-common"))
     compileOnly(project(":language-common"))
     compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
     compileOnly("me.clip:placeholderapi:2.11.6")

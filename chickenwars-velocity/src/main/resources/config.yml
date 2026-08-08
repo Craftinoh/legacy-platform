@@ -1,0 +1,38 @@
+# Plugin proxy di ChickenWars: espone soltanto /cw rejoin.
+#
+# Il proxy non conosce arene, server o istanze: legge lo stesso database del
+# backend e usa il registry pubblicato dalle istanze. Nessun indirizzo, porta o
+# nome server va scritto qui.
+
+language:
+  # Lingua usata quando quella del giocatore non e' determinabile.
+  fallback: it
+
+database:
+  # Stesso database del backend ChickenWars.
+  # Lasciare vuoto per tenere /cw rejoin disattivato.
+  jdbc-url: ""
+  username: ""
+  password: ""
+  pool-size: 4
+
+chickenwars-rejoin:
+  enabled: true
+  permission: chickenwars.command.rejoin
+
+  # Attesa massima concessa alla ricerca della sessione.
+  lookup-timeout-millis: 3000
+
+  # Attesa massima concessa al trasferimento verso l'istanza.
+  transfer-timeout-millis: 5000
+
+  # Un'istanza che non pubblica heartbeat entro questo intervallo non e'
+  # instradabile. Deve coincidere con il valore usato dal backend.
+  heartbeat-timeout-millis: 15000
+
+  # Durata della prenotazione creata per il rientro.
+  reservation-ttl-millis: 30000
+
+  # Finestra ripristinata quando un trasferimento fallisce, per consentire un
+  # nuovo tentativo senza perdere la sessione.
+  reconnect-ttl-millis: 120000

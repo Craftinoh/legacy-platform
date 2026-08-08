@@ -25,6 +25,8 @@ import it.legacynetwork.language.LanguageProtocolAction;
 import it.legacynetwork.language.LanguageProtocolException;
 import it.legacynetwork.language.LanguageProtocolMessage;
 import it.legacynetwork.language.LocaleLanguageResolver;
+import it.legacynetwork.language.PlayerLanguageProvider;
+import it.legacynetwork.language.PlayerLanguageProviderHolder;
 import it.legacynetwork.language.TranslationService;
 import it.legacynetwork.language.velocity.command.LanguageCommand;
 import it.legacynetwork.language.velocity.listener.PlayerConnectedListener;
@@ -38,6 +40,7 @@ import it.legacynetwork.language.velocity.repository.PostgresLanguageNotificatio
 import it.legacynetwork.language.velocity.repository.PostgresPlayerLanguageRepository;
 import it.legacynetwork.language.velocity.service.LanguageSynchronizationService;
 import it.legacynetwork.language.velocity.service.ProxyLanguageService;
+import it.legacynetwork.language.velocity.service.ProxyPlayerLanguageProvider;
 import it.legacynetwork.language.velocity.tablist.VelocityTabListService;
 import it.legacynetwork.language.velocity.translation.PropertiesTranslationLoader;
 import org.slf4j.Logger;
@@ -62,7 +65,19 @@ import java.util.concurrent.TimeUnit;
         version = "0.1.0-SNAPSHOT",
         authors = {"LegacyNetwork"}
 )
-public final class NetworkLanguagePlugin {
+public final class NetworkLanguagePlugin implements PlayerLanguageProviderHolder {
+
+    /**
+     * Provider condiviso con gli altri plugin del proxy.
+     *
+     * <p>Restituisce {@code null} finche' il servizio lingua non e' pronto:
+     * chi lo usa deve ricadere sul proprio fallback.</p>
+     */
+    @Override
+    public PlayerLanguageProvider languageProvider() {
+        return languageProvider;
+    }
+
     private final ProxyServer proxy;
     private final Logger logger;
     private final Path dataDirectory;
@@ -71,6 +86,7 @@ public final class NetworkLanguagePlugin {
     private VelocityTabListService tabListService;
     private ScheduledExecutorService tabScheduler;
     private ProxyLanguageService languageService;
+    private volatile PlayerLanguageProvider languageProvider;
     private LanguageSynchronizationService synchronizationService;
     private PlayerLanguageRepository playerRepository;
     private PostgresPlayerLanguageRepository postgresRepository;
@@ -102,6 +118,8 @@ public final class NetworkLanguagePlugin {
                     getClass().getClassLoader()).load();
             languageService = new ProxyLanguageService(
                     playerRepository, new LocaleLanguageResolver(), proxyId);
+            languageProvider =
+                    new ProxyPlayerLanguageProvider(proxy, languageService);
 
             languageChannel = new LegacyChannelIdentifier(
                     LanguageProtocol.CHANNEL);
