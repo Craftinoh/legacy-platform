@@ -39,6 +39,21 @@ jobs:
           if [[ -f .github/scripts/harden_screenshare.py ]]; then
             python3 .github/scripts/harden_screenshare.py
           fi
+          python3 - <<'PY'
+          from pathlib import Path
+          for name in (
+              "legacy-reports-velocity/build.gradle.kts",
+              "legacy-screenshare-velocity/build.gradle.kts",
+          ):
+              path = Path(name)
+              text = path.read_text(encoding="utf-8")
+              if "java.util.zip.ZipFile(jar)" not in text:
+                  continue
+              if "import java.util.zip.ZipFile" not in text:
+                  text = "import java.util.zip.ZipFile\n" + text
+              text = text.replace("java.util.zip.ZipFile(jar)", "ZipFile(jar)")
+              path.write_text(text, encoding="utf-8", newline="\n")
+          PY
 
       - name: Check whitespace
         run: git diff --check
