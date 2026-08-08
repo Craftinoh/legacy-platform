@@ -18,5 +18,6 @@ include(
     "legacy-combat",
     "legacy-regions",
     "legacy-chickenwars",
-    "language-backend"
+    "language-backend",
+    "legacy-reports-velocity"
 )
