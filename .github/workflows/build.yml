@@ -5,7 +5,6 @@ on:
     branches:
       - main
       - wip/reports-screenshare-hardening
-      - fix/postgresql-translations-configs
   pull_request:
     branches:
       - main
@@ -40,12 +39,6 @@ jobs:
           if [[ -f .github/scripts/harden_screenshare.py ]]; then
             python3 .github/scripts/harden_screenshare.py
           fi
-          python3 .github/scripts/fix_postgresql_translations.py
-          git checkout -- \
-            language-velocity/src/main/resources/config.yml \
-            chickenwars-velocity/src/main/resources/config.yml \
-            legacy-reports-velocity/src/main/resources/config.yml \
-            legacy-screenshare-velocity/src/main/resources/config.yml
           python3 - <<'PY'
           from pathlib import Path
           for name in (
@@ -87,29 +80,6 @@ jobs:
 
       - name: Verify shaded JDBC service descriptors
         run: python3 .github/scripts/verify_jdbc_services.py
-
-      - name: Commit generated PostgreSQL and translation fixes
-        if: github.ref == 'refs/heads/fix/postgresql-translations-configs'
-        shell: bash
-        run: |
-          git add -- \
-            language-velocity/src/main/resources \
-            chickenwars-velocity/src/main/resources \
-            legacy-reports-velocity/src/main/resources \
-            legacy-screenshare-velocity/src/main/resources \
-            legacy-chickenwars/src/main/java/it/legacynetwork/chickenwars/message/MessageService.java \
-            legacy-chickenwars/src/main/resources/translations \
-            legacy-chickenwars/src/test/java/it/legacynetwork/chickenwars/message/TranslationResourcesTest.java \
-            legacy-chickenwars/TRANSLATIONS.md \
-            runtime-configs
-          if git diff --cached --quiet; then
-            exit 0
-          fi
-          git diff --cached --check
-          git config user.name "Legacy Network CI"
-          git config user.email "actions@users.noreply.github.com"
-          git commit -m "fix: package JDBC drivers and complete ChickenWars catalogs"
-          git push origin HEAD:fix/postgresql-translations-configs
 
       - name: Commit verified hardening
         if: github.ref == 'refs/heads/wip/reports-screenshare-hardening'
