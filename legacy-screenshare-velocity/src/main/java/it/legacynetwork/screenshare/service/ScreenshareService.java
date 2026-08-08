@@ -78,6 +78,10 @@ public final class ScreenshareService {
 
     /** Staff scollegati durante un controllo, in attesa di rientro. */
     private final Map<UUID, Instant> staffAwaySince = new ConcurrentHashMap<>();
+    private final Map<ScreenshareSessionId, Instant> recoveryDeadlines = new ConcurrentHashMap<>();
+    private final Map<UUID, String> originalServers = new ConcurrentHashMap<>();
+    private final Set<ScreenshareSessionId> cleanupStarted = ConcurrentHashMap.newKeySet();
+    private volatile boolean shuttingDown;
 
     public ScreenshareService(ScreenshareConfiguration configuration,
                               ScreenshareRepository sessions,
@@ -232,6 +236,8 @@ public final class ScreenshareService {
 
     private CompletableFuture<ScreenshareOperationResult> create(
             OnlinePlayer staff, OnlinePlayer target, ReportId reportId) {
+        rememberOriginalServer(staff);
+        rememberOriginalServer(target);
         Instant now = clock.get();
         ScreenshareSession session = ScreenshareSession.builder()
                 .id(ScreenshareSessionId.random())
@@ -469,6 +475,7 @@ public final class ScreenshareService {
      */
     public CompletableFuture<ScreenshareOperationResult> onTargetDisconnect(
             UUID targetId) {
+        if (shuttingDown) return done(ScreenshareOperationResult.failure(ScreenshareOperationStatus.NO_SESSION));
         return sessions.findOpenByTarget(targetId)
                 .thenCompose(found -> {
                     if (!found.isPresent()) {
@@ -476,6 +483,7 @@ public final class ScreenshareService {
                                 ScreenshareOperationStatus.NO_SESSION));
                     }
                     ScreenshareSession session = found.get();
+                    if (recoveryDeadlines.containsKey(session.getId())) return done(ScreenshareOperationResult.unchanged(session, "screenshare.success.unchanged"));
                     ScreenshareViolationType type =
                             session.getStatus() == ScreenshareStatus.ACTIVE
                                     ? ScreenshareViolationType
@@ -493,6 +501,7 @@ public final class ScreenshareService {
      */
     public CompletableFuture<ScreenshareOperationResult> onStaffDisconnect(
             UUID staffId) {
+        if (shuttingDown) return done(ScreenshareOperationResult.failure(ScreenshareOperationStatus.NO_SESSION));
         return sessions.findOpenByStaff(staffId)
                 .thenCompose(open -> {
                     if (open.isEmpty()) {
@@ -500,6 +509,7 @@ public final class ScreenshareService {
                                 ScreenshareOperationStatus.NO_SESSION));
                     }
                     ScreenshareSession session = open.get(0);
+                    if (recoveryDeadlines.containsKey(session.getId())) return done(ScreenshareOperationResult.unchanged(session, "screenshare.success.unchanged"));
                     if (configuration.getStaffDisconnectPolicy()
                             == StaffDisconnectPolicy.CANCEL) {
                         return cancelSession(session,
@@ -552,6 +562,16 @@ public final class ScreenshareService {
                             });
                 })
                 .exceptionally(ScreenshareService::toRepositoryError);
+    }
+
+    public void beginShutdown() { shuttingDown = true; }
+    public boolean isShuttingDown() { return shuttingDown; }
+    public CompletableFuture<Integer> onPlayerReconnect(UUID playerId) {
+        if (shuttingDown) return done(0);
+        return sessions.findOpenByTarget(playerId).thenCompose(target -> {
+            if (target.isPresent()) return tryCompleteRecovery(target.get(), clock.get()).thenApply(done -> done ? 1 : 0);
+            return sessions.findOpenByStaff(playerId).thenCompose(open -> open.isEmpty() ? done(0) : tryCompleteRecovery(open.get(0), clock.get()).thenApply(done -> done ? 1 : 0));
+        }).exceptionally(failure -> 0);
     }
 
     /**
@@ -613,6 +633,7 @@ public final class ScreenshareService {
 
     private CompletableFuture<Boolean> tickSession(ScreenshareSession session,
                                                    Instant now) {
+        if (recoveryDeadlines.containsKey(session.getId())) return tryCompleteRecovery(session, now);
         if (session.getStatus() != ScreenshareStatus.ACTIVE) {
             Instant deadline = session.getCreatedAt()
                     .plus(configuration.getTransferTimeout());
@@ -655,66 +676,44 @@ public final class ScreenshareService {
                         "screenshare.target.session-ended"));
     }
 
-    /**
-     * Ripristino all'avvio: nessuna sessione resta appesa e nessun vincolo
-     * sopravvive a un riavvio.
-     *
-     * @return il numero di sessioni chiuse d'ufficio
-     */
+    /** Ripristina senza interpretare l'offline iniziale come abbandono. */
     public CompletableFuture<Integer> recover() {
-        registry.clear();
-        staffAwaySince.clear();
+        shuttingDown=false; registry.clear(); staffAwaySince.clear(); recoveryDeadlines.clear(); originalServers.clear(); cleanupStarted.clear();
         return sessions.findOpen().thenCompose(open -> {
-            CompletableFuture<Integer> chain =
-                    CompletableFuture.completedFuture(0);
-            for (ScreenshareSession session : open) {
-                chain = chain.thenCompose(count -> recoverSession(session)
-                        .thenApply(closed -> count + (closed ? 1 : 0)));
-            }
+            CompletableFuture<Integer> chain=CompletableFuture.completedFuture(0);
+            for(ScreenshareSession session:open) chain=chain.thenCompose(count -> recoverSession(session).thenApply(closed -> count+(closed?1:0)));
             return chain;
         }).exceptionally(failure -> 0);
     }
-
-    private CompletableFuture<Boolean> recoverSession(
-            ScreenshareSession session) {
-        Instant now = clock.get();
-        boolean targetOnline = directory.findById(session.getTargetId())
-                .isPresent();
-        boolean staffOnline = directory.findById(session.getStaffId())
-                .isPresent();
-
-        if (session.getStatus() != ScreenshareStatus.ACTIVE) {
-            // Creata o in trasferimento prima del riavvio: non e' recuperabile.
-            return apply(session, ScreenshareStatus.FAILED,
-                    builder -> builder.endedAt(now)
-                            .outcome(ScreenshareOutcome.FAILED),
-                    ScreenshareEventType.RECOVERED, null, "system",
-                    "screenshare.audit.recovered", "screenshare.success.failed")
-                    .thenCompose(result -> after(result, session,
-                            "screenshare.outcome.failed",
-                            ReportEventType.SCREENSHARE_FAILED,
-                            "screenshare.staff.session-failed",
-                            "screenshare.target.session-ended"))
-                    .thenApply(result -> true);
-        }
-        if (targetOnline && staffOnline) {
-            // Entrambi ci sono: il vincolo va solo ricostruito.
-            registry.lock(session.getTargetId(), session.getId(),
-                    session.getServerId());
-            registry.assignStaff(session.getStaffId(), session.getId());
-            return events.append(event(session,
-                            ScreenshareEventType.RECOVERED, null, "system",
-                            null, null, "screenshare.audit.recovered"))
-                    .thenApply(ignored -> Boolean.FALSE);
-        }
-        if (!targetOnline) {
-            return closeWithViolation(session,
-                    ScreenshareViolationType.TARGET_DISCONNECTED,
-                    "screenshare.violation.target-disconnected")
-                    .thenApply(result -> true);
-        }
-        return cancelSession(session, "screenshare.staff.staff-disconnected")
-                .thenApply(result -> true);
+    private CompletableFuture<Boolean> recoverSession(ScreenshareSession session) {
+        Instant now=clock.get();
+        if(session.getStatus()!=ScreenshareStatus.ACTIVE) return apply(session,ScreenshareStatus.FAILED,b -> b.endedAt(now).outcome(ScreenshareOutcome.FAILED),ScreenshareEventType.RECOVERED,null,"system","screenshare.audit.recovered","screenshare.success.failed").thenCompose(result -> after(result,session,"screenshare.outcome.failed",ReportEventType.SCREENSHARE_FAILED,"screenshare.staff.session-failed","screenshare.target.session-ended")).thenApply(result -> true);
+        registry.lock(session.getTargetId(),session.getId(),session.getServerId()); registry.assignStaff(session.getStaffId(),session.getId());
+        recoveryDeadlines.put(session.getId(),now.plus(configuration.getRestartRecoveryGrace()));
+        boolean both=directory.findById(session.getTargetId()).isPresent() && directory.findById(session.getStaffId()).isPresent();
+        if(both) return completeRecovery(session).thenApply(v -> false);
+        return events.append(event(session,ScreenshareEventType.RECOVERY_STARTED,null,"system",null,null,"screenshare.audit.recovery-started")).thenApply(v -> false);
+    }
+    private CompletableFuture<Boolean> tryCompleteRecovery(ScreenshareSession session, Instant now) {
+        Instant deadline=recoveryDeadlines.get(session.getId()); if(deadline==null) return done(false);
+        boolean target=directory.findById(session.getTargetId()).isPresent(), staff=directory.findById(session.getStaffId()).isPresent();
+        if(target && staff) return completeRecovery(session).thenApply(v -> false);
+        if(!now.isAfter(deadline) || !recoveryDeadlines.remove(session.getId(),deadline)) return done(false);
+        return closeAfterRecoveryTimeout(session,!target).thenApply(ScreenshareOperationResult::isApplied);
+    }
+    private CompletableFuture<Void> completeRecovery(ScreenshareSession session) {
+        Instant deadline=recoveryDeadlines.get(session.getId());
+        if(deadline==null || !recoveryDeadlines.remove(session.getId(),deadline)) return CompletableFuture.completedFuture(null);
+        registry.lock(session.getTargetId(),session.getId(),session.getServerId()); registry.assignStaff(session.getStaffId(),session.getId());
+        return events.append(event(session,ScreenshareEventType.RECOVERY_COMPLETED,null,"system",null,null,"screenshare.audit.recovery-completed")).thenApply(v -> null);
+    }
+    private CompletableFuture<ScreenshareOperationResult> closeAfterRecoveryTimeout(ScreenshareSession session, boolean targetMissing) {
+        Instant now=clock.get(); ScreenshareStatus status=targetMissing?ScreenshareStatus.VIOLATION:ScreenshareStatus.CANCELLED; ScreenshareOutcome outcome=targetMissing?ScreenshareOutcome.VIOLATION:ScreenshareOutcome.CANCELLED;
+        return apply(session,status,b -> b.endedAt(now).outcome(outcome),ScreenshareEventType.RECOVERY_TIMED_OUT,null,"system","screenshare.audit.recovery-timed-out",targetMissing?"screenshare.success.violation":"screenshare.success.cancelled").thenCompose(result -> {
+            if(!result.isApplied()) return done(result); ScreenshareSession closed=result.getSession().orElse(session);
+            if(targetMissing) violations.handle(violation(closed,ScreenshareViolationType.TARGET_MISSING_AFTER_RECOVERY,now));
+            return after(result,session,targetMissing?"screenshare.outcome.violation":"screenshare.outcome.cancelled",targetMissing?ReportEventType.SCREENSHARE_VIOLATION:ReportEventType.SCREENSHARE_CANCELLED,targetMissing?"screenshare.staff.target-disconnected":"screenshare.staff.session-cancelled","screenshare.target.session-ended");
+        });
     }
 
     // -------------------------------------------------------------- chiusure
@@ -822,31 +821,23 @@ public final class ScreenshareService {
                 });
     }
 
-    /**
-     * Rimuove i vincoli e riporta il bersaglio su un server di rientro.
-     */
+    /** Cleanup idempotente e compensazione di entrambe le parti. */
     private CompletableFuture<Void> cleanup(ScreenshareSession session) {
-        registry.allowCleanup(session.getTargetId());
-        registry.releaseStaff(session.getStaffId());
-        staffAwaySince.remove(session.getStaffId());
-        CompletableFuture<Void> chain =
-                CompletableFuture.completedFuture(null);
-        for (String fallback : configuration.getFallbackServers()) {
-            if (!transfers.isRegistered(fallback)) {
-                continue;
-            }
-            if (!directory.findById(session.getTargetId()).isPresent()) {
-                break;
-            }
-            chain = chain.thenCompose(ignored -> transfers.transfer(
-                    session.getTargetId(), fallback).thenApply(moved -> null));
-            break;
-        }
-        return chain.handle((ignored, failure) -> null)
-                .thenApply(ignored -> {
-                    registry.unlock(session.getTargetId());
-                    return null;
-                });
+        if(!cleanupStarted.add(session.getId())) return CompletableFuture.completedFuture(null);
+        registry.allowCleanup(session.getTargetId()); registry.releaseStaff(session.getStaffId()); staffAwaySince.remove(session.getStaffId()); recoveryDeadlines.remove(session.getId());
+        return returnPlayer(session.getTargetId()).thenCompose(v -> returnPlayer(session.getStaffId())).handle((v,e) -> null).thenApply(v -> { registry.unlock(session.getTargetId()); originalServers.remove(session.getTargetId()); originalServers.remove(session.getStaffId()); return null; });
+    }
+    private void rememberOriginalServer(OnlinePlayer player) { String server=player.serverId(); if(server!=null && !server.trim().isEmpty()) originalServers.putIfAbsent(player.uniqueId(),server.trim()); }
+    private CompletableFuture<Void> returnPlayer(UUID playerId) {
+        if(!directory.findById(playerId).isPresent()) return CompletableFuture.completedFuture(null);
+        List<String> candidates=new ArrayList<>(); String original=originalServers.get(playerId); if(original!=null && !original.isEmpty()) candidates.add(original);
+        for(String fallback:configuration.getFallbackServers()) if(!candidates.contains(fallback)) candidates.add(fallback);
+        return transferToFirstAvailable(playerId,candidates,0);
+    }
+    private CompletableFuture<Void> transferToFirstAvailable(UUID playerId,List<String> candidates,int index) {
+        if(index>=candidates.size() || !directory.findById(playerId).isPresent()) return CompletableFuture.completedFuture(null);
+        String server=candidates.get(index); if(!transfers.isRegistered(server)) return transferToFirstAvailable(playerId,candidates,index+1);
+        return transfers.transfer(playerId,server).handle((moved,failure) -> failure==null && Boolean.TRUE.equals(moved)).thenCompose(moved -> moved?CompletableFuture.completedFuture(null):transferToFirstAvailable(playerId,candidates,index+1));
     }
 
     // -------------------------------------------------------------- infrastr.

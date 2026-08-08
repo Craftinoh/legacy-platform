@@ -26,6 +26,7 @@ class ScreenshareConfigurationTest {
         assertEquals(15L, configuration.getTransferTimeout().getSeconds());
         assertEquals(60L, configuration.getMaximumSession().toMinutes());
         assertEquals(60L, configuration.getStaffReconnectGrace().getSeconds());
+        assertEquals(120L, configuration.getRestartRecoveryGrace().getSeconds());
         assertEquals(StaffDisconnectPolicy.CANCEL,
                 configuration.getStaffDisconnectPolicy());
         assertFalse(configuration.isLockStaffServer());
@@ -55,18 +56,6 @@ class ScreenshareConfigurationTest {
                 configuration.getStaffDisconnectPolicy());
     }
 
-    @Test
-    void ilTrasferimentoAdAltroStaffVieneRifiutato() {
-        ScreenshareConfigurationException failure = assertThrows(
-                ScreenshareConfigurationException.class,
-                () -> ScreenshareWorld.configuration(section -> section.put(
-                        "staff-disconnect-policy",
-                        "TRANSFER_TO_AVAILABLE_STAFF")));
-
-        assertTrue(failure.getMessage().contains(
-                "TRANSFER_TO_AVAILABLE_STAFF"));
-        assertTrue(failure.getMessage().contains("CANCEL"));
-    }
 
     @Test
     void unaPoliticaSconosciutaVieneRifiutata() {
@@ -76,11 +65,9 @@ class ScreenshareConfigurationTest {
     }
 
     @Test
-    void soloLePoliticheImplementateSonoDichiarate() {
-        assertEquals(java.util.List.of("CANCEL", "KEEP_ACTIVE_FOR_SECONDS"),
-                StaffDisconnectPolicy.supportedNames());
-        assertFalse(StaffDisconnectPolicy.TRANSFER_TO_AVAILABLE_STAFF
-                .isImplemented());
+    void sonoDichiarateSoloLePoliticheSupportate() {
+        assertEquals(java.util.List.of("CANCEL", "KEEP_ACTIVE_FOR_SECONDS"), StaffDisconnectPolicy.supportedNames());
+        assertEquals(2, StaffDisconnectPolicy.values().length);
     }
 
     @Test

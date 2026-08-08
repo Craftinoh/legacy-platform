@@ -23,6 +23,7 @@ public final class ScreenshareConfiguration {
     private final Duration transferTimeout;
     private final Duration maximumSession;
     private final Duration staffReconnectGrace;
+    private final Duration restartRecoveryGrace;
     private final StaffDisconnectPolicy staffDisconnectPolicy;
     private final boolean lockStaffServer;
     private final boolean allowMultipleSessionsPerStaff;
@@ -38,6 +39,7 @@ public final class ScreenshareConfiguration {
                                      Duration transferTimeout,
                                      Duration maximumSession,
                                      Duration staffReconnectGrace,
+                                     Duration restartRecoveryGrace,
                                      StaffDisconnectPolicy staffDisconnectPolicy,
                                      boolean lockStaffServer,
                                      boolean allowMultipleSessionsPerStaff,
@@ -52,6 +54,7 @@ public final class ScreenshareConfiguration {
         this.transferTimeout = transferTimeout;
         this.maximumSession = maximumSession;
         this.staffReconnectGrace = staffReconnectGrace;
+        this.restartRecoveryGrace = restartRecoveryGrace;
         this.staffDisconnectPolicy = staffDisconnectPolicy;
         this.lockStaffServer = lockStaffServer;
         this.allowMultipleSessionsPerStaff = allowMultipleSessionsPerStaff;
@@ -92,6 +95,8 @@ public final class ScreenshareConfiguration {
                         screenshare.duration("maximum-session-minutes", 60L))),
                 Duration.ofSeconds(Math.max(0L, screenshare.duration(
                         "staff-reconnect-grace-seconds", 60L))),
+                Duration.ofSeconds(Math.max(1L, screenshare.duration(
+                        "restart-recovery-grace-seconds", 120L))),
                 StaffDisconnectPolicy.parse(screenshare.text(
                         "staff-disconnect-policy",
                         StaffDisconnectPolicy.CANCEL.name())),
@@ -137,6 +142,10 @@ public final class ScreenshareConfiguration {
 
     public Duration getStaffReconnectGrace() {
         return staffReconnectGrace;
+    }
+
+    public Duration getRestartRecoveryGrace() {
+        return restartRecoveryGrace;
     }
 
     public StaffDisconnectPolicy getStaffDisconnectPolicy() {

@@ -72,6 +72,11 @@ tasks.register("buildPlugins") {
     dependsOn(
         ":language-common:build",
         ":language-velocity:build",
+        ":language-backend:build",
+        ":chickenwars-common:build",
+        ":chickenwars-velocity:build",
+        ":legacy-reports-velocity:build",
+        ":legacy-screenshare-velocity:build",
         ":legacy-lobby:build",
         ":legacy-items:build",
         ":legacy-menu:build",

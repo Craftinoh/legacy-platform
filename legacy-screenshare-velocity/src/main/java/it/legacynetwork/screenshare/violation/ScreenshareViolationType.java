@@ -16,6 +16,8 @@ public enum ScreenshareViolationType {
     TARGET_DISCONNECTED,
     /** Il giocatore se n'e' andato prima di raggiungere il server. */
     TARGET_LEFT_DURING_TRANSFER,
+    /** Il bersaglio non e' rientrato entro la finestra dopo un restart. */
+    TARGET_MISSING_AFTER_RECOVERY,
     /** Lo staffer ha chiuso il controllo dichiarando una violazione. */
     STAFF_DECLARED;
 

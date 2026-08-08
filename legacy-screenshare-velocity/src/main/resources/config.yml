@@ -42,10 +42,11 @@ screenshare:
   # KEEP_ACTIVE_FOR_SECONDS.
   staff-reconnect-grace-seconds: 60
 
+  # Finestra concessa alle sessioni ACTIVE dopo un riavvio del proxy.
+  restart-recovery-grace-seconds: 120
+
   # Cosa fare se lo staffer si scollega durante un controllo.
   # Valori supportati: CANCEL, KEEP_ACTIVE_FOR_SECONDS.
-  # TRANSFER_TO_AVAILABLE_STAFF non e' implementato e viene rifiutato:
-  # richiederebbe una coda reale di staff disponibili, che non esiste.
   staff-disconnect-policy: CANCEL
 
   # Se attivo, anche lo staffer resta legato al server di controllo.

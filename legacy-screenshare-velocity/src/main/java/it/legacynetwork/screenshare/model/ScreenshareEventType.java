@@ -25,7 +25,10 @@ public enum ScreenshareEventType {
     VIOLATION,
     FAILED,
     TIMED_OUT,
-    RECOVERED;
+    RECOVERED,
+    RECOVERY_STARTED,
+    RECOVERY_COMPLETED,
+    RECOVERY_TIMED_OUT;
 
     public String messageKey() {
         return "screenshare.audit." + name().toLowerCase(Locale.ROOT)

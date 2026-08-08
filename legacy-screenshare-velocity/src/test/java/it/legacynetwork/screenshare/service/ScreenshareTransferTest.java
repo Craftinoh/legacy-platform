@@ -60,6 +60,7 @@ class ScreenshareTransferTest {
                 result.getStatus());
         assertEquals(ScreenshareStatus.FAILED,
                 result.getSession().orElseThrow().getStatus());
+        assertTrue(world.transfers.movedTo(staff.uniqueId(), "lobby-1"));
     }
 
     @Test
@@ -116,6 +117,7 @@ class ScreenshareTransferTest {
                 false).join();
 
         assertTrue(world.transfers.movedTo(target.uniqueId(), "lobby-1"));
+        assertTrue(world.transfers.movedTo(staff.uniqueId(), "lobby-1"));
         assertFalse(world.transfers.movedTo(target.uniqueId(), "lobby-2"),
                 "basta il primo che risponde");
     }

@@ -89,6 +89,7 @@ public final class LegacyScreensharePlugin {
     private HikariDataSource dataSource;
     private ExecutorService databaseExecutor;
     private ActiveSessionRegistry registry;
+    private ScreenshareService service;
 
     @Inject
     public LegacyScreensharePlugin(ProxyServer proxy, Logger logger,
@@ -161,7 +162,7 @@ public final class LegacyScreensharePlugin {
         registry = new ActiveSessionRegistry();
 
         VelocityPlayerDirectory directory = new VelocityPlayerDirectory(proxy);
-        ScreenshareService service = new ScreenshareService(configuration,
+        service = new ScreenshareService(configuration,
                 sessions, events, new VelocityTransferGateway(proxy), directory,
                 presenter, languages, new ReportLink(reportsApi),
                 new it.legacynetwork.screenshare.violation
@@ -201,6 +202,7 @@ public final class LegacyScreensharePlugin {
 
     @Subscribe
     public void onShutdown(ProxyShutdownEvent event) {
+        if (service != null) service.beginShutdown();
         if (registry != null) {
             registry.clear();
             registry = null;
@@ -218,6 +220,7 @@ public final class LegacyScreensharePlugin {
             dataSource.close();
             dataSource = null;
         }
+        service = null;
     }
 
     private HikariDataSource buildDataSource(ConfigSection database,

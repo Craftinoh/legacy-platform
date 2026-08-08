@@ -1,3 +1,4 @@
+import java.util.zip.ZipFile
 import org.gradle.api.attributes.java.TargetJvmVersion
 
 plugins {
@@ -133,7 +134,7 @@ val verifyBytecodeVersion = tasks.register("verifyBytecodeVersion") {
         val offenders = mutableListOf<String>()
         val versioned = Regex("^META-INF/versions/(\\d+)/.*")
 
-        java.util.zip.ZipFile(jar).use { zip ->
+        ZipFile(jar).use { zip ->
             for (entry in zip.entries()) {
                 if (entry.isDirectory || !entry.name.endsWith(".class")) {
                     continue
