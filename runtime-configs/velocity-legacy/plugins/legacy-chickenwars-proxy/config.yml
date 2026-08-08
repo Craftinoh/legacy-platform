@@ -1,0 +1,20 @@
+# LegacyChickenWarsProxy - usa lo stesso database dei backend ChickenWars.
+# Inserire soltanto la password dell'utente legacy_chickenwars.
+
+language:
+  fallback: it
+
+database:
+  jdbc-url: "jdbc:postgresql://127.0.0.1:55432/legacy_chickenwars"
+  username: "legacy_chickenwars"
+  password: ""
+  pool-size: 4
+
+chickenwars-rejoin:
+  enabled: true
+  permission: chickenwars.command.rejoin
+  lookup-timeout-millis: 3000
+  transfer-timeout-millis: 5000
+  heartbeat-timeout-millis: 15000
+  reservation-ttl-millis: 30000
+  reconnect-ttl-millis: 120000
