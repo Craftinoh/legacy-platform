@@ -19,5 +19,6 @@ include(
     "legacy-regions",
     "legacy-chickenwars",
     "language-backend",
-    "legacy-reports-velocity"
+    "legacy-reports-velocity",
+    "legacy-screenshare-velocity"
 )

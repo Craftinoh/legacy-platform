@@ -6,11 +6,14 @@ plugins {
 }
 
 dependencies {
-    // Fornito a runtime dal plugin NetworkLanguage: includerlo qui creerebbe una
-    // seconda definizione delle stesse classi e l'instanceof sull'holder
-    // fallirebbe fra classloader diversi.
+    // Entrambe le dipendenze arrivano a runtime dai rispettivi plugin: sono
+    // dichiarate nel metadata Velocity e non vengono impacchettate qui, perche'
+    // una seconda definizione delle stesse classi renderebbe falso ogni
+    // instanceof fra classloader diversi.
     compileOnly(project(":language-common"))
     testImplementation(project(":language-common"))
+    compileOnly(project(":legacy-reports-velocity"))
+    testImplementation(project(":legacy-reports-velocity"))
 
     compileOnly("com.velocitypowered:velocity-api:4.1.0-SNAPSHOT")
     annotationProcessor("com.velocitypowered:velocity-api:4.1.0-SNAPSHOT")
@@ -19,8 +22,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:4.0.3")
     implementation("org.postgresql:postgresql:42.7.3")
 
-    // Solo per i test del repository JDBC: lo schema e' scritto in SQL portabile,
-    // quindi le stesse istruzioni girano su SQLite in memoria.
+    // Solo per i test del repository JDBC: lo schema e' SQL portabile.
     testImplementation("org.xerial:sqlite-jdbc:3.46.1.3")
 
     testImplementation(platform("org.junit:junit-bom:5.13.4"))
@@ -49,23 +51,19 @@ tasks.processResources {
     filteringCharset = "UTF-8"
 }
 
-// Il plugin spedito al proxy e' LegacyReports-<versione>.jar, prodotto da
-// shadowJar. Il jar sottile resta abilitato per un motivo preciso: e' cio'
-// contro cui gli altri moduli del monorepo — oggi LegacyScreenshare —
-// compilano l'API pubblica senza doverla impacchettare due volte.
 tasks.jar {
-    archiveClassifier.set("api")
+    enabled = false
 }
 
 /**
  * Prefissi che non devono mai finire nell'artefatto finale.
  *
- * Le classi lingua arrivano da NetworkLanguage a runtime, le API server sono di
- * un altro mondo (Bukkit) e le librerie di test non hanno nulla da fare dentro
- * un plugin spedito in produzione.
+ * Lingue e report arrivano dai plugin che li possiedono; Bukkit non esiste su
+ * un proxy; le librerie di test non hanno nulla da fare in produzione.
  */
 val forbiddenJarEntries = listOf(
     "it/legacynetwork/language/**",
+    "it/legacynetwork/reports/**",
     "org/bukkit/**",
     "org/spigotmc/**",
     "org/junit/**",
@@ -75,7 +73,7 @@ val forbiddenJarEntries = listOf(
 )
 
 tasks.shadowJar {
-    archiveBaseName.set("LegacyReports")
+    archiveBaseName.set("LegacyScreenshare")
     archiveClassifier.set("")
     archiveVersion.set(project.version.toString())
 
@@ -83,7 +81,7 @@ tasks.shadowJar {
     relocate("org.postgresql", "it.legacynetwork.shadow.postgresql")
     relocate("org.yaml.snakeyaml", "it.legacynetwork.shadow.snakeyaml")
 
-    // Guardia strutturale, come in chickenwars-velocity.
+    // Guardia strutturale, come in chickenwars-velocity e legacy-reports.
     doLast {
         val jar = archiveFile.get().asFile
         val leaked = zipTree(jar).matching {
