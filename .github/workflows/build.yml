@@ -41,6 +41,11 @@ jobs:
             python3 .github/scripts/harden_screenshare.py
           fi
           python3 .github/scripts/fix_postgresql_translations.py
+          git checkout -- \
+            language-velocity/src/main/resources/config.yml \
+            chickenwars-velocity/src/main/resources/config.yml \
+            legacy-reports-velocity/src/main/resources/config.yml \
+            legacy-screenshare-velocity/src/main/resources/config.yml
           python3 - <<'PY'
           from pathlib import Path
           for name in (
