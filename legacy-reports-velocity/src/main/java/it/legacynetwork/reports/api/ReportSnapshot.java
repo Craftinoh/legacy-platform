@@ -1,4 +1,4 @@
-package it.legacynetwork.reports.model;
+package it.legacynetwork.reports.api;
 
 import java.time.Instant;
 

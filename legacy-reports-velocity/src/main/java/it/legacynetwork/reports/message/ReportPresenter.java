@@ -3,7 +3,7 @@ package it.legacynetwork.reports.message;
 import it.legacynetwork.language.Language;
 import it.legacynetwork.language.PlaceholderValues;
 import it.legacynetwork.reports.config.ReportReasonCatalog;
-import it.legacynetwork.reports.model.Report;
+import it.legacynetwork.reports.api.Report;
 import it.legacynetwork.reports.model.ReportEvent;
 import it.legacynetwork.reports.repository.ReportPage;
 

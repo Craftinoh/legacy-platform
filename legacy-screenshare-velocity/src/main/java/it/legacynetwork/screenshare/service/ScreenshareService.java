@@ -2,9 +2,9 @@ package it.legacynetwork.screenshare.service;
 
 import it.legacynetwork.language.Language;
 import it.legacynetwork.language.PlaceholderValues;
-import it.legacynetwork.reports.model.Report;
-import it.legacynetwork.reports.model.ReportEventType;
-import it.legacynetwork.reports.model.ReportId;
+import it.legacynetwork.reports.api.Report;
+import it.legacynetwork.reports.api.ReportEventType;
+import it.legacynetwork.reports.api.ReportId;
 import it.legacynetwork.screenshare.config.ScreenshareConfiguration;
 import it.legacynetwork.screenshare.config.StaffDisconnectPolicy;
 import it.legacynetwork.screenshare.message.ChatLine;

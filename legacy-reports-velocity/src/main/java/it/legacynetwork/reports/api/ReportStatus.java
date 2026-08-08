@@ -1,4 +1,4 @@
-package it.legacynetwork.reports.model;
+package it.legacynetwork.reports.api;
 
 import java.util.Locale;
 import java.util.Optional;

@@ -1,5 +1,9 @@
 package it.legacynetwork.reports.model;
 
+import it.legacynetwork.reports.api.ReportEventType;
+import it.legacynetwork.reports.api.ReportId;
+import it.legacynetwork.reports.api.ReportStatus;
+
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;

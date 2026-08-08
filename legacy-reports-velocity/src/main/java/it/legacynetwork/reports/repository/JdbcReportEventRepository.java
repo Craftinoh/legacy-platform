@@ -1,9 +1,9 @@
 package it.legacynetwork.reports.repository;
 
 import it.legacynetwork.reports.model.ReportEvent;
-import it.legacynetwork.reports.model.ReportEventType;
-import it.legacynetwork.reports.model.ReportId;
-import it.legacynetwork.reports.model.ReportStatus;
+import it.legacynetwork.reports.api.ReportEventType;
+import it.legacynetwork.reports.api.ReportId;
+import it.legacynetwork.reports.api.ReportStatus;
 
 import javax.sql.DataSource;
 import java.sql.Connection;

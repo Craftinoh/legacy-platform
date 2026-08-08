@@ -2,10 +2,10 @@ package it.legacynetwork.screenshare.support;
 
 import it.legacynetwork.language.Language;
 import it.legacynetwork.reports.api.LegacyReportsApi;
-import it.legacynetwork.reports.model.Report;
-import it.legacynetwork.reports.model.ReportId;
-import it.legacynetwork.reports.model.ReportSnapshot;
-import it.legacynetwork.reports.model.ReportStatus;
+import it.legacynetwork.reports.api.Report;
+import it.legacynetwork.reports.api.ReportId;
+import it.legacynetwork.reports.api.ReportSnapshot;
+import it.legacynetwork.reports.api.ReportStatus;
 import it.legacynetwork.reports.repository.InMemoryReportEventRepository;
 import it.legacynetwork.reports.repository.InMemoryReportRepository;
 import it.legacynetwork.reports.service.DefaultLegacyReportsApi;

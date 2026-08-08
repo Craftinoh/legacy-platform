@@ -1,8 +1,8 @@
 package it.legacynetwork.screenshare.session;
 
 import it.legacynetwork.language.Language;
-import it.legacynetwork.reports.model.ReportId;
-import it.legacynetwork.reports.model.ReportStatus;
+import it.legacynetwork.reports.api.ReportId;
+import it.legacynetwork.reports.api.ReportStatus;
 import it.legacynetwork.screenshare.model.ScreenshareSession;
 import it.legacynetwork.screenshare.model.ScreenshareStatus;
 import it.legacynetwork.screenshare.service.ScreenshareOperationStatus;

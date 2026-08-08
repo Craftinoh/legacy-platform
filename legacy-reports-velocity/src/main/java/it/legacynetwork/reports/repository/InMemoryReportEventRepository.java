@@ -1,7 +1,7 @@
 package it.legacynetwork.reports.repository;
 
 import it.legacynetwork.reports.model.ReportEvent;
-import it.legacynetwork.reports.model.ReportId;
+import it.legacynetwork.reports.api.ReportId;
 
 import java.util.ArrayList;
 import java.util.Comparator;

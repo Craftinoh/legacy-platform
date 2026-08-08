@@ -1,9 +1,5 @@
 package it.legacynetwork.reports.api;
 
-import it.legacynetwork.reports.model.Report;
-import it.legacynetwork.reports.model.ReportEventType;
-import it.legacynetwork.reports.model.ReportId;
-
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;

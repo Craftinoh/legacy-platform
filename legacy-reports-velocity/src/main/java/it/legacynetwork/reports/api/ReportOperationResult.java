@@ -1,7 +1,5 @@
 package it.legacynetwork.reports.api;
 
-import it.legacynetwork.reports.model.Report;
-
 import java.util.Optional;
 
 /**

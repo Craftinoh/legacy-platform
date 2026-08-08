@@ -1,8 +1,8 @@
 package it.legacynetwork.reports.support;
 
-import it.legacynetwork.reports.model.Report;
-import it.legacynetwork.reports.model.ReportId;
-import it.legacynetwork.reports.model.ReportStatus;
+import it.legacynetwork.reports.api.Report;
+import it.legacynetwork.reports.api.ReportId;
+import it.legacynetwork.reports.api.ReportStatus;
 import it.legacynetwork.reports.repository.ReportPage;
 import it.legacynetwork.reports.repository.ReportRepository;
 import it.legacynetwork.reports.repository.ReportRepositoryException;

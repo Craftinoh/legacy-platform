@@ -1,5 +1,7 @@
 package it.legacynetwork.reports.model;
 
+import it.legacynetwork.reports.api.ReportStatus;
+
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;

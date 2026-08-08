@@ -7,7 +7,7 @@ import it.legacynetwork.reports.config.ReportsConfiguration;
 import it.legacynetwork.reports.message.ChatLine;
 import it.legacynetwork.reports.message.ReportLanguageResolver;
 import it.legacynetwork.reports.message.ReportPresenter;
-import it.legacynetwork.reports.model.Report;
+import it.legacynetwork.reports.api.Report;
 import it.legacynetwork.reports.notification.StaffNotificationPreferences;
 import it.legacynetwork.reports.platform.CommandActor;
 import it.legacynetwork.reports.platform.OnlinePlayer;

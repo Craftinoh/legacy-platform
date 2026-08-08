@@ -1,6 +1,6 @@
 package it.legacynetwork.reports.repository;
 
-import it.legacynetwork.reports.model.Report;
+import it.legacynetwork.reports.api.Report;
 
 import java.util.ArrayList;
 import java.util.Collections;

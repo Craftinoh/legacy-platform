@@ -4,7 +4,7 @@ import it.legacynetwork.language.Language;
 import it.legacynetwork.reports.message.ChatLine;
 import it.legacynetwork.reports.message.ReportLanguageResolver;
 import it.legacynetwork.reports.message.ReportPresenter;
-import it.legacynetwork.reports.model.Report;
+import it.legacynetwork.reports.api.Report;
 import it.legacynetwork.reports.platform.OnlinePlayer;
 import it.legacynetwork.reports.platform.PlayerDirectory;
 

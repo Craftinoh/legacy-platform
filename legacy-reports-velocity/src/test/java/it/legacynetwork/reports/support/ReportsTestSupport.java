@@ -6,10 +6,10 @@ import it.legacynetwork.reports.config.ReportsConfiguration;
 import it.legacynetwork.reports.message.ReportLanguageResolver;
 import it.legacynetwork.reports.message.ReportMessages;
 import it.legacynetwork.reports.message.ReportPresenter;
-import it.legacynetwork.reports.model.Report;
-import it.legacynetwork.reports.model.ReportId;
-import it.legacynetwork.reports.model.ReportSnapshot;
-import it.legacynetwork.reports.model.ReportStatus;
+import it.legacynetwork.reports.api.Report;
+import it.legacynetwork.reports.api.ReportId;
+import it.legacynetwork.reports.api.ReportSnapshot;
+import it.legacynetwork.reports.api.ReportStatus;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.InputStream;

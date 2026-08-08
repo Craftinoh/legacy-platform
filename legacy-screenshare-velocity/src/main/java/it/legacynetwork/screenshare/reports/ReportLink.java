@@ -2,9 +2,9 @@ package it.legacynetwork.screenshare.reports;
 
 import it.legacynetwork.reports.api.LegacyReportsApi;
 import it.legacynetwork.reports.api.ReportOperationResult;
-import it.legacynetwork.reports.model.Report;
-import it.legacynetwork.reports.model.ReportEventType;
-import it.legacynetwork.reports.model.ReportId;
+import it.legacynetwork.reports.api.Report;
+import it.legacynetwork.reports.api.ReportEventType;
+import it.legacynetwork.reports.api.ReportId;
 
 import java.util.Optional;
 import java.util.UUID;

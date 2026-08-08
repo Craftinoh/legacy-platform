@@ -2,11 +2,11 @@ package it.legacynetwork.reports.service;
 
 import it.legacynetwork.reports.api.ReportOperationResult;
 import it.legacynetwork.reports.api.ReportOperationStatus;
-import it.legacynetwork.reports.model.Report;
+import it.legacynetwork.reports.api.Report;
 import it.legacynetwork.reports.model.ReportEvent;
-import it.legacynetwork.reports.model.ReportEventType;
-import it.legacynetwork.reports.model.ReportId;
-import it.legacynetwork.reports.model.ReportStatus;
+import it.legacynetwork.reports.api.ReportEventType;
+import it.legacynetwork.reports.api.ReportId;
+import it.legacynetwork.reports.api.ReportStatus;
 import it.legacynetwork.reports.model.ReportTransitions;
 import it.legacynetwork.reports.repository.InMemoryReportEventRepository;
 import it.legacynetwork.reports.repository.InMemoryReportRepository;
