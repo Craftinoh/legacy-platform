@@ -1,0 +1,22 @@
+# NetworkLanguage - storage condiviso tra proxy.
+# Inserire soltanto la password dell'utente legacy_language.
+
+storage:
+  type: postgresql
+
+sqlite:
+  file: languages.db
+  busy-timeout-ms: 5000
+  journal-mode: WAL
+  synchronous: NORMAL
+
+postgresql:
+  host: 127.0.0.1
+  port: 55432
+  database: legacy_language
+  username: legacy_language
+  password: ""
+  pool-size: 10
+  connection-timeout-ms: 5000
+  proxy-id: "velocity-legacy-01"
+  notification-channel: legacy_language_updates

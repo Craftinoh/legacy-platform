@@ -1,0 +1,94 @@
+# LegacyReports - segnalazioni gestite interamente sul proxy.
+#
+# Nessun testo visibile si configura qui: i messaggi vivono nei bundle di
+# NetworkLanguage, che li risolve nella lingua di ogni destinatario.
+
+language:
+  # Lingua usata quando quella del giocatore non e' determinabile
+  # (console, provider assente, storage irraggiungibile).
+  fallback: it
+
+database:
+  # Lasciare vuoto per tenere i report solo in memoria: utile in prova,
+  # inadatto alla produzione perche' nulla sopravvive a un riavvio.
+  jdbc-url: "jdbc:postgresql://127.0.0.1:55432/legacy_staff"
+  username: "legacy_staff"
+  password: ""
+  pool-size: 4
+
+reports:
+  # Identificatore di questo proxy, registrato negli eventi di storico.
+  proxy-id: "velocity-legacy-01"
+
+  # Righe per pagina negli elenchi.
+  page-size: 8
+
+  # Righe di storico mostrate da /reports info.
+  history-size: 10
+
+  # Attesa fra due segnalazioni dello stesso giocatore.
+  cooldown-seconds: 60
+
+  # Finestra entro cui una seconda segnalazione dello stesso giocatore sullo
+  # stesso bersaglio viene considerata un duplicato.
+  duplicate-window-minutes: 30
+
+  # Report ancora aperti consentiti allo stesso segnalatore; 0 disattiva.
+  max-open-per-reporter: 3
+
+  # Se attivo, chi possiede il permesso 'protected' non puo' essere segnalato.
+  protect-staff: true
+
+  # Stato iniziale della preferenza /reports notifications.
+  notifications-enabled-by-default: true
+
+  details:
+    # Lunghezza massima dei dettagli; 0 disattiva il controllo.
+    max-length: 200
+
+  permissions:
+    report: legacyreports.command.report
+    staff-view: legacyreports.staff.view
+    staff-claim: legacyreports.staff.claim
+    staff-resolve: legacyreports.staff.resolve
+    staff-history: legacyreports.staff.history
+    admin: legacyreports.admin
+    protected: legacyreports.protected
+
+  # Motivi disponibili. La lista vive qui, non nel comando: aggiungere una voce
+  # richiede anche la chiave di traduzione corrispondente nei bundle.
+  reasons:
+    cheating:
+      enabled: true
+      display-key: reports.reason.cheating
+      aliases:
+        - hack
+        - hacking
+        - cheating
+        - cheat
+    chat-abuse:
+      enabled: true
+      display-key: reports.reason.chat-abuse
+      aliases:
+        - insulti
+        - chat
+        - abuse
+        - spam
+    teaming:
+      enabled: true
+      display-key: reports.reason.teaming
+      aliases:
+        - team
+        - teamers
+    griefing:
+      enabled: true
+      display-key: reports.reason.griefing
+      aliases:
+        - grief
+    other:
+      enabled: true
+      display-key: reports.reason.other
+      aliases:
+        - altro
+      allow-details: true
+      require-details: true

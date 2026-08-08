@@ -78,6 +78,9 @@ jobs:
       - name: Build all Gradle plugins
         run: ./gradlew buildPlugins --stacktrace
 
+      - name: Verify shaded JDBC service descriptors
+        run: python3 .github/scripts/verify_jdbc_services.py
+
       - name: Commit verified hardening
         if: github.ref == 'refs/heads/wip/reports-screenshare-hardening'
         shell: bash

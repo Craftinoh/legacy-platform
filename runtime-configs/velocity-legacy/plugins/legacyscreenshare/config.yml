@@ -1,0 +1,81 @@
+# LegacyScreenshare - sessioni di controllo gestite sul proxy.
+#
+# Nessun testo visibile si configura qui: i messaggi vivono nei bundle di
+# NetworkLanguage, che li risolve nella lingua di ogni destinatario.
+#
+# Che cosa significa "controllo" su un proxy: il giocatore non puo' scegliere
+# altri server, i suoi cambi server vengono annullati e i comandi proxy non
+# consentiti vengono bloccati. Movimento e inventario appartengono al server e
+# non sono raggiungibili da qui.
+
+language:
+  # Lingua usata quando quella del giocatore non e' determinabile.
+  fallback: it
+
+database:
+  # Lasciare vuoto per tenere le sessioni solo in memoria: utile in prova,
+  # inadatto alla produzione perche' nulla sopravvive a un riavvio.
+  jdbc-url: "jdbc:postgresql://127.0.0.1:55432/legacy_staff"
+  username: "legacy_staff"
+  password: ""
+  pool-size: 4
+
+screenshare:
+  # Identificatore di questo proxy, registrato negli eventi di storico.
+  proxy-id: "velocity-legacy-01"
+
+  # Server dedicato ai controlli. Deve essere registrato sul proxy.
+  server: "screenshare-01"
+
+  # Server su cui riportare i giocatori a controllo concluso.
+  fallback-servers:
+    - "lobby-01"
+
+  # Attesa massima concessa al trasferimento verso il server di controllo.
+  transfer-timeout-seconds: 15
+
+  # Durata massima di un controllo, oltre la quale viene chiuso d'ufficio.
+  maximum-session-minutes: 60
+
+  # Finestra concessa allo staffer per rientrare, con la politica
+  # KEEP_ACTIVE_FOR_SECONDS.
+  staff-reconnect-grace-seconds: 60
+
+  # Finestra concessa alle sessioni ACTIVE dopo un riavvio del proxy.
+  restart-recovery-grace-seconds: 120
+
+  # Cosa fare se lo staffer si scollega durante un controllo.
+  # Valori supportati: CANCEL, KEEP_ACTIVE_FOR_SECONDS.
+  staff-disconnect-policy: CANCEL
+
+  # Se attivo, anche lo staffer resta legato al server di controllo.
+  lock-staff-server: false
+
+  # Se attivo, uno staffer puo' condurre piu' controlli insieme.
+  allow-multiple-sessions-per-staff: false
+
+  # Comandi proxy che il giocatore sotto controllo puo' comunque usare.
+  # I comandi registrati sul server di destinazione non passano dal proxy e
+  # non possono essere filtrati da qui.
+  allowed-target-commands:
+    - msg
+    - reply
+    - r
+    - helpop
+    - discord
+
+  # Righe per pagina in /ss list.
+  page-size: 8
+
+  # Righe di storico mostrate da /ss status.
+  history-size: 10
+
+  # Lunghezza massima di note e motivi; 0 disattiva il controllo.
+  note-max-length: 200
+
+  permissions:
+    start: legacyscreenshare.staff.start
+    stop: legacyscreenshare.staff.stop
+    view: legacyscreenshare.staff.view
+    note: legacyscreenshare.staff.note
+    admin: legacyscreenshare.admin

@@ -51,6 +51,11 @@ public final class MessageService {
 
     public MessageService(JavaPlugin plugin) {
         this.plugin = plugin;
+        TranslationInstaller.install(
+                plugin.getDataFolder(),
+                TRANSLATIONS_DIR,
+                plugin.getLogger(),
+                plugin.getClass().getClassLoader());
     }
 
     /**

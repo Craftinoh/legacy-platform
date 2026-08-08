@@ -1,0 +1,244 @@
+# Config pronto per chickenwars-classic-01.
+# Inserire soltanto la password dell'utente legacy_chickenwars.
+# Non committare il file dopo aver aggiunto la password.
+
+language:
+  fallback: "it"
+
+database:
+  enabled: true
+  jdbc-url: "jdbc:postgresql://127.0.0.1:55432/legacy_chickenwars"
+  username: "legacy_chickenwars"
+  password: ""
+  maximum-pool-size: 4
+  connection-timeout-millis: 5000
+  profile-timeout-millis: 5000
+  maximum-retries: 2
+
+routing:
+  instance-id: "chickenwars-classic-01"
+  server-name: "chickenwars-classic-01"
+  heartbeat-timeout-millis: 15000
+  reservation-timeout-millis: 10000
+  reconnect-timeout-millis: 120000
+  lobby-server: "chickenwars-lobby-01"
+
+rewards:
+  experience:
+    participation: 25
+    win: 100
+    kill: 5
+    final-kill: 10
+    natural-resource: 1
+  coins:
+    participation: 5
+    win: 20
+    kill: 1
+    final-kill: 2
+
+progression:
+  maximum-level: 100
+  # L'ultimo valore viene ripetuto fino al livello massimo.
+  experience-requirements: [500, 1000, 2000, 3500, 5000]
+
+phases:
+  DIAMOND_II:
+    at-seconds: 300
+    resource: DIAMOND
+    tier: 2
+    message-key: phase.diamond_ii
+    sound: NOTE_PLING
+  EMERALD_II:
+    at-seconds: 600
+    resource: EMERALD
+    tier: 2
+    message-key: phase.emerald_ii
+    sound: NOTE_PLING
+  DIAMOND_III:
+    at-seconds: 900
+    resource: DIAMOND
+    tier: 3
+    message-key: phase.diamond_iii
+    sound: NOTE_PLING
+  EMERALD_III:
+    at-seconds: 1200
+    resource: EMERALD
+    tier: 3
+    message-key: phase.emerald_iii
+    sound: NOTE_PLING
+  ROYAL_COLLAPSE:
+    at-seconds: 1500
+    royal-collapse: true
+    message-key: phase.royal_collapse
+    sound: ENDERDRAGON_GROWL
+
+# Materiali associati a ogni tier di equipaggiamento.
+# I tier restano astratti nello stato di partita: qui si decide come appaiono.
+equipment:
+  # Elmo e corazza sono sempre di cuoio, colorati con il colore della squadra.
+  helmet: LEATHER_HELMET
+  chestplate: LEATHER_CHESTPLATE
+  # Solo leggings e stivali si acquistano.
+  armor:
+    LEATHER:
+      leggings: LEATHER_LEGGINGS
+      boots: LEATHER_BOOTS
+    CHAINMAIL:
+      leggings: CHAINMAIL_LEGGINGS
+      boots: CHAINMAIL_BOOTS
+    IRON:
+      leggings: IRON_LEGGINGS
+      boots: IRON_BOOTS
+    DIAMOND:
+      leggings: DIAMOND_LEGGINGS
+      boots: DIAMOND_BOOTS
+  sword:
+    WOOD: WOOD_SWORD
+    STONE: STONE_SWORD
+    IRON: IRON_SWORD
+    DIAMOND: DIAMOND_SWORD
+  pickaxe:
+    TIER_1: WOOD_PICKAXE
+    TIER_2: STONE_PICKAXE
+    TIER_3: IRON_PICKAXE
+    TIER_4: DIAMOND_PICKAXE
+  axe:
+    TIER_1: WOOD_AXE
+    TIER_2: STONE_AXE
+    TIER_3: IRON_AXE
+    TIER_4: DIAMOND_AXE
+  shears: SHEARS
+  # Tier sotto il quale piccone e ascia non scendono dopo la morte.
+  minimum-tool-tier: TIER_1
+
+game:
+  # Secondi di conto alla rovescia una volta raggiunto il minimo giocatori.
+  starting-countdown: 30
+  reduced-countdown: 10
+  # Durata massima di una partita, in secondi.
+  maximum-duration: 1800
+  timeout-policy: LEADING_TEAM
+  # Secondi di riepilogo prima del ripristino della mappa.
+  ending-duration: 10
+  allow-rejoin: true
+  # Destinazione all'uscita dalla partita.
+  # Formato: mondo,x,y,z,yaw,pitch. Lasciare vuoto per non teletrasportare.
+  return-lobby: ""
+
+respawn:
+  enabled: true
+  # Secondi di attesa prima di rinascere.
+  base-time: 5
+  # Invulnerabilita' concessa dopo il respawn.
+  spawn-protection-seconds: 3
+
+combat:
+  friendly-fire: false
+  # Finestra entro cui una caduta nel vuoto viene attribuita all'ultimo colpo.
+  void-kill-credit-seconds: 10
+
+world:
+  # Prefisso del mondo creato da /cw admin create <arena>.
+  # Con prefisso "cw_" l'arena "farm_kingdom" usa il mondo "cw_farm_kingdom".
+  name-prefix: "cw_"
+  # Generazione predefinita: VOID (vuoto), FLAT (superpiatto), NORMAL.
+  # VOID e' la scelta corretta per le mappe incollate da schematic.
+  default-template: "VOID"
+  # true = all'avvio vengono caricati i mondi richiesti dalle arene.
+  auto-load: true
+  # true = animali e mostri gia' presenti nel mondo vengono rimossi
+  # quando l'arena viene adottata, all'avvio e all'ingresso nell'editor.
+  # Disattivare lo spawn non basta: le creature salvate nei chunk restano.
+  # Gli armor stand non vengono mai toccati.
+  clear-entities: true
+  # Blocchi sopra "void-y" entro cui scatta la protezione anti-drop:
+  # durante la caduta nel vuoto gli oggetti non possono essere espulsi.
+  void-drop-tolerance: 5.0
+
+  block-place: true
+  # true = si possono rompere solo i blocchi piazzati durante la partita.
+  break-placed-only: true
+  # true = le esplosioni distruggono solo i blocchi piazzati.
+  explosions-placed-only: true
+  fire-spread: false
+  weather-cycle: false
+  daylight-cycle: false
+  mob-spawning: false
+
+generators:
+  enabled: true
+  chunk-policy: REQUIRE_LOADED
+  catch-up-policy: LIMITED
+  maximum-catch-up-drops: 2
+  # Numero massimo di risorse dello stesso tipo lasciate a terra su un generatore.
+  maximum-ground-items: 32
+  # true = le risorse vicine vengono raggruppate invece di moltiplicare le entita'.
+  item-stacking: true
+  # Raggio entro cui cercare risorse da raggruppare.
+  merge-radius: 2.0
+  profiles:
+    solo_duel:
+      interval-multiplier: 1.0
+      amount-multiplier: 1.0
+    doubles:
+      interval-multiplier: 1.0
+      amount-multiplier: 1.0
+    trio:
+      interval-multiplier: 1.0
+      amount-multiplier: 1.0
+  types:
+    IRON:
+      levels:
+        1:
+          interval-seconds: 1.5
+          amount: 1
+        2:
+          interval-seconds: 1.0
+          amount: 1
+        3:
+          interval-seconds: 0.7
+          amount: 1
+    GOLD:
+      levels:
+        1:
+          interval-seconds: 7.0
+          amount: 1
+        2:
+          interval-seconds: 5.0
+          amount: 1
+        3:
+          interval-seconds: 3.5
+          amount: 1
+    DIAMOND:
+      levels:
+        1:
+          interval-seconds: 30.0
+          amount: 1
+        2:
+          interval-seconds: 23.0
+          amount: 1
+        3:
+          interval-seconds: 17.0
+          amount: 1
+    EMERALD:
+      levels:
+        1:
+          interval-seconds: 65.0
+          amount: 1
+        2:
+          interval-seconds: 50.0
+          amount: 1
+        3:
+          interval-seconds: 38.0
+          amount: 1
+    FEATHER:
+      levels:
+        1:
+          interval-seconds: 10.0
+          amount: 1
+        2:
+          interval-seconds: 7.5
+          amount: 1
+        3:
+          interval-seconds: 5.5
+          amount: 1

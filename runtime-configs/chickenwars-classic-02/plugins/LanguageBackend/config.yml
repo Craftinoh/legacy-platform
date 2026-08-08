@@ -1,0 +1,9 @@
+# LanguageBackend per chickenwars-classic-02.
+# Il canale reale e' definito da LanguageProtocol ed e' NetworkLang.
+
+enabled: true
+backend-id: "chickenwars-classic-02"
+channel: "NetworkLang"
+request-timeout-millis: 5000
+fallback-language: "it"
+debug: false
